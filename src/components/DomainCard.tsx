@@ -75,7 +75,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                     category={catName}
                     sub={sub}
                     color={def.color}
-                    onClick={() => hasDedicatedPage ? navigate(route) : onOpenPanel(name, catName, sub)}
+                    onClick={() => hasDedicatedPage ? navigate(`${route}?filter=${encodeURIComponent(sub)}`) : onOpenPanel(name, catName, sub)}
                     refreshKey={refreshKey}
                   />
                 ))}

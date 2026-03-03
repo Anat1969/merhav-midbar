@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
@@ -22,9 +22,13 @@ interface Props {
 
 const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const catNames = getAllCategoryNames(config);
   const firstCat = catNames[0];
   const firstSubs = getSubsForCategory(config, firstCat);
+
+  // Read initial sub-filter from URL param (e.g. ?filter=מדריכים)
+  const urlFilter = searchParams.get("filter");
 
   const [projects, setProjects] = useState<GenericProject[]>(() => loadGenericProjects(config.storageKey));
   const [search, setSearch] = useState("");
@@ -32,6 +36,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [newCat, setNewCat] = useState(firstCat);
   const [newSub, setNewSub] = useState(firstSubs[0]);
   const [filterCat, setFilterCat] = useState<string | null>(null);
+  const [filterSub, setFilterSub] = useState<string | null>(urlFilter);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
@@ -113,13 +118,14 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const filtered = useMemo(() => {
     let list = projects;
     if (filterCat) list = list.filter((p) => p.category === filterCat);
+    if (filterSub) list = list.filter((p) => p.sub === filterSub || p.category === filterSub);
     if (filterStatus) list = list.filter((p) => p.status === filterStatus);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter((p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     }
     return list;
-  }, [projects, filterCat, filterStatus, search]);
+  }, [projects, filterCat, filterSub, filterStatus, search]);
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -222,13 +228,21 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
         {/* Filter pills */}
         <div className="pills-row flex flex-wrap gap-1.5 items-center">
-          <FilterPill active={!filterCat} onClick={() => setFilterCat(null)} color={config.color}>הכל</FilterPill>
+          {filterSub && (
+            <>
+              <FilterPill active={true} color={config.color} onClick={() => { setFilterSub(null); setSearchParams({}); }}>
+                {filterSub} ✕
+              </FilterPill>
+              <span className="mx-1 text-gray-300">|</span>
+            </>
+          )}
+          <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>הכל</FilterPill>
           {catNames.map((cat) => (
             <FilterPill
               key={cat}
               active={filterCat === cat}
               color={config.color}
-              onClick={() => setFilterCat(cat === filterCat ? null : cat)}
+              onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
             >
               {cat}
             </FilterPill>
