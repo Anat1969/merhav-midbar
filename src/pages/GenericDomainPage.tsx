@@ -91,6 +91,28 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
     );
   };
 
+  const changeCategory = (id: number, newCatValue: string) => {
+    const subs = getSubsForCategory(config, newCatValue);
+    const newSubValue = subs.length > 0 ? subs[0] : newCatValue;
+    persist(
+      projects.map((p) =>
+        p.id === id
+          ? { ...p, category: newCatValue, sub: newSubValue, history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history] }
+          : p
+      )
+    );
+  };
+
+  const changeSub = (id: number, newSubValue: string) => {
+    persist(
+      projects.map((p) =>
+        p.id === id
+          ? { ...p, sub: newSubValue, history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history] }
+          : p
+      )
+    );
+  };
+
   const handleImage = (id: number, file: File) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -295,7 +317,30 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 >
                   {p.name}
                 </span>
-                <span className="text-xs text-gray-400 mr-1">{p.category}{p.sub !== p.category ? ` / ${p.sub}` : ""}</span>
+                <select
+                  title="שנה קטגוריה"
+                  className="text-xs text-gray-500 mr-1 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  style={{ direction: "rtl" }}
+                  value={p.category}
+                  onChange={(e) => changeCategory(p.id, e.target.value)}
+                >
+                  {catNames.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                {config.categories[p.category]?.length > 0 && (
+                  <select
+                    title="שנה תת-קטגוריה"
+                    className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                    style={{ direction: "rtl" }}
+                    value={p.sub}
+                    onChange={(e) => changeSub(p.id, e.target.value)}
+                  >
+                    {getSubsForCategory(config, p.category).map((s) => (
+                      <option key={s} value={s}>{s}</option>
+                    ))}
+                  </select>
+                )}
                 <select
                   title="שנה סטטוס"
                   className="status-badge mr-auto h-7 rounded-md border text-xs px-2"
