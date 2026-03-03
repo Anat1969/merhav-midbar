@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { Camera, Eye, X, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { Camera, Eye, X, Download, Trash2, FileText, Film, FileSpreadsheet } from "lucide-react";
 
 function getFileType(src: string): "image" | "video" | "pdf" | "other" {
   if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
@@ -17,6 +17,7 @@ function getFileIcon(src: string) {
 
 interface FileDropZoneProps {
   onFile: (file: File) => void;
+  onDelete?: () => void;
   accept?: string;
   currentSrc?: string | null;
   label?: string;
@@ -26,7 +27,7 @@ interface FileDropZoneProps {
 }
 
 export const FileDropZone: React.FC<FileDropZoneProps> = ({
-  onFile, accept = "image/*,video/*,application/pdf,.pptx,.docx,.xlsx", currentSrc, label = "תמונה", className = "", style, children,
+  onFile, onDelete, accept = "image/*,video/*,application/pdf,.pptx,.docx,.xlsx", currentSrc, label = "תמונה", className = "", style, children,
 }) => {
   const [dragging, setDragging] = useState(false);
   const [viewing, setViewing] = useState(false);
@@ -143,6 +144,11 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
           <button title="הורד" className="h-7 w-7 rounded-full bg-white/90 flex items-center justify-center text-gray-700 hover:bg-white transition-colors" onClick={handleDownload}>
             <Download size={14} />
           </button>
+          {onDelete && (
+            <button title="מחק" className="h-7 w-7 rounded-full bg-red-500/90 flex items-center justify-center text-white hover:bg-red-600 transition-colors" onClick={(e) => { e.stopPropagation(); onDelete(); }}>
+              <Trash2 size={14} />
+            </button>
+          )}
         </div>
       </div>
     );
@@ -215,6 +221,11 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                 <button title="הורד" className="h-7 px-2 rounded text-xs border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1" onClick={handleDownload}>
                   <Download size={12} /> הורד
                 </button>
+                {onDelete && (
+                  <button title="מחק" className="h-7 px-2 rounded text-xs border border-red-200 text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1" onClick={(e) => { e.stopPropagation(); setViewing(false); onDelete(); }}>
+                    <Trash2 size={12} /> מחק
+                  </button>
+                )}
                 <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" onClick={() => setViewing(false)}>
                   <X size={16} />
                 </button>
