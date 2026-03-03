@@ -116,7 +116,7 @@ const BinuiProjectDetail: React.FC = () => {
   const nextProject = projectIdx < projects.length - 1 ? projects[projectIdx + 1] : null;
 
   return (
-    <>
+    <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
       <TopNav />
 
       {/* Breadcrumb */}
@@ -367,8 +367,7 @@ const BinuiProjectDetail: React.FC = () => {
           })}
         </div>
       </div>
-    <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
-      {project && (() => {
+      {(() => {
         const details = project.details?.["פרטים"] ?? {};
         const location = project.details?.["מיקום"] ?? {};
         const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
@@ -382,7 +381,7 @@ const BinuiProjectDetail: React.FC = () => {
           />
         );
       })()}
-    </>
+    </div>
   );
 };
 
