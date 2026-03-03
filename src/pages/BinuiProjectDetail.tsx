@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import {
   STATUS_OPTIONS,
@@ -31,6 +32,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [historyInput, setHistoryInput] = useState("");
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
+  const [emailOpen, setEmailOpen] = useState(false);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const persist = (updated: BinuiProject[]) => {
@@ -187,6 +189,13 @@ const BinuiProjectDetail: React.FC = () => {
             <option key={s.value} value={s.value}>{s.label}</option>
           ))}
         </select>
+        <button
+          title="שלח חוות דעת במייל"
+          className="h-8 px-3 rounded-lg border border-gray-200 text-xs hover:bg-gray-50 transition-colors"
+          onClick={() => setEmailOpen(true)}
+        >
+          ✉️ שלח חוות דעת
+        </button>
       </div>
 
       {/* Main two-column grid */}
@@ -359,6 +368,21 @@ const BinuiProjectDetail: React.FC = () => {
         </div>
       </div>
     </div>
+      {project && (() => {
+        const details = project.details?.["פרטים"] ?? {};
+        const location = project.details?.["מיקום"] ?? {};
+        const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
+        return (
+          <EmailModal
+            isOpen={emailOpen}
+            onClose={() => setEmailOpen(false)}
+            subject={`חוות דעת: ${project.name}`}
+            body={`שם פרויקט: ${project.name}\nקטגוריה: ${project.category} › ${project.sub}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`}
+            domainColor="#2C6E6A"
+          />
+        );
+      })()}
+    </>
   );
 };
 
