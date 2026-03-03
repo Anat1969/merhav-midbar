@@ -184,7 +184,21 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
         <div
           className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center"
           onClick={() => setViewing(false)}
-          style={{ direction: "rtl" }}
+          onDrop={(e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); handleFiles(e.dataTransfer.files); }}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); setDragging(true); }}
+          onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragging(false); }}
+          onPaste={(e) => {
+            const items = e.clipboardData?.items;
+            if (!items) return;
+            for (const item of Array.from(items)) {
+              if (item.kind === "file") {
+                const file = item.getAsFile();
+                if (file) { onFile(file); break; }
+              }
+            }
+          }}
+          tabIndex={0}
+          style={{ direction: "rtl", outline: dragging ? "3px dashed #3B82F6" : undefined }}
         >
           <div
             className="relative bg-white rounded-xl shadow-2xl overflow-hidden"
@@ -234,6 +248,11 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
               )}
             </div>
           </div>
+          {dragging && (
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <span className="bg-white/90 text-blue-600 font-bold px-6 py-3 rounded-xl shadow-lg text-lg">שחרר כדי להחליף קובץ</span>
+            </div>
+          )}
         </div>
       )}
     </>
