@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import {
   DomainConfig,
@@ -26,6 +27,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   const [tempName, setTempName] = useState("");
   const [activeTab, setActiveTab] = useState<"note" | "history">("note");
   const [historyInput, setHistoryInput] = useState("");
+  const [emailOpen, setEmailOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const persist = (updated: GenericProject[]) => {
@@ -160,6 +162,13 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             <option key={s.value} value={s.value}>{s.label}</option>
           ))}
         </select>
+        <button
+          title="שלח חוות דעת במייל"
+          className="h-8 px-3 rounded-lg border border-gray-200 text-xs hover:bg-gray-50 transition-colors"
+          onClick={() => setEmailOpen(true)}
+        >
+          ✉️ שלח חוות דעת
+        </button>
       </div>
 
       {/* Two-column grid */}
@@ -326,6 +335,18 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           onChange={(e) => update({ description: e.target.value })}
         />
       </div>
+      {project && (() => {
+        const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
+        return (
+          <EmailModal
+            isOpen={emailOpen}
+            onClose={() => setEmailOpen(false)}
+            subject={`חוות דעת: ${project.name}`}
+            body={`שם פרויקט: ${project.name}\nקטגוריה: ${project.category}${project.sub !== project.category ? ` › ${project.sub}` : ""}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}`}
+            domainColor={config.color}
+          />
+        );
+      })()}
     </div>
   );
 };
