@@ -23,8 +23,10 @@ interface DomainCardProps {
 }
 
 export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, refreshKey }) => {
+  const navigate = useNavigate();
   const totalCount = countDomainProjects(name);
   const route = DOMAIN_ROUTES[name] ?? "/";
+  const hasDedicatedPage = DOMAINS_WITH_PAGES.has(name);
 
   return (
     <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
@@ -73,7 +75,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                     category={catName}
                     sub={sub}
                     color={def.color}
-                    onClick={() => onOpenPanel(name, catName, sub)}
+                    onClick={() => hasDedicatedPage ? navigate(route) : onOpenPanel(name, catName, sub)}
                     refreshKey={refreshKey}
                   />
                 ))}
