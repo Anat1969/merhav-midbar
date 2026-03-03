@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
-import { Camera } from "lucide-react";
+import { FileDropZone } from "@/components/FileDropZone";
 import {
   DomainConfig,
   GenericProject,
@@ -242,27 +242,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           {/* Single image */}
           <div className="bg-white rounded-xl shadow-sm p-4">
             <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>תמונה</div>
-            <div
-              className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors overflow-hidden"
-              title="העלה תמונה"
-              onClick={() => fileRef.current?.click()}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={fileRef}
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImage(f); }}
-              />
-              {project.image ? (
-                <img src={project.image} alt={project.name} className="w-full h-full object-cover" />
-              ) : (
-                <>
-                  <Camera size={24} className="text-gray-300 mb-1" />
-                  <span className="text-xs text-gray-400">לחץ להעלאה</span>
-                </>
-              )}
-            </div>
+            <FileDropZone
+              onFile={(f) => handleImage(f)}
+              currentSrc={project.image}
+              label="תמונה"
+              className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-50 overflow-hidden"
+            />
           </div>
 
           {/* Status block */}

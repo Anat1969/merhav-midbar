@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import { FileDropZone } from "@/components/FileDropZone";
 import {
   STATUS_OPTIONS,
   DETAIL_FIELDS,
@@ -273,31 +274,13 @@ const BinuiProjectDetail: React.FC = () => {
             <div className="text-sm font-semibold mb-2" style={{ color: "#2C6E6A" }}>תמונות הפרויקט</div>
             <div className="grid grid-cols-3 gap-2">
               {(["tashrit", "tza", "hadmaya"] as const).map((slot) => (
-                <div
+                <FileDropZone
                   key={slot}
-                  className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors overflow-hidden relative"
-                  title={`העלה ${IMAGE_LABELS[slot]}`}
-                  onClick={() => fileRefs.current[slot]?.click()}
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    ref={(el) => { fileRefs.current[slot] = el; }}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) handleImage(slot, f);
-                    }}
-                  />
-                  {project.images[slot] ? (
-                    <img src={project.images[slot]!} alt={IMAGE_LABELS[slot]} className="w-full h-full object-cover" />
-                  ) : (
-                    <>
-                      <Camera size={20} className="text-gray-300 mb-1" />
-                      <span className="text-[10px] text-gray-400">{IMAGE_LABELS[slot]}</span>
-                    </>
-                  )}
-                </div>
+                  onFile={(f) => handleImage(slot, f)}
+                  currentSrc={project.images[slot]}
+                  label={IMAGE_LABELS[slot]}
+                  className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-50 overflow-hidden"
+                />
               ))}
             </div>
           </div>

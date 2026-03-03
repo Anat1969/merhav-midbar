@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import { FileDropZone } from "@/components/FileDropZone";
 import {
   BINUI_CATEGORIES,
   STATUS_OPTIONS,
@@ -278,38 +279,13 @@ const BinuiPage: React.FC = () => {
             {/* Left — images */}
             <div className="flex-shrink-0 flex" style={{ width: 260 }}>
               {(["tashrit", "tza", "hadmaya"] as const).map((slot) => (
-                <div
+                <FileDropZone
                   key={slot}
-                  className="flex-1 border-l border-gray-100 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors relative"
-                  title={`העלה ${IMAGE_LABELS[slot]}`}
-                  onClick={() => {
-                    const ref = fileRefs.current[`${p.id}_${slot}`];
-                    ref?.click();
-                  }}
-                >
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="hidden"
-                    ref={(el) => { fileRefs.current[`${p.id}_${slot}`] = el; }}
-                    onChange={(e) => {
-                      const f = e.target.files?.[0];
-                      if (f) handleImage(p.id, slot, f);
-                    }}
-                  />
-                  {p.images[slot] ? (
-                    <img
-                      src={p.images[slot]!}
-                      alt={IMAGE_LABELS[slot]}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <>
-                      <Camera size={18} className="text-gray-300 mb-1" />
-                      <span className="text-[10px] text-gray-400">{IMAGE_LABELS[slot]}</span>
-                    </>
-                  )}
-                </div>
+                  onFile={(f) => handleImage(p.id, slot, f)}
+                  currentSrc={p.images[slot]}
+                  label={IMAGE_LABELS[slot]}
+                  className="flex-1 border-l border-gray-100 hover:bg-gray-50"
+                />
               ))}
             </div>
 
