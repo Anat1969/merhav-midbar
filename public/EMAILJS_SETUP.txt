@@ -1,0 +1,9 @@
+כדי להפעיל שליחת מייל אמיתית:
+1. הירשם בחינם ב emailjs.com
+2. צור Service חדש (Gmail / Outlook / כל ספק)
+3. צור Template עם המשתנים:
+   {{to_email}}, {{cc_email}}, {{subject}}, 
+   {{message}}, {{sent_from}}, {{sent_date}}
+4. העתק את Service ID, Template ID, Public Key
+5. הכנס ב src/config/emailjs.ts
+ללא הגדרה — האפליקציה תשתמש ב-mailto כגיבוי.
