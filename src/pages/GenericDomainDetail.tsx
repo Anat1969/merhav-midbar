@@ -255,6 +255,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>תמונה</div>
             <FileDropZone
               onFile={(f) => handleImage(f)}
+              onDelete={() => update({ image: null })}
               currentSrc={project.image}
               label="תמונה"
               className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-50 overflow-hidden"

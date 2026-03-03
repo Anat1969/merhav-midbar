@@ -327,6 +327,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             {/* Left — image */}
             <FileDropZone
               onFile={(f) => handleImage(p.id, f)}
+              onDelete={() => { const updated = projects.map((pr) => pr.id === p.id ? { ...pr, image: null } : pr); setProjects(updated); saveGenericProjects(config.storageKey, updated); }}
               currentSrc={p.image}
               label="תמונה"
               className="flex-shrink-0 border-l border-gray-100 hover:bg-gray-50"

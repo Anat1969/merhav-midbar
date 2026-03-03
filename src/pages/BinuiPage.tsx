@@ -286,6 +286,7 @@ const BinuiPage: React.FC = () => {
                 <FileDropZone
                   key={slot}
                   onFile={(f) => handleImage(p.id, slot, f)}
+                  onDelete={() => { const updated = projects.map((pr) => pr.id === p.id ? { ...pr, images: { ...pr.images, [slot]: null } } : pr); setProjects(updated); saveBinuiProjects(updated); }}
                   currentSrc={p.images[slot]}
                   label={IMAGE_LABELS[slot]}
                   className="flex-1 border-l border-gray-100 hover:bg-gray-50"
