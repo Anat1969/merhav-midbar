@@ -66,13 +66,16 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
     }
   }, [config.storageKey, projects]);
 
+  const namePrefix = `${newCat}:${newSub} - `;
+
   const addProject = () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
+    const fullName = `${namePrefix}${trimmed}`;
     const now = getHebrewDateNow();
     const p: GenericProject = {
       id: Date.now(),
-      name: trimmed,
+      name: fullName,
       poeticName: "",
       category: newCat,
       sub: newSub,
@@ -231,15 +234,20 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <input
-            title="שם פרויקט חדש"
-            className="h-9 flex-1 min-w-[140px] rounded-lg border border-gray-200 px-3 text-sm focus:outline-none focus:ring-1"
-            style={{ direction: "rtl" }}
-            placeholder="שם פרויקט חדש"
-            value={newName}
-            onChange={(e) => setNewName(e.target.value)}
-            onKeyDown={(e) => e.key === "Enter" && addProject()}
-          />
+          <div className="h-9 flex-1 min-w-[140px] flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
+            <span className="px-2 text-sm font-medium text-gray-500 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
+              {namePrefix}
+            </span>
+            <input
+              title="שם פרויקט חדש"
+              className="h-full flex-1 px-2 text-sm focus:outline-none"
+              style={{ direction: "rtl" }}
+              placeholder="שם ייחודי..."
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && addProject()}
+            />
+          </div>
           <select
             title="קטגוריה"
             className="h-9 rounded-lg border border-gray-200 px-2 text-sm"
