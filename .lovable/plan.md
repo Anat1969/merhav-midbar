@@ -1,42 +1,54 @@
 
+# דשבורד אדריכלית העיר — Implementation Plan
 
-## Problem Diagnosis
+## Overview
+A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
 
-The documents won't open because **localStorage has exceeded its ~5MB quota**. When you uploaded documents, they were converted to base64 (which increases size by ~33%) and the app tried to save everything to localStorage. The save failed with a `QuotaExceededError`, meaning the attachment data was lost.
+## Pages & Layout
 
-The `saveBinuiProjects` function has no error handling — it just calls `localStorage.setItem()` directly and crashes silently.
+### Home Page (single page app)
+- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
+- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
+- **Stats bar** — conditionally shown summary of project counts by status
+- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
 
-## Solution: Compress and Handle Quota Gracefully
+## Key Components
 
-Since this project uses localStorage (no Supabase backend), we need to:
+1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
+2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
+3. **ProjectPanel** — slide-in overlay from left (420px), with:
+   - Colored header with breadcrumb + close
+   - Add project input row
+   - Search/filter input
+   - Scrollable project list (name, date, status dropdown, delete with confirm)
+   - Footer with status counts
+4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
+5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
 
-### 1. Add error handling to `saveBinuiProjects` in `src/lib/binuiConstants.ts`
-- Wrap `localStorage.setItem` in a try/catch
-- Show a user-friendly toast/alert when quota is exceeded
-- Explain the file was too large to store
+## Data & State
+- All data in localStorage with key pattern `{domain}__{category}__{sub}`
+- Project shape: id, name, status, created (Hebrew date), note, history
+- No external state library — React useState + localStorage read/write
+- Hardcoded HIERARCHY constant defines the domain tree
 
-### 2. Add file size validation before upload in `src/pages/BinuiPage.tsx`
-- Before converting to base64, check file size (reject files > ~1MB with a warning toast)
-- Show remaining approximate storage capacity
+## Styling
+- RTL direction globally, Heebo font from Google Fonts
+- Background #F2F1EE, domain-specific color palette
+- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
+- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
+- Print CSS: hide nav, white background, A4-friendly layout
 
-### 3. Same fix for `src/lib/domainConstants.ts` (generic projects)
-- Apply the same error handling pattern to `saveGenericProjects`
-
-### 4. Same fix for `src/pages/GenericDomainPage.tsx`
-- Add file size validation before upload
-
-### File Changes
-
-| File | Change |
-|------|--------|
-| `src/lib/binuiConstants.ts` | Add try/catch to `saveBinuiProjects`, return success boolean |
-| `src/lib/domainConstants.ts` | Add try/catch to save function, return success boolean |
-| `src/pages/BinuiPage.tsx` | Add file size check before upload, show toast on quota error, revert state on save failure |
-| `src/pages/BinuiPage.tsx` | Same for detail page |
-| `src/pages/GenericDomainPage.tsx` | Same file size check and error handling |
-
-### Technical Details
-- Max file size limit: ~1MB per file (base64 encoding adds ~33%, and localStorage total is ~5MB shared across all data)
-- On save failure: revert the in-memory state to the previous version so the UI stays consistent
-- Use `sonner` toast (already installed) to show user-friendly error messages in Hebrew
-
+## Files to Create/Modify
+- `index.html` — add Heebo font link
+- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
+- `src/lib/hierarchy.ts` — HIERARCHY constant + types
+- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
+- `src/components/TopNav.tsx` — sticky navigation bar
+- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
+- `src/components/GlobalSearch.tsx` — search input + results dropdown
+- `src/components/StatsBar.tsx` — conditional stats summary
+- `src/components/DomainCard.tsx` — domain card with categories
+- `src/components/SubButton.tsx` — item button with count
+- `src/components/ProjectPanel.tsx` — slide-in project management panel
+- `src/components/EmailModal.tsx` — email compose dialog
+- `src/pages/Index.tsx` — compose all components into the dashboard layout
