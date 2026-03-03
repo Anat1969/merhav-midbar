@@ -9,11 +9,12 @@ import {
   STATUS_OPTIONS,
   DETAIL_FIELDS,
   BinuiProject,
+  BinuiAttachment,
   loadBinuiProjects,
   saveBinuiProjects,
   getHebrewDateNow,
 } from "@/lib/binuiConstants";
-import { Camera, X, Search } from "lucide-react";
+import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
 
 const IMAGE_LABELS: Record<string, string> = {
   tashrit: "תשריט",
