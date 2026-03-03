@@ -19,6 +19,8 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/binui" element={<BinuiPage />} />
+          <Route path="/binui/:id" element={<BinuiProjectDetail />} />
           <Route path="/:slug" element={<DomainPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
