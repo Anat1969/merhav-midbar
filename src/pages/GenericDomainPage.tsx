@@ -15,7 +15,9 @@ import {
   getHebrewDateNow,
   getSubsForCategory,
   getAllCategoryNames,
+  MAX_FILE_SIZE_BYTES,
 } from "@/lib/domainConstants";
+import { toast } from "sonner";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
@@ -56,9 +58,13 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const persist = useCallback((updated: GenericProject[]) => {
+    const prev = projects;
     setProjects(updated);
-    saveGenericProjects(config.storageKey, updated);
-  }, [config.storageKey]);
+    const ok = saveGenericProjects(config.storageKey, updated);
+    if (!ok) {
+      setProjects(prev);
+    }
+  }, [config.storageKey, projects]);
 
   const addProject = () => {
     const trimmed = newName.trim();
@@ -125,6 +131,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   };
 
   const handleImage = (id: number, file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       persist(projects.map((p) => p.id === id ? { ...p, image: reader.result as string } : p));
@@ -149,6 +159,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   };
 
   const addAttachment = (id: number, file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       persist(projects.map((p) => p.id === id
