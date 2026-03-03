@@ -4,10 +4,11 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
-import { Search, Pencil } from "lucide-react";
+import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
 import {
   DomainConfig,
   GenericProject,
+  Attachment,
   STATUS_OPTIONS,
   loadGenericProjects,
   saveGenericProjects,
@@ -42,6 +43,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [noteText, setNoteText] = useState("");
   const [editingField, setEditingField] = useState<{ id: number; field: string } | null>(null);
   const [editText, setEditText] = useState("");
+  const [attachOpen, setAttachOpen] = useState<number | null>(null);
+  const [viewerData, setViewerData] = useState<{ attachments: Attachment[]; index: number } | null>(null);
   const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -70,6 +73,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       tracking: { date: "", note: "", agent: "" },
       initiator: "",
       image: null,
+      attachments: [],
     };
     persist([p, ...projects]);
     setNewName("");
