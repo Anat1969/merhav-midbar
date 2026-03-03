@@ -1,5 +1,11 @@
 export type GenericProjectStatus = "planning" | "inprogress" | "review" | "done";
 
+export interface Attachment {
+  id: number;
+  name: string;
+  data: string;
+}
+
 export interface GenericProject {
   id: number;
   name: string;
@@ -16,6 +22,7 @@ export interface GenericProject {
   tracking: { date: string; note: string; agent: string };
   initiator: string;
   image: string | null;
+  attachments: Attachment[];
 }
 
 export interface DomainConfig {
@@ -74,7 +81,8 @@ export const PEULOT_CONFIG: DomainConfig = {
 export function loadGenericProjects(key: string): GenericProject[] {
   try {
     const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : [];
+    const list: GenericProject[] = raw ? JSON.parse(raw) : [];
+    return list.map((p) => ({ ...p, attachments: p.attachments || [] }));
   } catch {
     return [];
   }
