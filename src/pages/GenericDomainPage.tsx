@@ -1,7 +1,8 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
-import { Camera, Search, Pencil } from "lucide-react";
+import { FileDropZone } from "@/components/FileDropZone";
+import { Search, Pencil } from "lucide-react";
 import {
   DomainConfig,
   GenericProject,
@@ -255,28 +256,13 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
         {filtered.map((p, idx) => (
           <div key={p.id} className="bg-white rounded-xl shadow-sm overflow-hidden flex" style={{ minHeight: 140 }}>
             {/* Left — image */}
-            <div
-              className="flex-shrink-0 border-l border-gray-100 flex flex-col items-center justify-center cursor-pointer hover:bg-gray-50 transition-colors relative"
+            <FileDropZone
+              onFile={(f) => handleImage(p.id, f)}
+              currentSrc={p.image}
+              label="תמונה"
+              className="flex-shrink-0 border-l border-gray-100 hover:bg-gray-50"
               style={{ width: 140 }}
-              title="העלה תמונה"
-              onClick={() => fileRefs.current[`img_${p.id}`]?.click()}
-            >
-              <input
-                type="file"
-                accept="image/*"
-                className="hidden"
-                ref={(el) => { fileRefs.current[`img_${p.id}`] = el; }}
-                onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImage(p.id, f); }}
-              />
-              {p.image ? (
-                <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-              ) : (
-                <>
-                  <Camera size={18} className="text-gray-300 mb-1" />
-                  <span className="text-[10px] text-gray-400">תמונה</span>
-                </>
-              )}
-            </div>
+            />
 
             {/* Right — info */}
             <div className="flex-1 p-4 flex flex-col gap-1.5">
