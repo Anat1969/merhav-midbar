@@ -107,16 +107,123 @@
   }
 }
 
+/* PrintHeader — hidden on screen */
+.print-header {
+  display: none;
+}
+
 /* Print */
 @media print {
-  nav, .print\\:hidden {
+  /* PrintHeader visible */
+  .print-header {
+    display: flex !important;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 8px;
+    margin-bottom: 16px;
+    border-bottom: 2px solid #2C6E6A;
+    font-family: 'Heebo', sans-serif;
+  }
+
+  /* Hide all non-content elements */
+  .no-print,
+  nav,
+  header,
+  .navbar,
+  .action-bar,
+  .filter-row,
+  .btn-add,
+  .btn-delete,
+  .btn-email,
+  button:not(.print-visible) {
     display: none !important;
   }
+
+  /* Page setup */
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
   body {
     background: white !important;
+    direction: rtl;
+    font-family: 'Heebo', sans-serif;
   }
-  .mx-4 {
-    margin-left: 0 !important;
-    margin-right: 0 !important;
+
+  @page {
+    size: A4 portrait;
+    margin: 20mm 15mm 20mm 15mm;
+  }
+
+  /* Project list — one card per page */
+  .project-card {
+    page-break-inside: avoid;
+    border: 1px solid #CCC !important;
+    box-shadow: none !important;
+    margin-bottom: 16px;
+  }
+
+  /* Detail page — fit to one page */
+  .detail-grid {
+    display: block !important;
+  }
+
+  .detail-column {
+    width: 100% !important;
+    margin-bottom: 16px;
+  }
+
+  /* Show full content — no truncation */
+  textarea,
+  .note-content {
+    min-height: unset !important;
+    height: auto !important;
+    overflow: visible !important;
+    border: 1px solid #EEE !important;
+    background: white !important;
+  }
+
+  /* Detail cards — show all fields */
+  .detail-card {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* Images — preserve in print */
+  img {
+    max-width: 100% !important;
+    page-break-inside: avoid;
+  }
+
+  /* Status badge — show as text with color */
+  .status-badge {
+    border: 1px solid currentColor !important;
+    background: white !important;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+
+  /* Breadcrumb — show as print header */
+  .breadcrumb {
+    display: block !important;
+    font-size: 11px;
+    color: #888;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #EEE;
+    padding-bottom: 8px;
+  }
+
+  /* History timeline */
+  .history-list {
+    max-height: unset !important;
+    overflow: visible !important;
+  }
+
+  /* Pills row */
+  .pills-row {
+    page-break-inside: avoid;
+    flex-wrap: wrap;
   }
 }
