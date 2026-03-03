@@ -285,55 +285,69 @@ const BinuiPage: React.FC = () => {
 
         {/* === Section 3: Filters === */}
         <div>
-          <div className="text-xs font-bold text-gray-500 mb-2">🔽 סינון לפי קטגוריה וסטטוס</div>
-          <div className="pills-row flex flex-wrap gap-1.5 items-center">
-            <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
-              הכל
-            </FilterPill>
-            {Object.entries(BINUI_CATEGORIES).map(([cat, def]) => (
-              <FilterPill
-                key={cat}
-                active={filterCat === cat}
-                color={def.color}
-                onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); }}
-              >
-                {cat}
-              </FilterPill>
-            ))}
-            {activeSubs.length > 0 && (
-              <>
-                <span className="mx-1 text-gray-300">|</span>
-                <FilterPill active={!filterSub} onClick={() => setFilterSub(null)}>
+          <div className="text-xs font-bold text-gray-500 mb-3">🔽 סינון לפי קטגוריה וסטטוס</div>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            {/* Right side: Category hierarchy */}
+            <div className="flex flex-col gap-2">
+              {/* Level 1: Categories */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">קטגוריה:</span>
+                <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
                   הכל
                 </FilterPill>
-                {activeSubs.map((s) => (
+                {Object.entries(BINUI_CATEGORIES).map(([cat, def]) => (
                   <FilterPill
-                    key={s}
-                    active={filterSub === s}
-                    color={BINUI_CATEGORIES[filterCat!]?.color}
-                    onClick={() => setFilterSub(s === filterSub ? null : s)}
+                    key={cat}
+                    active={filterCat === cat}
+                    color={def.color}
+                    onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); }}
                   >
-                    {s}
+                    {cat}
                   </FilterPill>
                 ))}
-              </>
-            )}
-            <span className="mx-1 text-gray-300">|</span>
-            <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)}>
-              הכל
-            </FilterPill>
-            {STATUS_OPTIONS.map((s) => (
-              <FilterPill
-                key={s.value}
-                active={filterStatus === s.value}
-                color={s.color}
-                onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
-              >
-                {s.label} ({statusCounts[s.value] ?? 0})
+              </div>
+              {/* Level 2: Sub-categories (shown when category selected) */}
+              {activeSubs.length > 0 && (
+                <div className="flex items-center gap-1.5 pr-14">
+                  <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">נושא:</span>
+                  <FilterPill active={!filterSub} onClick={() => setFilterSub(null)}
+                    color={BINUI_CATEGORIES[filterCat!]?.color}>
+                    הכל
+                  </FilterPill>
+                  {activeSubs.map((s) => (
+                    <FilterPill
+                      key={s}
+                      active={filterSub === s}
+                      color={BINUI_CATEGORIES[filterCat!]?.color}
+                      onClick={() => setFilterSub(s === filterSub ? null : s)}
+                    >
+                      {s}
+                    </FilterPill>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Left side: Status filters */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-gray-400 shrink-0">סטטוס:</span>
+              <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} variant="status">
+                הכל
               </FilterPill>
-            ))}
+              {STATUS_OPTIONS.map((s) => (
+                <FilterPill
+                  key={s.value}
+                  active={filterStatus === s.value}
+                  color={s.color}
+                  variant="status"
+                  onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
+                >
+                  {s.label} ({statusCounts[s.value] ?? 0})
+                </FilterPill>
+              ))}
+            </div>
           </div>
-          <p className="text-[11px] text-gray-400 mt-1">לחץ על כפתור לסינון הרשימה. ניתן לשלב סינון קטגוריה + סטטוס</p>
+          <p className="text-[11px] text-gray-400 mt-2">בחר קטגוריה ← נושא ← סטטוס. ניתן לשלב סינונים יחד</p>
         </div>
 
         <div className="border-t border-gray-100" />
@@ -637,13 +651,17 @@ function FilterPill({
   children,
   active,
   color,
+  variant,
   onClick,
 }: {
   children: React.ReactNode;
   active: boolean;
   color?: string;
+  variant?: "category" | "status";
   onClick: () => void;
 }) {
+  const isStatus = variant === "status";
+  const baseColor = color || "#2C6E6A";
   return (
     <button
       title={typeof children === "string" ? children : ""}
@@ -651,8 +669,10 @@ function FilterPill({
       className="h-7 px-3 rounded-full text-xs font-medium transition-all border"
       style={
         active
-          ? { background: color || "#2C6E6A", color: "#fff", borderColor: color || "#2C6E6A" }
-          : { background: "#fff", color: "#666", borderColor: "#E0E0D8" }
+          ? { background: baseColor, color: "#fff", borderColor: baseColor }
+          : isStatus
+            ? { background: "#fff", color: baseColor, borderColor: baseColor + "66" }
+            : { background: "#fff", color: "#666", borderColor: "#E0E0D8" }
       }
     >
       {children}
