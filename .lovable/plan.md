@@ -1,45 +1,54 @@
 
+# דשבורד אדריכלית העיר — Implementation Plan
 
-## Add File Attachments to Records
+## Overview
+A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
 
-### Overview
-Add a "קבצים" (Files) button to each record card that opens an attachments panel. Users can attach multiple files (booklets, presentations, emails, etc.) via drag-and-drop, paste, or file picker. Clicking an attached file opens a fullscreen viewer for browsing, then closing returns to the list.
+## Pages & Layout
 
-### Data Model Change
-Add an `attachments` array to `GenericProject` in `src/lib/domainConstants.ts`:
+### Home Page (single page app)
+- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
+- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
+- **Stats bar** — conditionally shown summary of project counts by status
+- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
 
-```ts
-interface Attachment {
-  id: number;
-  name: string;
-  data: string;  // base64 data URL
-}
+## Key Components
 
-// Add to GenericProject:
-attachments: Attachment[];
-```
+1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
+2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
+3. **ProjectPanel** — slide-in overlay from left (420px), with:
+   - Colored header with breadcrumb + close
+   - Add project input row
+   - Search/filter input
+   - Scrollable project list (name, date, status dropdown, delete with confirm)
+   - Footer with status counts
+4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
+5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
 
-New projects will initialize with `attachments: []`. Existing records without the field will default to `[]` via a fallback in the load function.
+## Data & State
+- All data in localStorage with key pattern `{domain}__{category}__{sub}`
+- Project shape: id, name, status, created (Hebrew date), note, history
+- No external state library — React useState + localStorage read/write
+- Hardcoded HIERARCHY constant defines the domain tree
 
-### UI Changes in `src/pages/GenericDomainPage.tsx`
+## Styling
+- RTL direction globally, Heebo font from Google Fonts
+- Background #F2F1EE, domain-specific color palette
+- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
+- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
+- Print CSS: hide nav, white background, A4-friendly layout
 
-1. **"קבצים" button** in each card's action row (Row 4), showing a count badge when files exist.
-
-2. **Attachments panel** — toggled inline below the card (similar to the existing note panel). Contains:
-   - A `FileDropZone` for adding new files (drag/drop/paste/click).
-   - A horizontal list of attached file thumbnails with name, delete button, and click-to-view.
-
-3. **Fullscreen viewer** — reuse the existing viewer pattern from `FileDropZone.tsx`. Clicking a thumbnail opens a modal overlay showing the file at full size (images, videos, PDFs). A close button returns to the list. Navigation between attachments via prev/next buttons.
-
-### File Changes
-
-| File | Change |
-|------|--------|
-| `src/lib/domainConstants.ts` | Add `Attachment` interface, add `attachments` field to `GenericProject`, add fallback in `loadGenericProjects` |
-| `src/pages/GenericDomainPage.tsx` | Add attachments toggle state, add/remove attachment handlers, attachments panel UI, fullscreen viewer modal |
-
-### Technical Notes
-- Files stored as base64 in localStorage (consistent with existing image storage pattern).
-- The `loadGenericProjects` function will map loaded records to ensure `attachments` defaults to `[]` for backward compatibility.
-- Fullscreen viewer supports image, video, PDF preview and download for unsupported types.
-
+## Files to Create/Modify
+- `index.html` — add Heebo font link
+- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
+- `src/lib/hierarchy.ts` — HIERARCHY constant + types
+- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
+- `src/components/TopNav.tsx` — sticky navigation bar
+- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
+- `src/components/GlobalSearch.tsx` — search input + results dropdown
+- `src/components/StatsBar.tsx` — conditional stats summary
+- `src/components/DomainCard.tsx` — domain card with categories
+- `src/components/SubButton.tsx` — item button with count
+- `src/components/ProjectPanel.tsx` — slide-in project management panel
+- `src/components/EmailModal.tsx` — email compose dialog
+- `src/pages/Index.tsx` — compose all components into the dashboard layout
