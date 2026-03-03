@@ -106,6 +106,18 @@ const BinuiProjectDetail: React.FC = () => {
     reader.readAsDataURL(file);
   };
 
+  const addAttachment = (file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      update({ attachments: [...project.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] });
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAttachment = (attachId: number) => {
+    update({ attachments: project.attachments.filter((a) => a.id !== attachId) });
+  };
+
   const startEdit = (section: string) => {
     setEditingSections((s) => ({ ...s, [section]: true }));
     setEditValues((v) => ({ ...v, [section]: { ...(project.details?.[section] ?? {}) } }));
