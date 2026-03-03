@@ -109,6 +109,24 @@ const BinuiPage: React.FC = () => {
     setNoteOpen(null);
   };
 
+  const addAttachment = (id: number, file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      persist(projects.map((p) => p.id === id
+        ? { ...p, attachments: [...p.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] }
+        : p
+      ));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAttachment = (projectId: number, attachId: number) => {
+    persist(projects.map((p) => p.id === projectId
+      ? { ...p, attachments: p.attachments.filter((a) => a.id !== attachId) }
+      : p
+    ));
+  };
+
   const filtered = useMemo(() => {
     let list = projects;
     if (filterCat) list = list.filter((p) => p.category === filterCat);
