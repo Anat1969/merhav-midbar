@@ -1,3 +1,7 @@
+import { toast } from "sonner";
+
+export const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
+
 export const BINUI_CATEGORIES: Record<string, { color: string; subs: string[]; description: string }> = {
   "תכנון": {
     color: "#2C6E6A",
@@ -84,8 +88,17 @@ export function loadBinuiProjects(): BinuiProject[] {
   }
 }
 
-export function saveBinuiProjects(projects: BinuiProject[]): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+export function saveBinuiProjects(projects: BinuiProject[]): boolean {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+    return true;
+  } catch (error) {
+    if (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22)) {
+      toast.error("נפח האחסון מלא. הקובץ גדול מדי לשמירה. נסה קובץ קטן יותר (עד 1MB).");
+      return false;
+    }
+    throw error;
+  }
 }
 
 export function getHebrewDateNow(): string {

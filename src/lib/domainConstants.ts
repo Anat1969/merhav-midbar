@@ -1,3 +1,7 @@
+import { toast } from "sonner";
+
+export const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
+
 export type GenericProjectStatus = "planning" | "inprogress" | "review" | "done";
 
 export interface Attachment {
@@ -88,8 +92,17 @@ export function loadGenericProjects(key: string): GenericProject[] {
   }
 }
 
-export function saveGenericProjects(key: string, projects: GenericProject[]): void {
-  localStorage.setItem(key, JSON.stringify(projects));
+export function saveGenericProjects(key: string, projects: GenericProject[]): boolean {
+  try {
+    localStorage.setItem(key, JSON.stringify(projects));
+    return true;
+  } catch (error) {
+    if (error instanceof DOMException && (error.name === 'QuotaExceededError' || error.code === 22)) {
+      toast.error("נפח האחסון מלא. הקובץ גדול מדי לשמירה. נסה קובץ קטן יותר (עד 1MB).");
+      return false;
+    }
+    throw error;
+  }
 }
 
 export function getHebrewDateNow(): string {
