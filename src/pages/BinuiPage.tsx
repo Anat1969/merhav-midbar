@@ -16,6 +16,13 @@ import {
 } from "@/lib/binuiConstants";
 import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
 
+function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
+  if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
+  if (src.startsWith("data:video") || /\.(mp4|webm|ogg|mov)$/i.test(src)) return "video";
+  if (src.startsWith("data:application/pdf") || /\.pdf$/i.test(src)) return "pdf";
+  return "other";
+}
+
 const IMAGE_LABELS: Record<string, string> = {
   tashrit: "תשריט",
   tza: 'תצ"א',
