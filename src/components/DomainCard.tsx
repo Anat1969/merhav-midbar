@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DomainDef } from "@/lib/hierarchy";
 import { countDomainProjects } from "@/lib/storage";
 import { SubButton } from "./SubButton";
@@ -11,6 +11,9 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "פעולות": "/peulot",
   "אפליקציות": "/apps",
 };
+
+// Domains that have their own dedicated management page
+const DOMAINS_WITH_PAGES = new Set(["בינוי"]);
 
 interface DomainCardProps {
   name: string;
