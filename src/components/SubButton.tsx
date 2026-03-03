@@ -1,5 +1,5 @@
 import React from "react";
-import { countProjects } from "@/lib/storage";
+import { countSubProjects } from "@/lib/storage";
 
 interface SubButtonProps {
   label: string;
@@ -20,7 +20,7 @@ export const SubButton: React.FC<SubButtonProps> = ({
   onClick,
   refreshKey,
 }) => {
-  const count = countProjects(domain, category, sub);
+  const count = countSubProjects(domain, category, sub);
 
   return (
     <button
