@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { DomainDef } from "@/lib/hierarchy";
 import { countDomainProjects } from "@/lib/storage";
 import { SubButton } from "./SubButton";
@@ -12,6 +12,9 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "אפליקציות": "/apps",
 };
 
+// Domains that have their own dedicated management page
+const DOMAINS_WITH_PAGES = new Set(["בינוי"]);
+
 interface DomainCardProps {
   name: string;
   def: DomainDef;
@@ -20,8 +23,10 @@ interface DomainCardProps {
 }
 
 export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, refreshKey }) => {
+  const navigate = useNavigate();
   const totalCount = countDomainProjects(name);
   const route = DOMAIN_ROUTES[name] ?? "/";
+  const hasDedicatedPage = DOMAINS_WITH_PAGES.has(name);
 
   return (
     <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
@@ -70,7 +75,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                     category={catName}
                     sub={sub}
                     color={def.color}
-                    onClick={() => onOpenPanel(name, catName, sub)}
+                    onClick={() => hasDedicatedPage ? navigate(route) : onOpenPanel(name, catName, sub)}
                     refreshKey={refreshKey}
                   />
                 ))}

@@ -1,4 +1,5 @@
 import { Project, HIERARCHY, getStorageKey } from "./hierarchy";
+import { loadBinuiProjects } from "./binuiConstants";
 
 export function getProjects(domain: string, category: string, sub: string): Project[] {
   const key = getStorageKey(domain, category, sub);
@@ -20,6 +21,10 @@ export function countProjects(domain: string, category: string, sub: string): nu
 }
 
 export function countDomainProjects(domain: string): number {
+  // בינוי uses its own dedicated storage
+  if (domain === "בינוי") {
+    return loadBinuiProjects().length;
+  }
   const def = HIERARCHY[domain];
   if (!def) return 0;
   let total = 0;
@@ -48,7 +53,23 @@ export function searchAllProjects(query: string): SearchResult[] {
   const q = query.trim().toLowerCase();
   if (!q) return results;
 
+  // Search binui_projects first
+  const binuiProjects = loadBinuiProjects();
+  for (const p of binuiProjects) {
+    if (p.name.toLowerCase().includes(q)) {
+      results.push({
+        domain: "בינוי",
+        category: p.category,
+        sub: p.sub,
+        project: { id: p.id, name: p.name, status: p.status as any, created: p.created, note: p.note, history: p.history },
+        color: HIERARCHY["בינוי"]?.color ?? "#2C6E6A",
+      });
+    }
+    if (results.length >= 8) return results;
+  }
+
   for (const [domain, def] of Object.entries(HIERARCHY)) {
+    if (domain === "בינוי") continue;
     for (const [cat, catDef] of Object.entries(def.categories)) {
       const subs = catDef.items.length > 0 ? catDef.items : [cat];
       for (const sub of subs) {
@@ -67,7 +88,14 @@ export function searchAllProjects(query: string): SearchResult[] {
 
 export function getAllStatusCounts(): Record<string, number> {
   const counts: Record<string, number> = { planning: 0, inprogress: 0, review: 0, done: 0 };
+
+  // Count binui projects
+  for (const p of loadBinuiProjects()) {
+    if (counts[p.status] !== undefined) counts[p.status]++;
+  }
+
   for (const [domain, def] of Object.entries(HIERARCHY)) {
+    if (domain === "בינוי") continue;
     for (const [cat, catDef] of Object.entries(def.categories)) {
       const subs = catDef.items.length > 0 ? catDef.items : [cat];
       for (const sub of subs) {
