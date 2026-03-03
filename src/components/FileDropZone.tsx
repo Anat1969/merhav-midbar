@@ -221,6 +221,11 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                 <button title="הורד" className="h-7 px-2 rounded text-xs border border-gray-200 text-gray-600 hover:bg-gray-100 transition-colors flex items-center gap-1" onClick={handleDownload}>
                   <Download size={12} /> הורד
                 </button>
+                {onDelete && (
+                  <button title="מחק" className="h-7 px-2 rounded text-xs border border-red-200 text-red-600 hover:bg-red-50 transition-colors flex items-center gap-1" onClick={(e) => { e.stopPropagation(); setViewing(false); onDelete(); }}>
+                    <Trash2 size={12} /> מחק
+                  </button>
+                )}
                 <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-700 transition-colors" onClick={() => setViewing(false)}>
                   <X size={16} />
                 </button>
