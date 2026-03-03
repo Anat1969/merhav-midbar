@@ -118,13 +118,14 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const filtered = useMemo(() => {
     let list = projects;
     if (filterCat) list = list.filter((p) => p.category === filterCat);
+    if (filterSub) list = list.filter((p) => p.sub === filterSub || p.category === filterSub);
     if (filterStatus) list = list.filter((p) => p.status === filterStatus);
     if (search.trim()) {
       const q = search.trim().toLowerCase();
       list = list.filter((p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     }
     return list;
-  }, [projects, filterCat, filterStatus, search]);
+  }, [projects, filterCat, filterSub, filterStatus, search]);
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
