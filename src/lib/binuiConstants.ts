@@ -48,6 +48,12 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
   ],
 };
 
+export interface BinuiAttachment {
+  id: number;
+  name: string;
+  data: string;
+}
+
 export interface BinuiProject {
   id: number;
   name: string;
@@ -63,6 +69,7 @@ export interface BinuiProject {
     tza: string | null;
     hadmaya: string | null;
   };
+  attachments: BinuiAttachment[];
 }
 
 const STORAGE_KEY = "binui_projects";
@@ -70,7 +77,8 @@ const STORAGE_KEY = "binui_projects";
 export function loadBinuiProjects(): BinuiProject[] {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    return raw ? JSON.parse(raw) : [];
+    const list: BinuiProject[] = raw ? JSON.parse(raw) : [];
+    return list.map((p) => ({ ...p, attachments: p.attachments || [] }));
   } catch {
     return [];
   }

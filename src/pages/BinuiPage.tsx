@@ -9,11 +9,19 @@ import {
   STATUS_OPTIONS,
   DETAIL_FIELDS,
   BinuiProject,
+  BinuiAttachment,
   loadBinuiProjects,
   saveBinuiProjects,
   getHebrewDateNow,
 } from "@/lib/binuiConstants";
-import { Camera, X, Search } from "lucide-react";
+import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+
+function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
+  if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
+  if (src.startsWith("data:video") || /\.(mp4|webm|ogg|mov)$/i.test(src)) return "video";
+  if (src.startsWith("data:application/pdf") || /\.pdf$/i.test(src)) return "pdf";
+  return "other";
+}
 
 const IMAGE_LABELS: Record<string, string> = {
   tashrit: "תשריט",
@@ -33,6 +41,8 @@ const BinuiPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
+  const [attachOpen, setAttachOpen] = useState<number | null>(null);
+  const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -56,6 +66,7 @@ const BinuiPage: React.FC = () => {
       history: [{ date: now, note: "נוצר" }],
       details: { "פרטים": {}, "מיקום": {}, 'תב"ע': {} },
       images: { tashrit: null, tza: null, hadmaya: null },
+      attachments: [],
     };
     persist([p, ...projects]);
     setNewName("");
@@ -96,6 +107,24 @@ const BinuiPage: React.FC = () => {
   const saveNote = (id: number) => {
     persist(projects.map((p) => (p.id === id ? { ...p, note: noteText } : p)));
     setNoteOpen(null);
+  };
+
+  const addAttachment = (id: number, file: File) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      persist(projects.map((p) => p.id === id
+        ? { ...p, attachments: [...p.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] }
+        : p
+      ));
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const removeAttachment = (projectId: number, attachId: number) => {
+    persist(projects.map((p) => p.id === projectId
+      ? { ...p, attachments: p.attachments.filter((a) => a.id !== attachId) }
+      : p
+    ));
   };
 
   const filtered = useMemo(() => {
@@ -390,6 +419,16 @@ const BinuiPage: React.FC = () => {
                 >
                   ✉️ שלח
                 </button>
+                <button
+                  title="קבצים"
+                  className="h-7 px-3 rounded-md border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
+                  onClick={() => setAttachOpen(attachOpen === p.id ? null : p.id)}
+                >
+                  <Paperclip size={12} /> קבצים
+                  {p.attachments.length > 0 && (
+                    <span className="rounded-full text-[10px] text-white px-1.5 leading-4" style={{ background: "#2C6E6A" }}>{p.attachments.length}</span>
+                  )}
+                </button>
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
@@ -430,10 +469,94 @@ const BinuiPage: React.FC = () => {
                   </div>
                 </div>
               )}
+
+              {/* Attachments panel */}
+              {attachOpen === p.id && (
+                <div className="mt-2 border-t pt-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileDropZone
+                      onFile={(f) => addAttachment(p.id, f)}
+                      accept="image/*,video/*,application/pdf,.pptx,.docx,.xlsx,.msg,.eml"
+                      label="הוסף קובץ"
+                      className="h-16 w-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 flex-shrink-0"
+                      style={{ background: "#FAFAF8" }}
+                    />
+                    <div className="flex-1 flex flex-wrap gap-2 overflow-x-auto">
+                      {p.attachments.map((att, ai) => {
+                        const ft = getAttachType(att.data);
+                        return (
+                          <div key={att.id} className="relative group flex flex-col items-center w-20 cursor-pointer" onClick={() => setViewerData({ attachments: p.attachments, index: ai })}>
+                            <div className="w-16 h-16 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center bg-gray-50">
+                              {ft === "image" && <img src={att.data} alt={att.name} className="w-full h-full object-cover" />}
+                              {ft === "video" && <Film size={24} className="text-purple-400" />}
+                              {ft === "pdf" && <FileText size={24} className="text-red-400" />}
+                              {ft === "other" && <FileSpreadsheet size={24} className="text-blue-400" />}
+                            </div>
+                            <span className="text-[9px] text-gray-500 truncate w-full text-center mt-0.5">{att.name}</span>
+                            <button
+                              title="הסר קובץ"
+                              className="absolute -top-1 -left-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => { e.stopPropagation(); removeAttachment(p.id, att.id); }}
+                            >×</button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}
       </div>
+
+      {/* Fullscreen attachment viewer */}
+      {viewerData && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center" onClick={() => setViewerData(null)} style={{ direction: "rtl" }}>
+          <div className="relative bg-white rounded-xl shadow-2xl overflow-hidden" style={{ maxWidth: "90vw", maxHeight: "90vh", width: 800 }} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b">
+              <span className="text-sm font-semibold text-gray-700">{viewerData.attachments[viewerData.index]?.name}</span>
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-gray-400">{viewerData.index + 1} / {viewerData.attachments.length}</span>
+                {viewerData.attachments.length > 1 && (
+                  <>
+                    <button title="הקודם" className="h-7 w-7 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index - 1 + viewerData.attachments.length) % viewerData.attachments.length })}><ChevronRight size={16} /></button>
+                    <button title="הבא" className="h-7 w-7 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index + 1) % viewerData.attachments.length })}><ChevronLeft size={16} /></button>
+                  </>
+                )}
+                <button title="הורד" className="h-7 px-2 rounded text-xs border border-gray-200 text-gray-600 hover:bg-gray-100 flex items-center gap-1" onClick={() => {
+                  const att = viewerData.attachments[viewerData.index];
+                  const a = document.createElement("a");
+                  a.href = att.data;
+                  a.download = att.name;
+                  a.click();
+                }}><Download size={12} /> הורד</button>
+                <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-700" onClick={() => setViewerData(null)}><X size={16} /></button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center" style={{ maxHeight: "calc(90vh - 48px)", overflow: "auto" }}>
+              {(() => {
+                const att = viewerData.attachments[viewerData.index];
+                if (!att) return null;
+                const ft = getAttachType(att.data);
+                if (ft === "image") return <img src={att.data} alt={att.name} className="max-w-full max-h-[80vh] object-contain" />;
+                if (ft === "video") return <video src={att.data} controls autoPlay className="max-w-full max-h-[80vh]" />;
+                if (ft === "pdf") return <iframe src={att.data} title={att.name} className="w-full" style={{ height: "80vh" }} />;
+                return (
+                  <div className="flex flex-col items-center justify-center p-12 text-center">
+                    <FileSpreadsheet size={40} className="text-blue-400" />
+                    <span className="text-sm text-gray-500 mt-3">סוג קובץ זה אינו נתמך לצפייה ישירה</span>
+                    <button className="mt-4 h-8 px-4 rounded-lg text-white text-xs font-bold" style={{ background: "#3B82F6" }} onClick={() => {
+                      const a = document.createElement("a"); a.href = att.data; a.download = att.name; a.click();
+                    }}>הורד קובץ</button>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
       <EmailModal
         isOpen={emailModal.open}
         onClose={() => setEmailModal({ open: false, subject: "", body: "" })}
