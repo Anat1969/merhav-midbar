@@ -432,6 +432,52 @@ const BinuiProjectDetail: React.FC = () => {
           })}
         </div>
       </div>
+      {/* Fullscreen attachment viewer */}
+      {viewerData && (
+        <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center" onClick={() => setViewerData(null)} style={{ direction: "rtl" }}>
+          <div className="relative bg-white rounded-xl shadow-2xl overflow-hidden" style={{ maxWidth: "90vw", maxHeight: "90vh", width: 800 }} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b">
+              <span className="text-sm font-semibold text-gray-700">{viewerData.attachments[viewerData.index]?.name}</span>
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-gray-400">{viewerData.index + 1} / {viewerData.attachments.length}</span>
+                {viewerData.attachments.length > 1 && (
+                  <>
+                    <button title="הקודם" className="h-7 w-7 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index - 1 + viewerData.attachments.length) % viewerData.attachments.length })}><ChevronRight size={16} /></button>
+                    <button title="הבא" className="h-7 w-7 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index + 1) % viewerData.attachments.length })}><ChevronLeft size={16} /></button>
+                  </>
+                )}
+                <button title="הורד" className="h-7 px-2 rounded text-xs border border-gray-200 text-gray-600 hover:bg-gray-100 flex items-center gap-1" onClick={() => {
+                  const att = viewerData.attachments[viewerData.index];
+                  const a = document.createElement("a");
+                  a.href = att.data;
+                  a.download = att.name;
+                  a.click();
+                }}><Download size={12} /> הורד</button>
+                <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-700" onClick={() => setViewerData(null)}><X size={16} /></button>
+              </div>
+            </div>
+            <div className="flex items-center justify-center" style={{ maxHeight: "calc(90vh - 48px)", overflow: "auto" }}>
+              {(() => {
+                const att = viewerData.attachments[viewerData.index];
+                if (!att) return null;
+                const ft = getAttachType(att.data);
+                if (ft === "image") return <img src={att.data} alt={att.name} className="max-w-full max-h-[80vh] object-contain" />;
+                if (ft === "video") return <video src={att.data} controls autoPlay className="max-w-full max-h-[80vh]" />;
+                if (ft === "pdf") return <iframe src={att.data} title={att.name} className="w-full" style={{ height: "80vh" }} />;
+                return (
+                  <div className="flex flex-col items-center justify-center p-12 text-center">
+                    <FileSpreadsheet size={40} className="text-blue-400" />
+                    <span className="text-sm text-gray-500 mt-3">סוג קובץ זה אינו נתמך לצפייה ישירה</span>
+                    <button className="mt-4 h-8 px-4 rounded-lg text-white text-xs font-bold" style={{ background: "#3B82F6" }} onClick={() => {
+                      const a = document.createElement("a"); a.href = att.data; a.download = att.name; a.click();
+                    }}>הורד קובץ</button>
+                  </div>
+                );
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
       {(() => {
         const details = project.details?.["פרטים"] ?? {};
         const location = project.details?.["מיקום"] ?? {};
