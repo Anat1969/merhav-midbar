@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
@@ -22,9 +22,13 @@ interface Props {
 
 const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const catNames = getAllCategoryNames(config);
   const firstCat = catNames[0];
   const firstSubs = getSubsForCategory(config, firstCat);
+
+  // Read initial sub-filter from URL param (e.g. ?filter=מדריכים)
+  const urlFilter = searchParams.get("filter");
 
   const [projects, setProjects] = useState<GenericProject[]>(() => loadGenericProjects(config.storageKey));
   const [search, setSearch] = useState("");
@@ -32,6 +36,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [newCat, setNewCat] = useState(firstCat);
   const [newSub, setNewSub] = useState(firstSubs[0]);
   const [filterCat, setFilterCat] = useState<string | null>(null);
+  const [filterSub, setFilterSub] = useState<string | null>(urlFilter);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
