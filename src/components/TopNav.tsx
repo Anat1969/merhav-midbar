@@ -42,7 +42,7 @@ export const TopNav: React.FC = () => {
           </button>
         </div>
       </nav>
-      <EmailModal open={emailOpen} onClose={() => setEmailOpen(false)} />
+      <EmailModal isOpen={emailOpen} onClose={() => setEmailOpen(false)} />
     </>
   );
 };
