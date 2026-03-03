@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import {
@@ -132,8 +133,9 @@ const BinuiPage: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
       <TopNav />
+      <PrintHeader />
       {/* Breadcrumb */}
-      <div className="px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
+      <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
         <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>
           דשבורד
         </span>
@@ -142,7 +144,7 @@ const BinuiPage: React.FC = () => {
       </div>
 
       {/* Action bar */}
-      <div className="mx-6 mb-4 rounded-xl bg-white shadow-sm p-4 space-y-3">
+      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-4 space-y-3">
         {/* Row 1 */}
         <div className="flex flex-wrap gap-2 items-center">
           <div className="relative flex-shrink-0" style={{ width: 200 }}>
@@ -214,7 +216,7 @@ const BinuiPage: React.FC = () => {
         </div>
 
         {/* Row 2 — filter pills */}
-        <div className="flex flex-wrap gap-1.5 items-center">
+        <div className="pills-row flex flex-wrap gap-1.5 items-center">
           <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
             הכל
           </FilterPill>
@@ -275,7 +277,7 @@ const BinuiPage: React.FC = () => {
         {filtered.map((p, idx) => (
           <div
             key={p.id}
-            className="bg-white rounded-xl shadow-sm overflow-hidden flex"
+            className="project-card bg-white rounded-xl shadow-sm overflow-hidden flex"
             style={{ minHeight: 140 }}
           >
             {/* Left — images */}
@@ -307,7 +309,7 @@ const BinuiPage: React.FC = () => {
                 <span className="text-xs text-gray-400 mr-1">{p.category} / {p.sub}</span>
                 <select
                   title="שנה סטטוס"
-                  className="mr-auto h-7 rounded-md border text-xs px-2"
+                  className="status-badge mr-auto h-7 rounded-md border text-xs px-2"
                   style={{
                     direction: "rtl",
                     color: STATUS_OPTIONS.find((s) => s.value === p.status)?.color,
@@ -390,7 +392,7 @@ const BinuiPage: React.FC = () => {
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
-                  className="mr-auto text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
+                  className="no-print mr-auto text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
                   onClick={() => deleteProject(p.id)}
                 >
                   ×
