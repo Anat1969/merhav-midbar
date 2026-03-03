@@ -317,6 +317,47 @@ const BinuiProjectDetail: React.FC = () => {
               ))}
             </div>
           </div>
+
+          {/* Documents / Attachments */}
+          <div className="bg-white rounded-xl shadow-sm p-4">
+            <div className="flex items-center gap-2 mb-2">
+              <Paperclip size={14} style={{ color: "#2C6E6A" }} />
+              <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>מסמכים מצורפים</span>
+              {project.attachments.length > 0 && (
+                <span className="rounded-full text-[10px] text-white px-1.5 leading-4" style={{ background: "#2C6E6A" }}>{project.attachments.length}</span>
+              )}
+            </div>
+            <div className="flex items-start gap-2">
+              <FileDropZone
+                onFile={(f) => addAttachment(f)}
+                accept="image/*,video/*,application/pdf,.pptx,.docx,.xlsx,.msg,.eml"
+                label="הוסף קובץ"
+                className="h-20 w-28 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 flex-shrink-0"
+                style={{ background: "#FAFAF8" }}
+              />
+              <div className="flex-1 flex flex-wrap gap-2">
+                {project.attachments.map((att, ai) => {
+                  const ft = getAttachType(att.data);
+                  return (
+                    <div key={att.id} className="relative group flex flex-col items-center w-20 cursor-pointer" onClick={() => setViewerData({ attachments: project.attachments, index: ai })}>
+                      <div className="w-16 h-16 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center bg-gray-50">
+                        {ft === "image" && <img src={att.data} alt={att.name} className="w-full h-full object-cover" />}
+                        {ft === "video" && <Film size={24} className="text-purple-400" />}
+                        {ft === "pdf" && <FileText size={24} className="text-red-400" />}
+                        {ft === "other" && <FileSpreadsheet size={24} className="text-blue-400" />}
+                      </div>
+                      <span className="text-[9px] text-gray-500 truncate w-full text-center mt-0.5">{att.name}</span>
+                      <button
+                        title="הסר קובץ"
+                        className="absolute -top-1 -left-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        onClick={(e) => { e.stopPropagation(); removeAttachment(att.id); }}
+                      >×</button>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
