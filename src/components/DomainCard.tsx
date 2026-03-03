@@ -1,7 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { DomainDef } from "@/lib/hierarchy";
-import { countDomainProjects } from "@/lib/storage";
+import { countDomainProjects, countCategoryProjects, countSubProjects } from "@/lib/storage";
 import { SubButton } from "./SubButton";
 
 const DOMAIN_ROUTES: Record<string, string> = {
@@ -59,13 +59,22 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
       <div className="p-4 space-y-4">
         {Object.entries(def.categories).map(([catName, catDef]) => {
           const subs = catDef.items.length > 0 ? catDef.items : [catName];
+          const catCount = countCategoryProjects(name, catName);
           return (
             <div key={catName}>
-              {catDef.items.length > 0 && (
-                <h3 className="mb-2 text-xs font-bold text-gray-500 uppercase tracking-wider">
+              <div className="flex items-center gap-2 mb-2">
+                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
                   {catName}
                 </h3>
-              )}
+                {catCount > 0 && (
+                  <span
+                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                    style={{ backgroundColor: `${def.color}15`, color: def.color }}
+                  >
+                    {catCount}
+                  </span>
+                )}
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 {subs.map((sub) => (
                   <SubButton
