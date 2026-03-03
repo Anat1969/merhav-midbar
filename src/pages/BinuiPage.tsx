@@ -41,6 +41,8 @@ const BinuiPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
+  const [attachOpen, setAttachOpen] = useState<number | null>(null);
+  const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -64,6 +66,7 @@ const BinuiPage: React.FC = () => {
       history: [{ date: now, note: "נוצר" }],
       details: { "פרטים": {}, "מיקום": {}, 'תב"ע': {} },
       images: { tashrit: null, tza: null, hadmaya: null },
+      attachments: [],
     };
     persist([p, ...projects]);
     setNewName("");
