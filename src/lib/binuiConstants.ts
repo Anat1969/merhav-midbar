@@ -1,0 +1,89 @@
+export const BINUI_CATEGORIES: Record<string, { color: string; subs: string[]; description: string }> = {
+  "תכנון": {
+    color: "#2C6E6A",
+    subs: ["בניינים", "תשתיות"],
+    description: "קומפוזיציה ותכנון מבני",
+  },
+  "בינוי": {
+    color: "#3A7D6F",
+    subs: ["עירייה", "יזם"],
+    description: "ביצוע ויישום",
+  },
+  "רישוי": {
+    color: "#1E5E6E",
+    subs: ['בנייה חדשה', 'תמ"א 38', "תוספות"],
+    description: "הליכי רישוי ואישורים",
+  },
+};
+
+export const STATUS_OPTIONS = [
+  { value: "planning",   label: "בתכנון",  color: "#3B82F6", bg: "#EFF6FF" },
+  { value: "inprogress", label: "בתהליך",  color: "#F59E0B", bg: "#FFFBEB" },
+  { value: "review",     label: "בבדיקה",  color: "#F97316", bg: "#FFF7ED" },
+  { value: "done",       label: "בוצע",    color: "#10B981", bg: "#F0FDF4" },
+] as const;
+
+export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
+  "פרטים": [
+    { key: "architect",    label: "אדריכל" },
+    { key: "manager",      label: "מנהל פרויקט" },
+    { key: "date",         label: "יום" },
+    { key: "area",         label: "מרחב" },
+    { key: "compound",     label: "מתחם" },
+    { key: "block_parcel", label: "גוש וחלקה" },
+    { key: "plan_overall", label: "מס' תוכנית כוללת" },
+    { key: "plan_detail",  label: "מס' תוכנית מפורטת" },
+  ],
+  "מיקום": [
+    { key: "city",    label: "עיר" },
+    { key: "quarter", label: "רובע" },
+    { key: "street",  label: "כתובת" },
+    { key: "parcel",  label: "חלקה" },
+  ],
+  'תב"ע': [
+    { key: "taba_name",   label: 'שם תב"ע' },
+    { key: "taba_num",    label: 'מספר תב"ע' },
+    { key: "taba_status", label: "סטטוס" },
+    { key: "taba_date",   label: "תאריך אישור" },
+  ],
+};
+
+export interface BinuiProject {
+  id: number;
+  name: string;
+  category: string;
+  sub: string;
+  status: string;
+  created: string;
+  note: string;
+  history: { date: string; note: string }[];
+  details: Record<string, Record<string, string>>;
+  images: {
+    tashrit: string | null;
+    tza: string | null;
+    hadmaya: string | null;
+  };
+}
+
+const STORAGE_KEY = "binui_projects";
+
+export function loadBinuiProjects(): BinuiProject[] {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveBinuiProjects(projects: BinuiProject[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(projects));
+}
+
+export function getHebrewDateNow(): string {
+  return new Date().toLocaleDateString("he-IL", {
+    year: "numeric",
+    month: "long",
+    day: "numeric",
+  });
+}
