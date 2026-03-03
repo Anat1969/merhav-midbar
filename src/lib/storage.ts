@@ -116,12 +116,10 @@ export function searchAllProjects(query: string): SearchResult[] {
 export function getAllStatusCounts(): Record<string, number> {
   const counts: Record<string, number> = { planning: 0, inprogress: 0, review: 0, done: 0 };
 
-  // Count binui projects
   for (const p of loadBinuiProjects()) {
     if (counts[p.status] !== undefined) counts[p.status]++;
   }
 
-  // Count generic domain projects
   for (const gd of GENERIC_DOMAINS) {
     for (const p of loadGenericProjects(gd.storageKey)) {
       if (counts[p.status] !== undefined) counts[p.status]++;
@@ -140,4 +138,35 @@ export function getAllStatusCounts(): Record<string, number> {
     }
   }
   return counts;
+}
+
+/** Count projects per category for a domain */
+export function countCategoryProjects(domain: string, category: string): number {
+  if (domain === "מבנים") {
+    return loadBinuiProjects().filter((p) => p.category === category).length;
+  }
+  const generic = GENERIC_DOMAINS.find((d) => d.domainName === domain);
+  if (generic) {
+    return loadGenericProjects(generic.storageKey).filter((p) => p.category === category).length;
+  }
+  const def = HIERARCHY[domain];
+  if (!def) return 0;
+  const catDef = def.categories[category];
+  if (!catDef) return 0;
+  const subs = catDef.items.length > 0 ? catDef.items : [category];
+  let total = 0;
+  for (const sub of subs) total += countProjects(domain, category, sub);
+  return total;
+}
+
+/** Count projects for a specific sub within a domain */
+export function countSubProjects(domain: string, category: string, sub: string): number {
+  if (domain === "מבנים") {
+    return loadBinuiProjects().filter((p) => p.category === category && p.sub === sub).length;
+  }
+  const generic = GENERIC_DOMAINS.find((d) => d.domainName === domain);
+  if (generic) {
+    return loadGenericProjects(generic.storageKey).filter((p) => p.category === category && p.sub === sub).length;
+  }
+  return countProjects(domain, category, sub);
 }
