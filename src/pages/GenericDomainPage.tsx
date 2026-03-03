@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import { Search, Pencil } from "lucide-react";
@@ -136,16 +137,17 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   return (
     <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
       <TopNav />
+      <PrintHeader />
 
       {/* Breadcrumb */}
-      <div className="px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
+      <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
         <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
         <span>←</span>
         <span style={{ color: config.color, fontWeight: 600 }}>{config.domainName}</span>
       </div>
 
       {/* Action bar */}
-      <div className="mx-6 mb-4 rounded-xl bg-white shadow-sm p-4 space-y-3">
+      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-4 space-y-3">
         <div className="flex flex-wrap gap-2 items-center">
           <div className="relative flex-shrink-0" style={{ width: 200 }}>
             <Search size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -219,7 +221,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
         </div>
 
         {/* Filter pills */}
-        <div className="flex flex-wrap gap-1.5 items-center">
+        <div className="pills-row flex flex-wrap gap-1.5 items-center">
           <FilterPill active={!filterCat} onClick={() => setFilterCat(null)} color={config.color}>הכל</FilterPill>
           {catNames.map((cat) => (
             <FilterPill
@@ -256,7 +258,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
           </div>
         )}
         {filtered.map((p, idx) => (
-          <div key={p.id} className="bg-white rounded-xl shadow-sm overflow-hidden flex" style={{ minHeight: 140 }}>
+          <div key={p.id} className="project-card bg-white rounded-xl shadow-sm overflow-hidden flex" style={{ minHeight: 140 }}>
             {/* Left — image */}
             <FileDropZone
               onFile={(f) => handleImage(p.id, f)}
@@ -282,7 +284,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 <span className="text-xs text-gray-400 mr-1">{p.category}{p.sub !== p.category ? ` / ${p.sub}` : ""}</span>
                 <select
                   title="שנה סטטוס"
-                  className="mr-auto h-7 rounded-md border text-xs px-2"
+                  className="status-badge mr-auto h-7 rounded-md border text-xs px-2"
                   style={{
                     direction: "rtl",
                     color: STATUS_OPTIONS.find((s) => s.value === p.status)?.color,
@@ -382,7 +384,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
-                  className="mr-auto text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
+                  className="no-print mr-auto text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
                   onClick={() => deleteProject(p.id)}
                 >
                   ×

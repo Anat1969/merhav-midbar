@@ -1,6 +1,7 @@
 import React, { useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import {
@@ -91,9 +92,10 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   return (
     <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
       <TopNav />
+      <PrintHeader />
 
       {/* Breadcrumb */}
-      <div className="px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
+      <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
         <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
         <span>←</span>
         <span className="cursor-pointer hover:underline" onClick={() => navigate(`/${config.routeBase}`)}>{config.domainName}</span>
@@ -102,7 +104,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       </div>
 
       {/* Header bar */}
-      <div className="mx-6 mb-4 bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
+      <div className="no-print mx-6 mb-4 bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
         <button
           title="קדימה"
           disabled={!nextProject}
@@ -172,9 +174,9 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       </div>
 
       {/* Two-column grid */}
-      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="detail-grid mx-6 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* LEFT — note / history */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="detail-column bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="flex border-b">
             <TabBtn active={activeTab === "note"} onClick={() => setActiveTab("note")} color={config.color}>מסמך (חוות דעת)</TabBtn>
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")} color={config.color}>היסטוריה</TabBtn>
@@ -220,7 +222,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                     +
                   </button>
                 </div>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="history-list space-y-2 max-h-[300px] overflow-y-auto">
                   {project.history.map((h, i) => (
                     <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1" style={{ borderColor: config.color + "33" }}>
                       <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
@@ -234,7 +236,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </div>
 
         {/* RIGHT — poetic name, image, status block */}
-        <div className="space-y-4">
+        <div className="detail-column space-y-4">
           {/* Poetic name */}
           <div className="bg-white rounded-xl shadow-sm p-4">
             <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>שם פואטי</div>
@@ -260,7 +262,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           </div>
 
           {/* Status block */}
-          <div className="bg-white rounded-xl shadow-sm p-4 space-y-3">
+          <div className="detail-card bg-white rounded-xl shadow-sm p-4 space-y-3">
             <div className="text-sm font-semibold" style={{ color: config.color }}>מעקב</div>
             <div className="space-y-2">
               <div className="flex items-center gap-2 text-sm">

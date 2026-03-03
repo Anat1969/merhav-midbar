@@ -5,6 +5,7 @@ import { HeroBanner } from "@/components/HeroBanner";
 import { StatsBar } from "@/components/StatsBar";
 import { DomainCard } from "@/components/DomainCard";
 import { ProjectPanel } from "@/components/ProjectPanel";
+import PrintHeader from "@/components/PrintHeader";
 
 const domainKeys = Object.keys(HIERARCHY);
 const topRow = domainKeys.slice(0, 2);
@@ -23,6 +24,7 @@ const Index: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <TopNav />
+      <PrintHeader />
       <HeroBanner onOpenPanel={openPanel} />
       <StatsBar refreshKey={refreshKey} />
 

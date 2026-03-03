@@ -2,6 +2,7 @@ import React from "react";
 import { useParams, Link } from "react-router-dom";
 import { HIERARCHY } from "@/lib/hierarchy";
 import { TopNav } from "@/components/TopNav";
+import PrintHeader from "@/components/PrintHeader";
 
 const ROUTE_TO_DOMAIN: Record<string, string> = {
   binui: "בינוי",
@@ -28,9 +29,10 @@ const DomainPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <TopNav />
+      <PrintHeader />
 
       {/* Breadcrumb */}
-      <div className="mx-4 mt-4 flex items-center gap-2 text-sm text-muted-foreground">
+      <div className="breadcrumb mx-4 mt-4 flex items-center gap-2 text-sm text-muted-foreground">
         <Link to="/" className="hover:text-foreground transition-colors">דשבורד</Link>
         <span>←</span>
         <span className="font-medium text-foreground">{domainName}</span>

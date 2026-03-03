@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import {
@@ -118,9 +119,10 @@ const BinuiProjectDetail: React.FC = () => {
   return (
     <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
       <TopNav />
+      <PrintHeader />
 
       {/* Breadcrumb */}
-      <div className="px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
+      <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
         <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
         <span>←</span>
         <span className="cursor-pointer hover:underline" onClick={() => navigate("/binui")}>בינוי</span>
@@ -129,7 +131,7 @@ const BinuiProjectDetail: React.FC = () => {
       </div>
 
       {/* Header bar */}
-      <div className="mx-6 mb-4 bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
+      <div className="no-print mx-6 mb-4 bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
         <button
           title="קדימה"
           disabled={!nextProject}
@@ -199,9 +201,9 @@ const BinuiProjectDetail: React.FC = () => {
       </div>
 
       {/* Main two-column grid */}
-      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="detail-grid mx-6 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left — note / history */}
-        <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="detail-column bg-white rounded-xl shadow-sm overflow-hidden">
           <div className="flex border-b">
             <TabBtn active={activeTab === "note"} onClick={() => setActiveTab("note")}>מסמך (חוות דעת)</TabBtn>
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")}>היסטוריה</TabBtn>
@@ -247,7 +249,7 @@ const BinuiProjectDetail: React.FC = () => {
                     +
                   </button>
                 </div>
-                <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                <div className="history-list space-y-2 max-h-[300px] overflow-y-auto">
                   {project.history.map((h, i) => (
                     <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1" style={{ borderColor: "#2C6E6A33" }}>
                       <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
@@ -261,7 +263,7 @@ const BinuiProjectDetail: React.FC = () => {
         </div>
 
         {/* Right — video/pres + images */}
-        <div className="space-y-4">
+        <div className="detail-column space-y-4">
           {/* Video / presentation */}
           <div className="bg-white rounded-xl shadow-sm overflow-hidden">
             <div className="flex border-b">
@@ -302,7 +304,7 @@ const BinuiProjectDetail: React.FC = () => {
           const editing = editingSections[section];
           const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
           return (
-            <div key={section} className="bg-white rounded-xl shadow-sm overflow-hidden">
+            <div key={section} className="detail-card bg-white rounded-xl shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: "#FAFAF8" }}>
                 <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>{section}</span>
                 {editing ? (
@@ -345,7 +347,7 @@ const BinuiProjectDetail: React.FC = () => {
       {/* Summary pills */}
       <div className="mx-6 mb-12 bg-white rounded-xl shadow-sm p-4">
         <div className="text-sm font-semibold mb-2" style={{ color: "#2C6E6A" }}>סיכום פרטים</div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="pills-row flex flex-wrap gap-1.5">
           {DETAIL_FIELDS["פרטים"].map((f) => {
             const val = project.details?.["פרטים"]?.[f.key];
             const filled = !!val;
