@@ -42,6 +42,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
+  const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const persist = (updated: BinuiProject[]) => {
