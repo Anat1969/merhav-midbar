@@ -228,13 +228,21 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
         {/* Filter pills */}
         <div className="pills-row flex flex-wrap gap-1.5 items-center">
-          <FilterPill active={!filterCat} onClick={() => setFilterCat(null)} color={config.color}>הכל</FilterPill>
+          {filterSub && (
+            <>
+              <FilterPill active={true} color={config.color} onClick={() => { setFilterSub(null); setSearchParams({}); }}>
+                {filterSub} ✕
+              </FilterPill>
+              <span className="mx-1 text-gray-300">|</span>
+            </>
+          )}
+          <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>הכל</FilterPill>
           {catNames.map((cat) => (
             <FilterPill
               key={cat}
               active={filterCat === cat}
               color={config.color}
-              onClick={() => setFilterCat(cat === filterCat ? null : cat)}
+              onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
             >
               {cat}
             </FilterPill>
