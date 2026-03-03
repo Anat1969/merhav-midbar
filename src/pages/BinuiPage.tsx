@@ -1,6 +1,7 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
+import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import {
   BINUI_CATEGORIES,
@@ -31,6 +32,7 @@ const BinuiPage: React.FC = () => {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
+  const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const persist = useCallback((updated: BinuiProject[]) => {
@@ -369,6 +371,22 @@ const BinuiPage: React.FC = () => {
                 >
                   חוות דעת
                 </button>
+                <button
+                  title="שלח חוות דעת במייל"
+                  className="h-7 px-3 rounded-md border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                  onClick={() => {
+                    const statusLabel = STATUS_OPTIONS.find((s) => s.value === p.status)?.label ?? p.status;
+                    const details = p.details?.["פרטים"] ?? {};
+                    const location = p.details?.["מיקום"] ?? {};
+                    setEmailModal({
+                      open: true,
+                      subject: `חוות דעת: ${p.name}`,
+                      body: `שם פרויקט: ${p.name}\nקטגוריה: ${p.category} › ${p.sub}\nסטטוס: ${statusLabel}\nתאריך: ${p.created}\n\nהערות:\n${p.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`,
+                    });
+                  }}
+                >
+                  ✉️ שלח
+                </button>
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
@@ -413,6 +431,13 @@ const BinuiPage: React.FC = () => {
           </div>
         ))}
       </div>
+      <EmailModal
+        isOpen={emailModal.open}
+        onClose={() => setEmailModal({ open: false, subject: "", body: "" })}
+        subject={emailModal.subject}
+        body={emailModal.body}
+        domainColor="#2C6E6A"
+      />
     </div>
   );
 };
