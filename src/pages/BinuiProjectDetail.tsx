@@ -12,7 +12,9 @@ import {
   loadBinuiProjects,
   saveBinuiProjects,
   getHebrewDateNow,
+  MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
+import { toast } from "sonner";
 import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
@@ -46,8 +48,12 @@ const BinuiProjectDetail: React.FC = () => {
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   const persist = (updated: BinuiProject[]) => {
+    const prev = projects;
     setProjects(updated);
-    saveBinuiProjects(updated);
+    const ok = saveBinuiProjects(updated);
+    if (!ok) {
+      setProjects(prev);
+    }
   };
 
   const update = (patch: Partial<BinuiProject>) => {
@@ -99,6 +105,10 @@ const BinuiProjectDetail: React.FC = () => {
   };
 
   const handleImage = (slot: "tashrit" | "tza" | "hadmaya", file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       update({ images: { ...project.images, [slot]: reader.result as string } });
@@ -107,6 +117,10 @@ const BinuiProjectDetail: React.FC = () => {
   };
 
   const addAttachment = (file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => {
       update({ attachments: [...project.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] });

@@ -11,7 +11,9 @@ import {
   loadGenericProjects,
   saveGenericProjects,
   getHebrewDateNow,
+  MAX_FILE_SIZE_BYTES,
 } from "@/lib/domainConstants";
+import { toast } from "sonner";
 
 interface Props {
   config: DomainConfig;
@@ -32,8 +34,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   const fileRef = useRef<HTMLInputElement | null>(null);
 
   const persist = (updated: GenericProject[]) => {
+    const prev = projects;
     setProjects(updated);
-    saveGenericProjects(config.storageKey, updated);
+    const ok = saveGenericProjects(config.storageKey, updated);
+    if (!ok) {
+      setProjects(prev);
+    }
   };
 
   const update = (patch: Partial<GenericProject>) => {
@@ -81,6 +87,10 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   };
 
   const handleImage = (file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      return;
+    }
     const reader = new FileReader();
     reader.onload = () => update({ image: reader.result as string });
     reader.readAsDataURL(file);
