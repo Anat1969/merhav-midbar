@@ -28,7 +28,7 @@ export function countProjects(domain: string, category: string, sub: string): nu
 }
 
 export function countDomainProjects(domain: string): number {
-  if (domain === "בינוי") {
+  if (domain === "מבנים") {
     return loadBinuiProjects().length;
   }
   const generic = GENERIC_DOMAINS.find((d) => d.domainName === domain);
@@ -68,11 +68,11 @@ export function searchAllProjects(query: string): SearchResult[] {
   for (const p of binuiProjects) {
     if (p.name.toLowerCase().includes(q)) {
       results.push({
-        domain: "בינוי",
+        domain: "מבנים",
         category: p.category,
         sub: p.sub,
         project: { id: p.id, name: p.name, status: p.status as any, created: p.created, note: p.note, history: p.history },
-        color: HIERARCHY["בינוי"]?.color ?? "#2C6E6A",
+        color: HIERARCHY["מבנים"]?.color ?? "#2C6E6A",
       });
     }
     if (results.length >= 8) return results;
@@ -96,7 +96,7 @@ export function searchAllProjects(query: string): SearchResult[] {
   }
 
   for (const [domain, def] of Object.entries(HIERARCHY)) {
-    if (domain === "בינוי" || GENERIC_DOMAINS.some((d) => d.domainName === domain)) continue;
+    if (domain === "מבנים" || GENERIC_DOMAINS.some((d) => d.domainName === domain)) continue;
     for (const [cat, catDef] of Object.entries(def.categories)) {
       const subs = catDef.items.length > 0 ? catDef.items : [cat];
       for (const sub of subs) {
@@ -129,7 +129,7 @@ export function getAllStatusCounts(): Record<string, number> {
   }
 
   for (const [domain, def] of Object.entries(HIERARCHY)) {
-    if (domain === "בינוי" || GENERIC_DOMAINS.some((d) => d.domainName === domain)) continue;
+    if (domain === "מבנים" || GENERIC_DOMAINS.some((d) => d.domainName === domain)) continue;
     for (const [cat, catDef] of Object.entries(def.categories)) {
       const subs = catDef.items.length > 0 ? catDef.items : [cat];
       for (const sub of subs) {
