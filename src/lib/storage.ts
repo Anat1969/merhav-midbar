@@ -1,5 +1,12 @@
 import { Project, HIERARCHY, getStorageKey } from "./hierarchy";
 import { loadBinuiProjects } from "./binuiConstants";
+import { loadGenericProjects, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG } from "./domainConstants";
+
+const GENERIC_DOMAINS: { domainName: string; storageKey: string }[] = [
+  { domainName: "פיתוח", storageKey: PITUA_CONFIG.storageKey },
+  { domainName: "מיידעים", storageKey: MEYADIM_CONFIG.storageKey },
+  { domainName: "פעולות", storageKey: PEULOT_CONFIG.storageKey },
+];
 
 export function getProjects(domain: string, category: string, sub: string): Project[] {
   const key = getStorageKey(domain, category, sub);
@@ -21,9 +28,12 @@ export function countProjects(domain: string, category: string, sub: string): nu
 }
 
 export function countDomainProjects(domain: string): number {
-  // בינוי uses its own dedicated storage
   if (domain === "בינוי") {
     return loadBinuiProjects().length;
+  }
+  const generic = GENERIC_DOMAINS.find((d) => d.domainName === domain);
+  if (generic) {
+    return loadGenericProjects(generic.storageKey).length;
   }
   const def = HIERARCHY[domain];
   if (!def) return 0;
@@ -68,8 +78,25 @@ export function searchAllProjects(query: string): SearchResult[] {
     if (results.length >= 8) return results;
   }
 
+  // Search generic domain projects
+  for (const gd of GENERIC_DOMAINS) {
+    const projects = loadGenericProjects(gd.storageKey);
+    for (const p of projects) {
+      if (p.name.toLowerCase().includes(q)) {
+        results.push({
+          domain: gd.domainName,
+          category: p.category,
+          sub: p.sub,
+          project: { id: p.id, name: p.name, status: p.status as any, created: p.created, note: p.note, history: p.history },
+          color: HIERARCHY[gd.domainName]?.color ?? "#666",
+        });
+      }
+      if (results.length >= 8) return results;
+    }
+  }
+
   for (const [domain, def] of Object.entries(HIERARCHY)) {
-    if (domain === "בינוי") continue;
+    if (domain === "בינוי" || GENERIC_DOMAINS.some((d) => d.domainName === domain)) continue;
     for (const [cat, catDef] of Object.entries(def.categories)) {
       const subs = catDef.items.length > 0 ? catDef.items : [cat];
       for (const sub of subs) {
@@ -94,8 +121,15 @@ export function getAllStatusCounts(): Record<string, number> {
     if (counts[p.status] !== undefined) counts[p.status]++;
   }
 
+  // Count generic domain projects
+  for (const gd of GENERIC_DOMAINS) {
+    for (const p of loadGenericProjects(gd.storageKey)) {
+      if (counts[p.status] !== undefined) counts[p.status]++;
+    }
+  }
+
   for (const [domain, def] of Object.entries(HIERARCHY)) {
-    if (domain === "בינוי") continue;
+    if (domain === "בינוי" || GENERIC_DOMAINS.some((d) => d.domainName === domain)) continue;
     for (const [cat, catDef] of Object.entries(def.categories)) {
       const subs = catDef.items.length > 0 ? catDef.items : [cat];
       for (const sub of subs) {

@@ -7,6 +7,12 @@ import Index from "./pages/Index";
 import DomainPage from "./pages/DomainPage";
 import BinuiPage from "./pages/BinuiPage";
 import BinuiProjectDetail from "./pages/BinuiProjectDetail";
+import PituaPage from "./pages/PituaPage";
+import PituaDetail from "./pages/PituaDetail";
+import MeyadimPage from "./pages/MeyadimPage";
+import MeyadimDetail from "./pages/MeyadimDetail";
+import PeulotPage from "./pages/PeulotPage";
+import PeulotDetail from "./pages/PeulotDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,6 +27,12 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/binui" element={<BinuiPage />} />
           <Route path="/binui/:id" element={<BinuiProjectDetail />} />
+          <Route path="/pitua" element={<PituaPage />} />
+          <Route path="/pitua/:id" element={<PituaDetail />} />
+          <Route path="/meyadim" element={<MeyadimPage />} />
+          <Route path="/meyadim/:id" element={<MeyadimDetail />} />
+          <Route path="/peulot" element={<PeulotPage />} />
+          <Route path="/peulot/:id" element={<PeulotDetail />} />
           <Route path="/:slug" element={<DomainPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

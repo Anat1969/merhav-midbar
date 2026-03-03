@@ -13,7 +13,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
 };
 
 // Domains that have their own dedicated management page
-const DOMAINS_WITH_PAGES = new Set(["בינוי"]);
+const DOMAINS_WITH_PAGES = new Set(["בינוי", "פיתוח", "מיידעים", "פעולות"]);
 
 interface DomainCardProps {
   name: string;
