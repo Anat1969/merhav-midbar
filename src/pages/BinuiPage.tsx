@@ -651,13 +651,17 @@ function FilterPill({
   children,
   active,
   color,
+  variant,
   onClick,
 }: {
   children: React.ReactNode;
   active: boolean;
   color?: string;
+  variant?: "category" | "status";
   onClick: () => void;
 }) {
+  const isStatus = variant === "status";
+  const baseColor = color || "#2C6E6A";
   return (
     <button
       title={typeof children === "string" ? children : ""}
@@ -665,8 +669,10 @@ function FilterPill({
       className="h-7 px-3 rounded-full text-xs font-medium transition-all border"
       style={
         active
-          ? { background: color || "#2C6E6A", color: "#fff", borderColor: color || "#2C6E6A" }
-          : { background: "#fff", color: "#666", borderColor: "#E0E0D8" }
+          ? { background: baseColor, color: "#fff", borderColor: baseColor }
+          : isStatus
+            ? { background: "#fff", color: baseColor, borderColor: baseColor + "66" }
+            : { background: "#fff", color: "#666", borderColor: "#E0E0D8" }
       }
     >
       {children}
