@@ -419,6 +419,16 @@ const BinuiPage: React.FC = () => {
                 >
                   ✉️ שלח
                 </button>
+                <button
+                  title="קבצים"
+                  className="h-7 px-3 rounded-md border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
+                  onClick={() => setAttachOpen(attachOpen === p.id ? null : p.id)}
+                >
+                  <Paperclip size={12} /> קבצים
+                  {p.attachments.length > 0 && (
+                    <span className="rounded-full text-[10px] text-white px-1.5 leading-4" style={{ background: "#2C6E6A" }}>{p.attachments.length}</span>
+                  )}
+                </button>
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
@@ -456,6 +466,42 @@ const BinuiPage: React.FC = () => {
                     >
                       ביטול
                     </button>
+                  </div>
+                </div>
+              )}
+
+              {/* Attachments panel */}
+              {attachOpen === p.id && (
+                <div className="mt-2 border-t pt-2">
+                  <div className="flex items-center gap-2 mb-2">
+                    <FileDropZone
+                      onFile={(f) => addAttachment(p.id, f)}
+                      accept="image/*,video/*,application/pdf,.pptx,.docx,.xlsx,.msg,.eml"
+                      label="הוסף קובץ"
+                      className="h-16 w-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 flex-shrink-0"
+                      style={{ background: "#FAFAF8" }}
+                    />
+                    <div className="flex-1 flex flex-wrap gap-2 overflow-x-auto">
+                      {p.attachments.map((att, ai) => {
+                        const ft = getAttachType(att.data);
+                        return (
+                          <div key={att.id} className="relative group flex flex-col items-center w-20 cursor-pointer" onClick={() => setViewerData({ attachments: p.attachments, index: ai })}>
+                            <div className="w-16 h-16 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center bg-gray-50">
+                              {ft === "image" && <img src={att.data} alt={att.name} className="w-full h-full object-cover" />}
+                              {ft === "video" && <Film size={24} className="text-purple-400" />}
+                              {ft === "pdf" && <FileText size={24} className="text-red-400" />}
+                              {ft === "other" && <FileSpreadsheet size={24} className="text-blue-400" />}
+                            </div>
+                            <span className="text-[9px] text-gray-500 truncate w-full text-center mt-0.5">{att.name}</span>
+                            <button
+                              title="הסר קובץ"
+                              className="absolute -top-1 -left-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={(e) => { e.stopPropagation(); removeAttachment(p.id, att.id); }}
+                            >×</button>
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
               )}
