@@ -1,7 +1,16 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { DomainDef } from "@/lib/hierarchy";
 import { countDomainProjects } from "@/lib/storage";
 import { SubButton } from "./SubButton";
+
+const DOMAIN_ROUTES: Record<string, string> = {
+  "בינוי": "/binui",
+  "פיתוח": "/pitua",
+  "מיידעים": "/meyadim",
+  "פעולות": "/peulot",
+  "אפליקציות": "/apps",
+};
 
 interface DomainCardProps {
   name: string;
@@ -12,12 +21,14 @@ interface DomainCardProps {
 
 export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, refreshKey }) => {
   const totalCount = countDomainProjects(name);
+  const route = DOMAIN_ROUTES[name] ?? "/";
 
   return (
     <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
-      {/* Header */}
-      <div
-        className="flex items-center justify-between px-5 py-4 text-white"
+      {/* Header — clickable link */}
+      <Link
+        to={route}
+        className="group flex items-center justify-between px-5 py-4 text-white transition-all hover:brightness-110"
         style={{
           background: `linear-gradient(135deg, ${def.color}, ${def.color}CC)`,
         }}
@@ -29,12 +40,15 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
             <p className="text-xs font-light opacity-80">{def.description}</p>
           </div>
         </div>
-        {totalCount > 0 && (
-          <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-bold backdrop-blur-sm">
-            {totalCount}
-          </span>
-        )}
-      </div>
+        <div className="flex items-center gap-2">
+          {totalCount > 0 && (
+            <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-bold backdrop-blur-sm">
+              {totalCount}
+            </span>
+          )}
+          <span className="opacity-0 transition-opacity group-hover:opacity-80 text-lg">→</span>
+        </div>
+      </Link>
 
       {/* Body */}
       <div className="p-4 space-y-4">
