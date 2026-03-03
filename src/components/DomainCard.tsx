@@ -5,7 +5,7 @@ import { countDomainProjects } from "@/lib/storage";
 import { SubButton } from "./SubButton";
 
 const DOMAIN_ROUTES: Record<string, string> = {
-  "בינוי": "/binui",
+  "מבנים": "/binui",
   "פיתוח": "/pitua",
   "מיידעים": "/meyadim",
   "פעולות": "/peulot",
@@ -13,7 +13,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
 };
 
 // Domains that have their own dedicated management page
-const DOMAINS_WITH_PAGES = new Set(["בינוי", "פיתוח", "מיידעים", "פעולות"]);
+const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות"]);
 
 interface DomainCardProps {
   name: string;

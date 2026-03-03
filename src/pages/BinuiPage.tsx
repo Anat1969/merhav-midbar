@@ -183,7 +183,7 @@ const BinuiPage: React.FC = () => {
           דשבורד
         </span>
         <span>←</span>
-        <span style={{ color: "#2C6E6A", fontWeight: 600 }}>בינוי</span>
+        <span style={{ color: "#2C6E6A", fontWeight: 600 }}>מבנים</span>
       </div>
 
       {/* Action bar */}

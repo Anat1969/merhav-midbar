@@ -5,7 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 
 const ROUTE_TO_DOMAIN: Record<string, string> = {
-  binui: "בינוי",
+  binui: "מבנים",
   pitua: "פיתוח",
   meyadim: "מיידעים",
   peulot: "פעולות",

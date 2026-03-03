@@ -28,7 +28,7 @@ export const STATUS_CONFIG: Record<ProjectStatus, { label: string; color: string
 };
 
 export const HIERARCHY: Record<string, DomainDef> = {
-  "בינוי": {
+  "מבנים": {
     icon: "🏛",
     color: "#2C6E6A",
     description: "קומפוזיציה, אסטרטגיה, סירקולציה",

@@ -160,7 +160,7 @@ const BinuiProjectDetail: React.FC = () => {
       <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
         <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
         <span>←</span>
-        <span className="cursor-pointer hover:underline" onClick={() => navigate("/binui")}>בינוי</span>
+        <span className="cursor-pointer hover:underline" onClick={() => navigate("/binui")}>מבנים</span>
         <span>←</span>
         <span style={{ color: "#2C6E6A", fontWeight: 600 }}>{project.name}</span>
       </div>
