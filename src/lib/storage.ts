@@ -1,11 +1,11 @@
 import { Project, HIERARCHY, getStorageKey } from "./hierarchy";
-import { loadBinuiProjects } from "./binuiConstants";
-import { loadGenericProjects, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG } from "./domainConstants";
+import { loadBinuiProjects, BINUI_CATEGORIES } from "./binuiConstants";
+import { loadGenericProjects, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG, DomainConfig } from "./domainConstants";
 
-const GENERIC_DOMAINS: { domainName: string; storageKey: string }[] = [
-  { domainName: "פיתוח", storageKey: PITUA_CONFIG.storageKey },
-  { domainName: "מיידעים", storageKey: MEYADIM_CONFIG.storageKey },
-  { domainName: "פעולות", storageKey: PEULOT_CONFIG.storageKey },
+const GENERIC_DOMAINS: { domainName: string; storageKey: string; config: DomainConfig }[] = [
+  { domainName: "פיתוח", storageKey: PITUA_CONFIG.storageKey, config: PITUA_CONFIG },
+  { domainName: "מיידעים", storageKey: MEYADIM_CONFIG.storageKey, config: MEYADIM_CONFIG },
+  { domainName: "פעולות", storageKey: PEULOT_CONFIG.storageKey, config: PEULOT_CONFIG },
 ];
 
 export function getProjects(domain: string, category: string, sub: string): Project[] {
