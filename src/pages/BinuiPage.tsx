@@ -190,129 +190,170 @@ const BinuiPage: React.FC = () => {
       </div>
 
       {/* Action bar */}
-      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-4 space-y-3">
-        {/* Row 1 */}
-        <div className="flex flex-wrap gap-2 items-center">
-          <div className="relative flex-shrink-0" style={{ width: 200 }}>
-            <Search size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-5 space-y-4">
+
+        {/* === Section 1: Search === */}
+        <div>
+          <div className="relative" style={{ maxWidth: 360 }}>
+            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               title="חיפוש פרויקט"
-              className="w-full h-9 rounded-lg border border-gray-200 pr-8 pl-3 text-sm focus:outline-none focus:ring-1"
+              className="w-full h-10 rounded-lg border border-gray-200 pr-9 pl-3 text-sm focus:outline-none focus:ring-2"
               style={{ direction: "rtl" }}
-              placeholder="🔍 חיפוש..."
+              placeholder="חיפוש לפי שם פרויקט..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="h-9 flex-1 min-w-[140px] flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
-            <span className="px-2 text-sm font-medium text-gray-500 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
-              {namePrefix}
-            </span>
-            <input
-              title="שם פרויקט חדש"
-              className="h-full flex-1 px-2 text-sm focus:outline-none"
-              style={{ direction: "rtl" }}
-              placeholder="שם ייחודי..."
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addProject()}
-            />
-          </div>
-          <select
-            title="קטגוריה"
-            className="h-9 rounded-lg border border-gray-200 px-2 text-sm"
-            style={{ direction: "rtl" }}
-            value={newCat}
-            onChange={(e) => {
-              setNewCat(e.target.value);
-              setNewSub(BINUI_CATEGORIES[e.target.value].subs[0]);
-            }}
-          >
-            {Object.keys(BINUI_CATEGORIES).map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          <select
-            title="תת-קטגוריה"
-            className="h-9 rounded-lg border border-gray-200 px-2 text-sm"
-            style={{ direction: "rtl" }}
-            value={newSub}
-            onChange={(e) => setNewSub(e.target.value)}
-          >
-            {BINUI_CATEGORIES[newCat]?.subs.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-          <button
-            title="הוסף פרויקט"
-            onClick={addProject}
-            className="h-9 px-5 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
-            style={{ background: "#2C6E6A" }}
-          >
-            הוספה
-          </button>
-          <button
-            title="שמירה"
-            onClick={() => saveBinuiProjects(projects)}
-            className="h-9 px-4 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            שמירה
-          </button>
-          <span
-            className="mr-auto text-xs font-semibold px-3 py-1 rounded-full"
-            style={{ background: "#E6F2F0", color: "#2C6E6A" }}
-          >
-            חישוב: {projects.length} פרויקטים
-          </span>
+          <p className="text-[11px] text-gray-400 mt-1">חיפוש חופשי ברשימת הפרויקטים</p>
         </div>
 
-        {/* Row 2 — filter pills */}
-        <div className="pills-row flex flex-wrap gap-1.5 items-center">
-          <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
-            הכל
-          </FilterPill>
-          {Object.entries(BINUI_CATEGORIES).map(([cat, def]) => (
-            <FilterPill
-              key={cat}
-              active={filterCat === cat}
-              color={def.color}
-              onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); }}
-            >
-              {cat}
+        <div className="border-t border-gray-100" />
+
+        {/* === Section 2: Add new record === */}
+        <div>
+          <div className="text-xs font-bold text-gray-500 mb-2">➕ הוספת רשומה חדשה</div>
+          <div className="flex flex-wrap gap-2 items-center">
+            {/* Step 1: Category */}
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 font-medium">① קטגוריה</label>
+              <select
+                title="קטגוריה"
+                className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white"
+                style={{ direction: "rtl" }}
+                value={newCat}
+                onChange={(e) => {
+                  setNewCat(e.target.value);
+                  setNewSub(BINUI_CATEGORIES[e.target.value].subs[0]);
+                }}
+              >
+                {Object.keys(BINUI_CATEGORIES).map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            {/* Step 2: Sub-category */}
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 font-medium">② תת-קטגוריה</label>
+              <select
+                title="תת-קטגוריה"
+                className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white"
+                style={{ direction: "rtl" }}
+                value={newSub}
+                onChange={(e) => setNewSub(e.target.value)}
+              >
+                {BINUI_CATEGORIES[newCat]?.subs.map((s) => (
+                  <option key={s} value={s}>{s}</option>
+                ))}
+              </select>
+            </div>
+            {/* Step 3: Name */}
+            <div className="flex flex-col gap-0.5 flex-1 min-w-[180px]">
+              <label className="text-[10px] text-gray-400 font-medium">③ שם ייחודי</label>
+              <div className="h-9 flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
+                <span className="px-2 text-xs font-medium text-gray-400 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
+                  {namePrefix}
+                </span>
+                <input
+                  title="שם פרויקט חדש"
+                  className="h-full flex-1 px-2 text-sm focus:outline-none"
+                  style={{ direction: "rtl" }}
+                  placeholder="הקלד שם..."
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addProject()}
+                />
+              </div>
+            </div>
+            {/* Step 4: Add button */}
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-transparent font-medium select-none">④</label>
+              <button
+                title="הוסף פרויקט"
+                onClick={addProject}
+                className="h-9 px-6 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                style={{ background: "#2C6E6A" }}
+              >
+                + הוספה
+              </button>
+            </div>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-1.5">בחר קטגוריה ותת-קטגוריה, הקלד שם ייחודי ולחץ הוספה. השם ייבנה אוטומטית: קטגוריה:תת-קטגוריה - שם</p>
+        </div>
+
+        <div className="border-t border-gray-100" />
+
+        {/* === Section 3: Filters === */}
+        <div>
+          <div className="text-xs font-bold text-gray-500 mb-2">🔽 סינון לפי קטגוריה וסטטוס</div>
+          <div className="pills-row flex flex-wrap gap-1.5 items-center">
+            <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
+              הכל
             </FilterPill>
-          ))}
-          {activeSubs.length > 0 && (
-            <>
-              <span className="mx-1 text-gray-300">|</span>
-              <FilterPill active={!filterSub} onClick={() => setFilterSub(null)}>
-                הכל
+            {Object.entries(BINUI_CATEGORIES).map(([cat, def]) => (
+              <FilterPill
+                key={cat}
+                active={filterCat === cat}
+                color={def.color}
+                onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); }}
+              >
+                {cat}
               </FilterPill>
-              {activeSubs.map((s) => (
-                <FilterPill
-                  key={s}
-                  active={filterSub === s}
-                  color={BINUI_CATEGORIES[filterCat!]?.color}
-                  onClick={() => setFilterSub(s === filterSub ? null : s)}
-                >
-                  {s}
+            ))}
+            {activeSubs.length > 0 && (
+              <>
+                <span className="mx-1 text-gray-300">|</span>
+                <FilterPill active={!filterSub} onClick={() => setFilterSub(null)}>
+                  הכל
                 </FilterPill>
-              ))}
-            </>
-          )}
-          <span className="mx-1 text-gray-300">|</span>
-          <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)}>
-            הכל
-          </FilterPill>
-          {STATUS_OPTIONS.map((s) => (
-            <FilterPill
-              key={s.value}
-              active={filterStatus === s.value}
-              color={s.color}
-              onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
-            >
-              {s.label} ({statusCounts[s.value] ?? 0})
+                {activeSubs.map((s) => (
+                  <FilterPill
+                    key={s}
+                    active={filterSub === s}
+                    color={BINUI_CATEGORIES[filterCat!]?.color}
+                    onClick={() => setFilterSub(s === filterSub ? null : s)}
+                  >
+                    {s}
+                  </FilterPill>
+                ))}
+              </>
+            )}
+            <span className="mx-1 text-gray-300">|</span>
+            <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)}>
+              הכל
             </FilterPill>
-          ))}
+            {STATUS_OPTIONS.map((s) => (
+              <FilterPill
+                key={s.value}
+                active={filterStatus === s.value}
+                color={s.color}
+                onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
+              >
+                {s.label} ({statusCounts[s.value] ?? 0})
+              </FilterPill>
+            ))}
+          </div>
+          <p className="text-[11px] text-gray-400 mt-1">לחץ על כפתור לסינון הרשימה. ניתן לשלב סינון קטגוריה + סטטוס</p>
+        </div>
+
+        <div className="border-t border-gray-100" />
+
+        {/* === Section 4: Summary & utility === */}
+        <div className="flex items-center gap-3">
+          <span
+            className="text-xs font-semibold px-3 py-1.5 rounded-full"
+            style={{ background: "#E6F2F0", color: "#2C6E6A" }}
+          >
+            סה״כ: {projects.length} פרויקטים
+          </span>
+          <button
+            title="שמירה ידנית של הנתונים"
+            onClick={() => { saveBinuiProjects(projects); toast.success("הנתונים נשמרו"); }}
+            className="h-8 px-3 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors"
+          >
+            💾 שמירה
+          </button>
+          <p className="text-[11px] text-gray-400">הנתונים נשמרים אוטומטית. לחץ שמירה לשמירה ידנית נוספת</p>
         </div>
       </div>
 
