@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { EmailModal } from "./EmailModal";
+import { LinksManager } from "./LinksManager";
 
 export const TopNav: React.FC = () => {
   const [emailOpen, setEmailOpen] = useState(false);
+  const [linksOpen, setLinksOpen] = useState(false);
 
   return (
     <>
@@ -18,6 +20,13 @@ export const TopNav: React.FC = () => {
             className="rounded border border-gray-300 px-3 py-1.5 text-xs transition-colors hover:bg-gray-50"
           >
             🏠 חזור הביתה
+          </button>
+          <button
+            title="קישורים"
+            onClick={() => setLinksOpen(true)}
+            className="rounded border border-gray-300 px-3 py-1.5 text-xs transition-colors hover:bg-gray-50"
+          >
+            🔗 קישורים
           </button>
           <button
             title="חזור אחורה"
