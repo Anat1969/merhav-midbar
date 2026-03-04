@@ -259,20 +259,20 @@ const BinuiPage: React.FC = () => {
       <div className="no-print mx-4 mt-3 flex items-center gap-3">
         <button
           onClick={() => navigate("/")}
-          className="h-12 px-8 rounded-xl text-white text-base font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
+          className="h-14 px-10 rounded-xl text-white text-lg font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
           style={{ background: "linear-gradient(135deg, #2C6E6A, #1E5E5A)" }}
         >
           🏠 חזור לדשבורד
         </button>
         <button
           onClick={() => navigate(-1)}
-          className="h-10 px-5 rounded-lg border-2 border-gray-300 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
+          className="h-12 px-6 rounded-xl border-2 border-gray-300 text-base font-bold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
         >
           → חזור אחורה
         </button>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+          className="h-12 px-5 rounded-xl border border-gray-200 text-base font-medium text-gray-500 hover:bg-gray-50 transition-colors"
         >
           ↑ ראש העמוד
         </button>

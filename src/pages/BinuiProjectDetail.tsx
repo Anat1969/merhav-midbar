@@ -225,10 +225,18 @@ const BinuiProjectDetail: React.FC = () => {
       </div>
 
       {/* Navigation buttons */}
-      <div className="no-print mx-4 mt-3 flex items-center gap-2">
+      <div className="no-print mx-4 mt-3 flex items-center gap-3">
+        <button
+          title="חזור לדשבורד"
+          className="h-14 px-10 rounded-xl text-white text-lg font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
+          style={{ background: "linear-gradient(135deg, #2C6E6A, #1E5E5A)" }}
+          onClick={() => navigate("/")}
+        >
+          🏠 דשבורד
+        </button>
         <button
           title="חזור אחורה"
-          className="h-8 px-3 rounded-lg border border-border bg-card text-xs hover:bg-muted transition-colors"
+          className="h-12 px-6 rounded-xl border-2 border-gray-300 text-base font-bold text-gray-600 hover:bg-muted transition-colors"
           onClick={() => navigate(-1 as any)}
         >
           ← חזור
@@ -236,7 +244,7 @@ const BinuiProjectDetail: React.FC = () => {
         <button
           title="קדימה"
           disabled={!nextProject}
-          className="h-8 px-3 rounded-lg border border-border bg-card text-xs disabled:opacity-30 hover:bg-muted transition-colors"
+          className="h-12 px-5 rounded-xl border border-border bg-card text-base font-medium disabled:opacity-30 hover:bg-muted transition-colors"
           onClick={() => nextProject && navigate(`/binui/${nextProject.id}`)}
         >
           קדימה &gt;
@@ -244,7 +252,7 @@ const BinuiProjectDetail: React.FC = () => {
         <button
           title="אחורה"
           disabled={!prevProject}
-          className="h-8 px-3 rounded-lg border border-border bg-card text-xs disabled:opacity-30 hover:bg-muted transition-colors"
+          className="h-12 px-5 rounded-xl border border-border bg-card text-base font-medium disabled:opacity-30 hover:bg-muted transition-colors"
           onClick={() => prevProject && navigate(`/binui/${prevProject.id}`)}
         >
           &lt; אחורה
