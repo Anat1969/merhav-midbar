@@ -249,7 +249,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         <div className="detail-column space-y-4">
           {/* Poetic name */}
           <div className="bg-white rounded-xl shadow-sm p-4">
-            <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>שם פואטי</div>
+            <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>רעיון...</div>
             <input
               title="שם פואטי"
               className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm italic"
