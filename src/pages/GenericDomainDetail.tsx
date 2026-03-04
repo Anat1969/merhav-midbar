@@ -213,21 +213,21 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
               {/* Text side */}
               <div className="flex-1 p-5 space-y-4">
                 {/* Haiku + Post row */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
                   {/* Post — smaller font */}
-                  <div>
+                  <div className="flex flex-col">
                     <div className="text-xs font-semibold mb-1 text-muted-foreground">פוסט:</div>
                     <textarea
                       title="פוסט"
-                      className="w-full rounded-lg border border-border p-3 text-sm resize-none bg-card"
-                      style={{ direction: "rtl", minHeight: 220 }}
+                      className="w-full flex-1 rounded-lg border border-border p-3 text-sm resize-none bg-card"
+                      style={{ direction: "rtl", minHeight: 280 }}
                       placeholder="כתוב פוסט..."
                       value={project.description}
                       onChange={(e) => update({ description: e.target.value })}
                     />
                   </div>
                   {/* Poetic Name + Haiku column */}
-                  <div className="space-y-3">
+                  <div className="flex flex-col gap-3">
                     {/* Poetic Name — shortened, above haiku */}
                     <div>
                       <div className="text-xs font-semibold mb-1 text-muted-foreground">שם פואטי:</div>
@@ -240,13 +240,13 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                         onChange={(e) => update({ poeticName: e.target.value })}
                       />
                     </div>
-                    {/* Haiku — medium */}
-                    <div>
+                    {/* Haiku — medium, fills remaining space */}
+                    <div className="flex flex-col flex-1">
                       <div className="text-xs font-semibold mb-1 text-muted-foreground">שיר היצירה:</div>
                       <textarea
                         title="הייקו"
-                        className="w-full rounded-lg border border-border p-3 text-base font-semibold italic resize-none bg-card"
-                        style={{ direction: "rtl", minHeight: 160, color: config.color }}
+                        className="w-full flex-1 rounded-lg border border-border p-3 text-base font-semibold italic resize-none bg-card"
+                        style={{ direction: "rtl", minHeight: 180, color: config.color }}
                         placeholder="הייקו — שלושה שורות..."
                         value={project.task}
                         onChange={(e) => update({ task: e.target.value })}
