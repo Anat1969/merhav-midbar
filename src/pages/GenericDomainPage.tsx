@@ -4,7 +4,7 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
-import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
 import {
   DomainConfig,
   GenericProject,
@@ -18,6 +18,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/domainConstants";
 import { toast } from "sonner";
+import { ALL_DOMAINS, moveGenericToBinui, moveGenericToGeneric } from "@/lib/moveProject";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
