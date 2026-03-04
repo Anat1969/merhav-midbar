@@ -163,24 +163,23 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </button>
       </div>
 
-      {/* ═══════════════ TOP FRAME — Post + Title/Idea side by side ═══════════════ */}
-      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4" style={{ minHeight: 480 }}>
-        {/* LEFT — Post (maximized) */}
+      {/* ═══════════════ TOP FRAME — Post | Title+Idea | Image ═══════════════ */}
+      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 500 }}>
+        {/* 1. Post (maximized) */}
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
           <div className="text-lg font-bold mb-2" style={{ color: config.color }}>פוסט</div>
           <textarea
             title="פוסט"
             className="flex-1 w-full rounded-xl border border-gray-200 p-5 text-lg resize-none leading-relaxed"
-            style={{ direction: "rtl", minHeight: 400, background: "#FAFAF8" }}
+            style={{ direction: "rtl", minHeight: 420, background: "#FAFAF8" }}
             placeholder="כתוב פוסט, תיאור, הערות..."
             value={project.description}
             onChange={(e) => update({ description: e.target.value })}
           />
         </div>
 
-        {/* RIGHT — Title + Haiku stacked */}
+        {/* 2. Title + Haiku stacked */}
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-5">
-          {/* Editable title */}
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם הפרויקט</div>
             {editingName ? (
@@ -211,30 +210,29 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             )}
           </div>
 
-          {/* Haiku / poem */}
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>רעיון / שם שיר</div>
             <textarea
               title="רעיון / הייקו"
               className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-xl font-black italic text-center resize-none leading-relaxed"
-              style={{ direction: "rtl", minHeight: 140, background: config.color + "08" }}
+              style={{ direction: "rtl", minHeight: 200, background: config.color + "08" }}
               placeholder="הייקו / רעיון / שיר..."
               value={project.poeticName}
               onChange={(e) => update({ poeticName: e.target.value })}
             />
           </div>
+        </div>
 
-          {/* Image */}
-          <div className="flex flex-col">
-            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>תמונה</div>
-            <FileDropZone
-              onFile={(f) => handleImage(f)}
-              onDelete={() => update({ image: null })}
-              currentSrc={project.image}
-              label="תמונה"
-              className="min-h-[160px] border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 overflow-hidden"
-            />
-          </div>
+        {/* 3. Image — full 1/3 of screen */}
+        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
+          <div className="text-sm font-bold mb-2" style={{ color: config.color }}>תמונה</div>
+          <FileDropZone
+            onFile={(f) => handleImage(f)}
+            onDelete={() => update({ image: null })}
+            currentSrc={project.image}
+            label="תמונה"
+            className="flex-1 min-h-[400px] border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 overflow-hidden"
+          />
         </div>
       </div>
 
