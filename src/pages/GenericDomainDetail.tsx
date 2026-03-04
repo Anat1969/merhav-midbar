@@ -163,29 +163,45 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </button>
       </div>
 
-      {/* ═══════════════ TOP FRAME — Idea / Poetic ═══════════════ */}
-      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4" style={{ minHeight: 420 }}>
-        {/* LEFT — Haiku + Idea + Post */}
+      {/* ═══════════════ TOP FRAME — Post + Title/Idea side by side ═══════════════ */}
+      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4" style={{ minHeight: 480 }}>
+        {/* LEFT — Post (maximized) */}
+        <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
+          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>פוסט</div>
+          <textarea
+            title="פוסט"
+            className="flex-1 w-full rounded-xl border border-gray-200 p-5 text-lg resize-none leading-relaxed"
+            style={{ direction: "rtl", minHeight: 400, background: "#FAFAF8" }}
+            placeholder="כתוב פוסט, תיאור, הערות..."
+            value={project.description}
+            onChange={(e) => update({ description: e.target.value })}
+          />
+        </div>
+
+        {/* RIGHT — Title + Haiku stacked */}
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-5">
           {/* Editable title */}
           <div>
+            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם הפרויקט</div>
             {editingName ? (
-              <div className="inline-flex gap-2 items-center">
+              <div className="flex flex-col gap-2">
                 <input
                   title="שם פרויקט"
-                  className="h-12 rounded-lg border border-gray-300 px-4 text-2xl font-extrabold"
+                  className="h-12 rounded-lg border border-gray-300 px-4 text-xl font-extrabold w-full"
                   style={{ direction: "rtl" }}
                   value={tempName}
                   onChange={(e) => setTempName(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && saveName()}
                   autoFocus
                 />
-                <button title="שמור" className="text-sm text-white px-4 h-9 rounded-lg" style={{ background: config.color }} onClick={saveName}>שמור</button>
-                <button title="ביטול" className="text-sm text-gray-500 hover:underline" onClick={() => setEditingName(false)}>ביטול</button>
+                <div className="flex gap-2">
+                  <button title="שמור" className="text-sm text-white px-4 h-9 rounded-lg flex-1" style={{ background: config.color }} onClick={saveName}>שמור</button>
+                  <button title="ביטול" className="text-sm text-gray-500 hover:underline" onClick={() => setEditingName(false)}>ביטול</button>
+                </div>
               </div>
             ) : (
               <h1
-                className="text-2xl font-extrabold cursor-pointer hover:underline leading-tight"
+                className="text-xl font-extrabold cursor-pointer hover:underline leading-tight"
                 style={{ color: config.color }}
                 title="לחץ לעריכת שם"
                 onClick={() => { setEditingName(true); setTempName(project.name); }}
@@ -195,43 +211,30 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             )}
           </div>
 
-          {/* Haiku / poem — large prominent textarea */}
+          {/* Haiku / poem */}
           <div className="flex-1 flex flex-col">
-            <div className="text-base font-bold mb-1" style={{ color: config.color }}>רעיון...</div>
+            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>רעיון / שם שיר</div>
             <textarea
               title="רעיון / הייקו"
-              className="flex-1 w-full rounded-xl border-2 border-gray-200 p-5 text-2xl font-black italic text-center resize-none leading-relaxed"
-              style={{ direction: "rtl", minHeight: 160, background: config.color + "08" }}
+              className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-xl font-black italic text-center resize-none leading-relaxed"
+              style={{ direction: "rtl", minHeight: 140, background: config.color + "08" }}
               placeholder="הייקו / רעיון / שיר..."
               value={project.poeticName}
               onChange={(e) => update({ poeticName: e.target.value })}
             />
           </div>
 
-          {/* Post */}
-          <div>
-            <div className="text-base font-bold mb-1" style={{ color: config.color }}>פוסט</div>
-            <textarea
-              title="פוסט"
-              className="w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed"
-              style={{ direction: "rtl", minHeight: 140, background: "#FAFAF8" }}
-              placeholder="כתוב פוסט, תיאור, הערות..."
-              value={project.description}
-              onChange={(e) => update({ description: e.target.value })}
+          {/* Image */}
+          <div className="flex flex-col">
+            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>תמונה</div>
+            <FileDropZone
+              onFile={(f) => handleImage(f)}
+              onDelete={() => update({ image: null })}
+              currentSrc={project.image}
+              label="תמונה"
+              className="min-h-[160px] border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 overflow-hidden"
             />
           </div>
-        </div>
-
-        {/* RIGHT — Image */}
-        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
-          <div className="text-base font-bold mb-2" style={{ color: config.color }}>תמונה</div>
-          <FileDropZone
-            onFile={(f) => handleImage(f)}
-            onDelete={() => update({ image: null })}
-            currentSrc={project.image}
-            label="תמונה"
-            className="flex-1 min-h-[340px] border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 overflow-hidden"
-          />
         </div>
       </div>
 
