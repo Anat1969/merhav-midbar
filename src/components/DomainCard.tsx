@@ -56,42 +56,86 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
       </Link>
 
       {/* Body */}
-      <div className="p-4 space-y-4">
-        {Object.entries(def.categories).map(([catName, catDef]) => {
-          const subs = catDef.items.length > 0 ? catDef.items : [catName];
-          const catCount = countCategoryProjects(name, catName);
-          return (
-            <div key={catName}>
-              <div className="flex items-center gap-2 mb-2">
-                <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
-                  {catName}
-                </h3>
-                {catCount > 0 && (
-                  <span
-                    className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
-                    style={{ backgroundColor: `${def.color}15`, color: def.color }}
-                  >
-                    {catCount}
-                  </span>
-                )}
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {subs.map((sub) => (
-                  <SubButton
-                    key={sub}
-                    label={sub}
-                    domain={name}
-                    category={catName}
-                    sub={sub}
-                    color={def.color}
-                    onClick={() => hasDedicatedPage ? navigate(`${route}?filter=${encodeURIComponent(sub)}`) : onOpenPanel(name, catName, sub)}
-                    refreshKey={refreshKey}
-                  />
-                ))}
-              </div>
-            </div>
-          );
-        })}
+      <div className="p-4">
+        {hasSubItems ? (
+          /* Columnar layout: categories as columns, subs listed vertically */
+          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Object.keys(def.categories).length}, 1fr)` }}>
+            {Object.entries(def.categories).map(([catName, catDef]) => {
+              const subs = catDef.items.length > 0 ? catDef.items : [catName];
+              const catCount = countCategoryProjects(name, catName);
+              return (
+                <div key={catName} className="space-y-2">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      {catName}
+                    </h3>
+                    {catCount > 0 && (
+                      <span
+                        className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ backgroundColor: `${def.color}15`, color: def.color }}
+                      >
+                        {catCount}
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    {subs.map((sub) => (
+                      <SubButton
+                        key={sub}
+                        label={sub}
+                        domain={name}
+                        category={catName}
+                        sub={sub}
+                        color={def.color}
+                        onClick={() => hasDedicatedPage ? navigate(`${route}?filter=${encodeURIComponent(sub)}`) : onOpenPanel(name, catName, sub)}
+                        refreshKey={refreshKey}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          /* Default layout for domains without sub-items */
+          <div className="space-y-4">
+            {Object.entries(def.categories).map(([catName, catDef]) => {
+              const subs = catDef.items.length > 0 ? catDef.items : [catName];
+              const catCount = countCategoryProjects(name, catName);
+              return (
+                <div key={catName}>
+                  <div className="flex items-center gap-2 mb-2">
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                      {catName}
+                    </h3>
+                    {catCount > 0 && (
+                      <span
+                        className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
+                        style={{ backgroundColor: `${def.color}15`, color: def.color }}
+                      >
+                        {catCount}
+                      </span>
+                    )}
+                  </div>
+                  <div className="grid grid-cols-2 gap-2">
+                    {subs.map((sub) => (
+                      <SubButton
+                        key={sub}
+                        label={sub}
+                        domain={name}
+                        category={catName}
+                        sub={sub}
+                        color={def.color}
+                        onClick={() => hasDedicatedPage ? navigate(`${route}?filter=${encodeURIComponent(sub)}`) : onOpenPanel(name, catName, sub)}
+                        refreshKey={refreshKey}
+                      />
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
       </div>
     </div>
   );
