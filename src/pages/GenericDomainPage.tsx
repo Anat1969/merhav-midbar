@@ -221,117 +221,192 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       </div>
 
       {/* Action bar */}
-      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-4 space-y-3">
-        <div className="flex flex-wrap gap-2 items-center">
-          <div className="relative flex-shrink-0" style={{ width: 200 }}>
-            <Search size={14} className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400" />
+      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-5 space-y-4">
+
+        {/* === Section 1: Search === */}
+        <div>
+          <div className="relative" style={{ maxWidth: 360 }}>
+            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               title="חיפוש פרויקט"
-              className="w-full h-9 rounded-lg border border-gray-200 pr-8 pl-3 text-sm focus:outline-none focus:ring-1"
+              className="w-full h-10 rounded-lg border border-gray-200 pr-9 pl-3 text-sm focus:outline-none focus:ring-2"
               style={{ direction: "rtl" }}
-              placeholder="🔍 חיפוש..."
+              placeholder="חיפוש לפי שם פרויקט..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <div className="h-9 flex-1 min-w-[140px] flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
-            <span className="px-2 text-sm font-medium text-gray-500 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
-              {namePrefix}
-            </span>
-            <input
-              title="שם פרויקט חדש"
-              className="h-full flex-1 px-2 text-sm focus:outline-none"
-              style={{ direction: "rtl" }}
-              placeholder="שם ייחודי..."
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && addProject()}
-            />
-          </div>
-          <select
-            title="קטגוריה"
-            className="h-9 rounded-lg border border-gray-200 px-2 text-sm"
-            style={{ direction: "rtl" }}
-            value={newCat}
-            onChange={(e) => {
-              setNewCat(e.target.value);
-              const subs = getSubsForCategory(config, e.target.value);
-              setNewSub(subs[0]);
-            }}
-          >
-            {catNames.map((c) => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
-          {hasSubs && (
-            <select
-              title="תת-קטגוריה"
-              className="h-9 rounded-lg border border-gray-200 px-2 text-sm"
-              style={{ direction: "rtl" }}
-              value={newSub}
-              onChange={(e) => setNewSub(e.target.value)}
-            >
-              {currentSubs.map((s) => (
-                <option key={s} value={s}>{s}</option>
-              ))}
-            </select>
-          )}
-          <button
-            title="הוסף פרויקט"
-            onClick={addProject}
-            className="h-9 px-5 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
-            style={{ background: config.color }}
-          >
-            הוספה
-          </button>
-          <button
-            title="שמירה"
-            onClick={() => saveGenericProjects(config.storageKey, projects)}
-            className="h-9 px-4 rounded-lg border border-gray-300 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
-          >
-            שמירה
-          </button>
-          <span
-            className="mr-auto text-xs font-semibold px-3 py-1 rounded-full"
-            style={{ background: config.color + "1A", color: config.color }}
-          >
-            חישוב: {projects.length} פרויקטים
-          </span>
+          <p className="text-[11px] text-gray-400 mt-1">חיפוש חופשי ברשימת הפרויקטים</p>
         </div>
 
-        {/* Filter pills */}
-        <div className="pills-row flex flex-wrap gap-1.5 items-center">
-          {filterSub && (
-            <>
-              <FilterPill active={true} color={config.color} onClick={() => { setFilterSub(null); setSearchParams({}); }}>
-                {filterSub} ✕
+        <div className="border-t border-gray-100" />
+
+        {/* === Section 2: Add new record === */}
+        <div>
+          <div className="text-xs font-bold text-gray-500 mb-2">➕ הוספת רשומה חדשה</div>
+          <div className="flex flex-wrap gap-2 items-center">
+            {/* Step 1: Category */}
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-gray-400 font-medium">① קטגוריה</label>
+              <select
+                title="קטגוריה"
+                className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white"
+                style={{ direction: "rtl" }}
+                value={newCat}
+                onChange={(e) => {
+                  setNewCat(e.target.value);
+                  const subs = getSubsForCategory(config, e.target.value);
+                  setNewSub(subs[0]);
+                }}
+              >
+                {catNames.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            {/* Step 2: Sub-category (if exists) */}
+            {hasSubs && (
+              <div className="flex flex-col gap-0.5">
+                <label className="text-[10px] text-gray-400 font-medium">② תת-קטגוריה</label>
+                <select
+                  title="תת-קטגוריה"
+                  className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white"
+                  style={{ direction: "rtl" }}
+                  value={newSub}
+                  onChange={(e) => setNewSub(e.target.value)}
+                >
+                  {currentSubs.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+              </div>
+            )}
+            {/* Step 3: Name */}
+            <div className="flex flex-col gap-0.5 flex-1 min-w-[180px]">
+              <label className="text-[10px] text-gray-400 font-medium">{hasSubs ? "③" : "②"} שם ייחודי</label>
+              <div className="h-9 flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
+                <span className="px-2 text-xs font-medium text-gray-400 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
+                  {namePrefix}
+                </span>
+                <input
+                  title="שם פרויקט חדש"
+                  className="h-full flex-1 px-2 text-sm focus:outline-none"
+                  style={{ direction: "rtl" }}
+                  placeholder="הקלד שם..."
+                  value={newName}
+                  onChange={(e) => setNewName(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addProject()}
+                />
+              </div>
+            </div>
+            {/* Step 4: Add button */}
+            <div className="flex flex-col gap-0.5">
+              <label className="text-[10px] text-transparent font-medium select-none">{hasSubs ? "④" : "③"}</label>
+              <button
+                title="הוסף פרויקט"
+                onClick={addProject}
+                className="h-9 px-6 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
+                style={{ background: config.color }}
+              >
+                + הוספה
+              </button>
+            </div>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-1.5">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ייחודי ולחץ הוספה</p>
+        </div>
+
+        <div className="border-t border-gray-100" />
+
+        {/* === Section 3: Filters === */}
+        <div>
+          <div className="text-xs font-bold text-gray-500 mb-3">🔽 סינון לפי קטגוריה וסטטוס</div>
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            {/* Right side: Category hierarchy */}
+            <div className="flex flex-col gap-2">
+              {/* Level 1: Categories */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">קטגוריה:</span>
+                <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>
+                  הכל
+                </FilterPill>
+                {catNames.map((cat) => {
+                  const catCount = projects.filter((p) => p.category === cat).length;
+                  return (
+                    <FilterPill
+                      key={cat}
+                      active={filterCat === cat}
+                      color={config.color}
+                      onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
+                    >
+                      {cat} {catCount > 0 ? `(${catCount})` : ""}
+                    </FilterPill>
+                  );
+                })}
+              </div>
+              {/* Level 2: Sub-categories (shown when category selected and has subs) */}
+              {filterCat && config.categories[filterCat]?.length > 0 && (
+                <div className="flex items-center gap-1.5 pr-14">
+                  <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">נושא:</span>
+                  <FilterPill active={!filterSub} onClick={() => { setFilterSub(null); setSearchParams({}); }} color={config.color}>
+                    הכל
+                  </FilterPill>
+                  {getSubsForCategory(config, filterCat).map((s) => {
+                    const subCount = projects.filter((p) => p.category === filterCat && p.sub === s).length;
+                    return (
+                      <FilterPill
+                        key={s}
+                        active={filterSub === s}
+                        color={config.color}
+                        onClick={() => { setFilterSub(s === filterSub ? null : s); setSearchParams({}); }}
+                      >
+                        {s} {subCount > 0 ? `(${subCount})` : ""}
+                      </FilterPill>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Left side: Status filters */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-gray-400 shrink-0">סטטוס:</span>
+              <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} variant="status">
+                הכל
               </FilterPill>
-              <span className="mx-1 text-gray-300">|</span>
-            </>
-          )}
-          <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>הכל</FilterPill>
-          {catNames.map((cat) => (
-            <FilterPill
-              key={cat}
-              active={filterCat === cat}
-              color={config.color}
-              onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
-            >
-              {cat}
-            </FilterPill>
-          ))}
-          <span className="mx-1 text-gray-300">|</span>
-          <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} color={config.color}>הכל</FilterPill>
-          {STATUS_OPTIONS.map((s) => (
-            <FilterPill
-              key={s.value}
-              active={filterStatus === s.value}
-              color={s.color}
-              onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
-            >
-              {s.label} ({statusCounts[s.value] ?? 0})
-            </FilterPill>
-          ))}
+              {STATUS_OPTIONS.map((s) => (
+                <FilterPill
+                  key={s.value}
+                  active={filterStatus === s.value}
+                  color={s.color}
+                  variant="status"
+                  onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
+                >
+                  {s.label} ({statusCounts[s.value] ?? 0})
+                </FilterPill>
+              ))}
+            </div>
+          </div>
+          <p className="text-[11px] text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ← נושא" : ""} ← סטטוס. ניתן לשלב סינונים יחד</p>
+        </div>
+
+        <div className="border-t border-gray-100" />
+
+        {/* === Section 4: Summary & utility === */}
+        <div className="flex items-center gap-3">
+          <span
+            className="text-xs font-semibold px-3 py-1.5 rounded-full"
+            style={{ background: config.color + "1A", color: config.color }}
+          >
+            סה״כ: {projects.length} פרויקטים
+          </span>
+          <button
+            title="שמירה ידנית של הנתונים"
+            onClick={() => { saveGenericProjects(config.storageKey, projects); toast.success("הנתונים נשמרו"); }}
+            className="h-8 px-3 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors"
+          >
+            💾 שמירה
+          </button>
+          <p className="text-[11px] text-gray-400">הנתונים נשמרים אוטומטית. לחץ שמירה לשמירה ידנית נוספת</p>
         </div>
       </div>
 
