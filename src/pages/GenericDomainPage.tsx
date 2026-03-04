@@ -471,7 +471,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
         )}
         {filtered.map((p, idx) => (
           <div key={p.id} className="project-card bg-white rounded-xl shadow-sm overflow-hidden flex" style={{ minHeight: 140 }}>
-            {/* Left — image */}
+            {/* Right — image */}
             <FileDropZone
               onFile={(f) => handleImage(p.id, f)}
               onDelete={() => { const updated = projects.map((pr) => pr.id === p.id ? { ...pr, image: null } : pr); setProjects(updated); saveGenericProjects(config.storageKey, updated); }}
@@ -481,7 +481,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               style={{ width: 140 }}
             />
 
-            {/* Right — info */}
+            {/* Center — info */}
             <div className="flex-1 p-4 flex flex-col gap-1.5">
               {/* Row 1: index + name + category + status */}
               <div className="flex items-center gap-3">
@@ -559,20 +559,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 onCancel={() => setEditingField(null)}
               />
 
-              {/* Row 3: extra fields */}
-              {config.extraFields === "poetic" ? (
-                <InlineField
-                  label="שיר הייקו:"
-                  value={p.poeticName}
-                  editing={editingField?.id === p.id && editingField.field === "poeticName"}
-                  editText={editText}
-                  onStart={() => startInlineEdit(p.id, "poeticName", p.poeticName)}
-                  onChange={setEditText}
-                  onSave={saveInlineEdit}
-                  onCancel={() => setEditingField(null)}
-                  italic
-                />
-              ) : (
+              {/* Row 3: extra fields (non-poetic only) */}
+              {config.extraFields !== "poetic" && (
                 <>
                   <InlineField
                     label="משימה:"
