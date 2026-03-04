@@ -275,42 +275,57 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 {projects.length} פרויקטים
               </span>
             )}
-            <button
-              onClick={() => navigate("/")}
-              className="rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium backdrop-blur-sm hover:bg-white/25 transition-colors"
-            >
-              🏠 חזור לדשבורד
-            </button>
           </div>
         </div>
       </div>
 
-      {/* Action bar */}
-      <div className="no-print mx-4 mt-4 mb-4 rounded-xl bg-card shadow-sm p-5 space-y-4">
+      {/* === Navigation buttons bar === */}
+      <div className="no-print mx-4 mt-3 flex items-center gap-3">
+        <button
+          onClick={() => navigate("/")}
+          className="h-12 px-8 rounded-xl text-white text-base font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
+          style={{ background: `linear-gradient(135deg, ${config.color}, ${config.color}DD)` }}
+        >
+          🏠 חזור לדשבורד
+        </button>
+        <button
+          onClick={() => navigate(-1)}
+          className="h-10 px-5 rounded-lg border-2 border-gray-300 text-sm font-bold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
+        >
+          → חזור אחורה
+        </button>
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+          className="h-10 px-4 rounded-lg border border-gray-200 text-sm text-gray-500 hover:bg-gray-50 transition-colors"
+        >
+          ↑ ראש העמוד
+        </button>
+      </div>
 
-        {/* === Section 1: Search === */}
-        <div>
-          <div className="relative" style={{ maxWidth: 360 }}>
+      {/* === Action panels === */}
+      <div className="no-print mx-4 mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
+
+        {/* Panel 1: Search */}
+        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-4">
+          <div className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">🔍 חיפוש</div>
+          <div className="relative">
             <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               title="חיפוש פרויקט"
               className="w-full h-10 rounded-lg border border-input pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-background"
               style={{ direction: "rtl" }}
-              placeholder="חיפוש לפי שם פרויקט..."
+              placeholder="חיפוש לפי שם, תיאור..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">חיפוש חופשי ברשימת הפרויקטים</p>
+          <p className="text-[11px] text-muted-foreground mt-1.5">חיפוש חופשי ברשימת הפרויקטים</p>
         </div>
 
-        <div className="border-t border-gray-100" />
-
-        {/* === Section 2: Add new record === */}
-        <div>
-          <div className="text-xs font-bold text-muted-foreground mb-2">➕ הוספת רשומה חדשה</div>
-          <div className="flex flex-wrap gap-2 items-center">
-            {/* Step 1: Category */}
+        {/* Panel 2: Add new record */}
+        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-4 lg:col-span-2">
+          <div className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">➕ הוספת רשומה חדשה</div>
+          <div className="flex flex-wrap gap-2 items-end">
             <div className="flex flex-col gap-0.5">
               <label className="text-[10px] text-gray-400 font-medium">① קטגוריה</label>
               <select
@@ -329,7 +344,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 ))}
               </select>
             </div>
-            {/* Step 2: Sub-category (if exists) */}
             {hasSubs && (
               <div className="flex flex-col gap-0.5">
                 <label className="text-[10px] text-gray-400 font-medium">② תת-קטגוריה</label>
@@ -346,8 +360,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </select>
               </div>
             )}
-            {/* Step 3: Name */}
-            <div className="flex flex-col gap-0.5 flex-1 min-w-[180px]">
+            <div className="flex flex-col gap-0.5 flex-1 min-w-[160px]">
               <label className="text-[10px] text-gray-400 font-medium">{hasSubs ? "③" : "②"} שם ייחודי</label>
               <div className="h-9 flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
                 <span className="px-2 text-xs font-medium text-gray-400 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
@@ -364,94 +377,87 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 />
               </div>
             </div>
-            {/* Step 4: Add button */}
-            <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] text-transparent font-medium select-none">{hasSubs ? "④" : "③"}</label>
-              <button
-                title="הוסף פרויקט"
-                onClick={addProject}
-                className="h-9 px-6 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
-                style={{ background: config.color }}
-              >
-                + הוספה
-              </button>
-            </div>
+            <button
+              title="הוסף פרויקט"
+              onClick={addProject}
+              className="h-9 px-6 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
+              style={{ background: config.color }}
+            >
+              + הוספה
+            </button>
           </div>
-          <p className="text-[11px] text-gray-400 mt-1.5">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ייחודי ולחץ הוספה</p>
+          <p className="text-[11px] text-gray-400 mt-1.5">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ולחץ הוספה</p>
         </div>
+      </div>
 
-        <div className="border-t border-gray-100" />
-
-        {/* === Section 3: Filters === */}
-        <div>
-          <div className="text-xs font-bold text-muted-foreground mb-3">🔽 סינון היררכי — דומיין ← קטגוריה ← נושא ← סטטוס</div>
-          <div className="flex items-start justify-between gap-4 flex-wrap">
-            {/* Right side: Hierarchy */}
-            <div className="flex flex-col gap-2">
-              {/* Level 0: Domains */}
-              <div className="flex items-center gap-1.5">
-                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">דומיין:</span>
-                {[
-                  { name: "מבנים", icon: "🏛", color: "#2C6E6A", route: "/binui" },
-                  { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
-                  { name: "מיידעים", icon: "📋", color: "#4A6741", route: "/meyadim" },
-                  { name: "פעולות", icon: "⚡", color: "#5A5A7A", route: "/peulot" },
-                ].map((d) => (
+      {/* Panel 3: Filters + Summary */}
+      <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-card shadow-sm border border-border/50 p-4">
+        <div className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">🔽 סינון היררכי</div>
+        <div className="flex items-start justify-between gap-4 flex-wrap">
+          {/* Right side: Hierarchy filters */}
+          <div className="flex flex-col gap-2 flex-1">
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">דומיין:</span>
+              {[
+                { name: "מבנים", icon: "🏛", color: "#2C6E6A", route: "/binui" },
+                { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
+                { name: "מיידעים", icon: "📋", color: "#4A6741", route: "/meyadim" },
+                { name: "פעולות", icon: "⚡", color: "#5A5A7A", route: "/peulot" },
+              ].map((d) => (
+                <FilterPill
+                  key={d.name}
+                  active={d.name === config.domainName}
+                  color={d.color}
+                  onClick={() => d.name !== config.domainName && navigate(d.route)}
+                >
+                  {d.icon} {d.name}
+                </FilterPill>
+              ))}
+            </div>
+            <div className="flex items-center gap-1.5 pr-14">
+              <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">קטגוריה:</span>
+              <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>
+                הכל
+              </FilterPill>
+              {catNames.map((cat) => {
+                const catCount = projects.filter((p) => p.category === cat).length;
+                return (
                   <FilterPill
-                    key={d.name}
-                    active={d.name === config.domainName}
-                    color={d.color}
-                    onClick={() => d.name !== config.domainName && navigate(`/${d.route.replace("/", "")}`)}
+                    key={cat}
+                    active={filterCat === cat}
+                    color={config.color}
+                    onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
                   >
-                    {d.icon} {d.name}
+                    {cat} {catCount > 0 ? `(${catCount})` : ""}
                   </FilterPill>
-                ))}
-              </div>
-              {/* Level 1: Categories */}
-              <div className="flex items-center gap-1.5 pr-14">
-                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">קטגוריה:</span>
-                <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>
+                );
+              })}
+            </div>
+            {filterCat && config.categories[filterCat]?.length > 0 && (
+              <div className="flex items-center gap-1.5 pr-28">
+                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">נושא:</span>
+                <FilterPill active={!filterSub} onClick={() => { setFilterSub(null); setSearchParams({}); }} color={config.color}>
                   הכל
                 </FilterPill>
-                {catNames.map((cat) => {
-                  const catCount = projects.filter((p) => p.category === cat).length;
+                {getSubsForCategory(config, filterCat).map((s) => {
+                  const subCount = projects.filter((p) => p.category === filterCat && p.sub === s).length;
                   return (
                     <FilterPill
-                      key={cat}
-                      active={filterCat === cat}
+                      key={s}
+                      active={filterSub === s}
                       color={config.color}
-                      onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
+                      onClick={() => { setFilterSub(s === filterSub ? null : s); setSearchParams({}); }}
                     >
-                      {cat} {catCount > 0 ? `(${catCount})` : ""}
+                      {s} {subCount > 0 ? `(${subCount})` : ""}
                     </FilterPill>
                   );
                 })}
               </div>
-              {/* Level 2: Sub-categories (shown when category selected and has subs) */}
-              {filterCat && config.categories[filterCat]?.length > 0 && (
-                <div className="flex items-center gap-1.5 pr-28">
-                  <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">נושא:</span>
-                  <FilterPill active={!filterSub} onClick={() => { setFilterSub(null); setSearchParams({}); }} color={config.color}>
-                    הכל
-                  </FilterPill>
-                  {getSubsForCategory(config, filterCat).map((s) => {
-                    const subCount = projects.filter((p) => p.category === filterCat && p.sub === s).length;
-                    return (
-                      <FilterPill
-                        key={s}
-                        active={filterSub === s}
-                        color={config.color}
-                        onClick={() => { setFilterSub(s === filterSub ? null : s); setSearchParams({}); }}
-                      >
-                        {s} {subCount > 0 ? `(${subCount})` : ""}
-                      </FilterPill>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
+            )}
+          </div>
 
-            {/* Left side: Status filters */}
+          {/* Left side: Status + counter + save */}
+          <div className="flex flex-col gap-2 items-end">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold text-gray-400 shrink-0">סטטוס:</span>
               <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} variant="status">
@@ -469,28 +475,22 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </FilterPill>
               ))}
             </div>
+            <div className="flex items-center gap-2">
+              <span
+                className="text-xs font-semibold px-3 py-1.5 rounded-full"
+                style={{ background: config.color + "1A", color: config.color }}
+              >
+                מציג {filtered.length} מתוך {projects.length}
+              </span>
+              <button
+                title="שמירה ידנית של הנתונים"
+                onClick={() => { saveGenericProjects(config.storageKey, projects); toast.success("הנתונים נשמרו"); }}
+                className="h-8 px-3 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors"
+              >
+                💾 שמירה
+              </button>
+            </div>
           </div>
-          <p className="text-[11px] text-gray-400 mt-2">עץ היררכי: דומיין ← קטגוריה{hasSubs ? " ← נושא" : ""} ← סטטוס. ניתן לשלב סינונים יחד</p>
-        </div>
-
-        <div className="border-t border-gray-100" />
-
-        {/* === Section 4: Summary & utility === */}
-        <div className="flex items-center gap-3">
-          <span
-            className="text-xs font-semibold px-3 py-1.5 rounded-full"
-            style={{ background: config.color + "1A", color: config.color }}
-          >
-            סה״כ: {projects.length} פרויקטים
-          </span>
-          <button
-            title="שמירה ידנית של הנתונים"
-            onClick={() => { saveGenericProjects(config.storageKey, projects); toast.success("הנתונים נשמרו"); }}
-            className="h-8 px-3 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors"
-          >
-            💾 שמירה
-          </button>
-          <p className="text-[11px] text-gray-400">הנתונים נשמרים אוטומטית. לחץ שמירה לשמירה ידנית נוספת</p>
         </div>
       </div>
 
