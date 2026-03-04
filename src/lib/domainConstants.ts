@@ -14,6 +14,7 @@ export interface GenericProject {
   id: number;
   name: string;
   poeticName: string;
+  poem: string;
   category: string;
   sub: string;
   status: GenericProjectStatus;
@@ -87,7 +88,7 @@ export function loadGenericProjects(key: string): GenericProject[] {
   try {
     const raw = localStorage.getItem(key);
     const list: GenericProject[] = raw ? JSON.parse(raw) : [];
-    return list.map((p) => ({ ...p, attachments: p.attachments || [], document: p.document || "" }));
+    return list.map((p) => ({ ...p, attachments: p.attachments || [], document: p.document || "", poem: p.poem || "" }));
   } catch {
     return [];
   }
