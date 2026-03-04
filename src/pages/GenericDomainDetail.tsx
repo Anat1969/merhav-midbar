@@ -212,18 +212,6 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             <div className="flex flex-col lg:flex-row">
               {/* Text side */}
               <div className="flex-1 p-5 space-y-4">
-                {/* Poetic Name — large */}
-                <div>
-                  <input
-                    title="שם פואטי"
-                    className="w-full rounded-lg border border-border px-4 py-3 text-2xl font-black italic bg-card"
-                    style={{ direction: "rtl", color: config.color }}
-                    placeholder="שם פואטי..."
-                    value={project.poeticName}
-                    onChange={(e) => update({ poeticName: e.target.value })}
-                  />
-                </div>
-
                 {/* Haiku + Post row */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Post — smaller font */}
@@ -238,19 +226,35 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                       onChange={(e) => update({ description: e.target.value })}
                     />
                   </div>
-                  {/* Haiku — medium */}
-                  <div>
-                    <div className="text-xs font-semibold mb-1 text-muted-foreground">הייקו:</div>
-                    <textarea
-                      title="הייקו"
-                      className="w-full rounded-lg border border-border p-3 text-base font-semibold italic resize-none bg-card"
-                      style={{ direction: "rtl", minHeight: 120, color: config.color }}
-                      placeholder="הייקו — שלושה שורות..."
-                      value={project.task}
-                      onChange={(e) => update({ task: e.target.value })}
-                    />
+                  {/* Poetic Name + Haiku column */}
+                  <div className="space-y-3">
+                    {/* Poetic Name — shortened, above haiku */}
+                    <div>
+                      <div className="text-xs font-semibold mb-1 text-muted-foreground">שם פואטי:</div>
+                      <input
+                        title="שם פואטי"
+                        className="w-full rounded-lg border border-border px-3 py-2 text-lg font-black italic bg-card"
+                        style={{ direction: "rtl", color: config.color }}
+                        placeholder="שם פואטי..."
+                        value={project.poeticName}
+                        onChange={(e) => update({ poeticName: e.target.value })}
+                      />
+                    </div>
+                    {/* Haiku — medium */}
+                    <div>
+                      <div className="text-xs font-semibold mb-1 text-muted-foreground">שיר היצירה:</div>
+                      <textarea
+                        title="הייקו"
+                        className="w-full rounded-lg border border-border p-3 text-base font-semibold italic resize-none bg-card"
+                        style={{ direction: "rtl", minHeight: 160, color: config.color }}
+                        placeholder="הייקו — שלושה שורות..."
+                        value={project.task}
+                        onChange={(e) => update({ task: e.target.value })}
+                      />
+                    </div>
                   </div>
                 </div>
+              </div>
               </div>
 
               {/* Image side */}
