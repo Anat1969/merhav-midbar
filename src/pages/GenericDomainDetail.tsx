@@ -238,12 +238,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       {/* ═══════════════ BOTTOM FRAME — Practical ═══════════════ */}
       <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* 1. תיאור */}
-        <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col">
-          <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>תיאור</div>
+        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
+          <div className="text-base font-bold mb-2" style={{ color: config.color }}>תיאור</div>
           <textarea
             title="תיאור הפרויקט"
-            className="flex-1 w-full rounded-lg border border-gray-200 p-3 text-sm resize-none"
-            style={{ direction: "rtl", minHeight: 150, background: "#FAFAF8" }}
+            className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed"
+            style={{ direction: "rtl", minHeight: 180, background: "#FAFAF8" }}
             placeholder="תיאור מפורט..."
             value={project.note}
             onChange={(e) => update({ note: e.target.value })}
@@ -251,12 +251,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </div>
 
         {/* 2. מסמך (חוות דעת) */}
-        <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col">
-          <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>מסמך (חוות דעת)</div>
+        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
+          <div className="text-base font-bold mb-2" style={{ color: config.color }}>מסמך (חוות דעת)</div>
           <textarea
             title="חוות דעת"
-            className="flex-1 w-full rounded-lg border border-gray-200 p-3 text-sm resize-none"
-            style={{ direction: "rtl", minHeight: 150, background: "#FAFAF8" }}
+            className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed"
+            style={{ direction: "rtl", minHeight: 180, background: "#FAFAF8" }}
             placeholder="כתוב חוות דעת..."
             value={project.note}
             onChange={(e) => update({ note: e.target.value })}
@@ -264,12 +264,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </div>
 
         {/* 3. היסטוריה */}
-        <div className="bg-white rounded-xl shadow-sm p-4 flex flex-col">
-          <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>היסטוריה</div>
-          <div className="flex gap-2 mb-2">
+        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
+          <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
+          <div className="flex gap-2 mb-3">
             <input
               title="הוסף רשומה"
-              className="flex-1 h-8 rounded-lg border border-gray-200 px-3 text-sm"
+              className="flex-1 h-9 rounded-lg border border-gray-200 px-3 text-base"
               style={{ direction: "rtl" }}
               placeholder="הוסף רשומה..."
               value={historyInput}
@@ -278,32 +278,32 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             />
             <button
               title="הוסף"
-              className="h-8 w-8 rounded-lg text-white text-sm flex items-center justify-center"
+              className="h-9 w-9 rounded-lg text-white text-base flex items-center justify-center"
               style={{ background: config.color }}
               onClick={addHistoryEntry}
             >
               +
             </button>
           </div>
-          <div className="flex-1 space-y-2 max-h-[250px] overflow-y-auto">
+          <div className="flex-1 space-y-2 max-h-[280px] overflow-y-auto">
             {project.history.map((h, i) => (
-              <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1" style={{ borderColor: config.color + "33" }}>
+              <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1.5" style={{ borderColor: config.color + "33" }}>
                 <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
-                <span>{h.note}</span>
+                <span className="text-base">{h.note}</span>
               </div>
             ))}
           </div>
         </div>
 
         {/* 4. מעקב */}
-        <div className="bg-white rounded-xl shadow-sm p-4">
-          <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>מעקב</div>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-400" style={{ minWidth: 50 }}>סטטוס</span>
+        <div className="bg-white rounded-xl shadow-sm p-5">
+          <div className="text-base font-bold mb-3" style={{ color: config.color }}>מעקב</div>
+          <div className="space-y-3">
+            <div className="flex items-center gap-2 text-base">
+              <span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>סטטוס</span>
               <select
                 title="סטטוס"
-                className="h-7 rounded border text-xs px-2 flex-1"
+                className="h-9 rounded-lg border text-sm px-2 flex-1"
                 style={{ direction: "rtl" }}
                 value={project.status}
                 onChange={(e) => changeStatus(e.target.value)}
@@ -313,41 +313,41 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                 ))}
               </select>
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-400" style={{ minWidth: 50 }}>תאריך</span>
+            <div className="flex items-center gap-2 text-base">
+              <span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>תאריך</span>
               <input
                 title="תאריך מעקב"
                 type="date"
-                className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
+                className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1"
                 value={project.tracking.date}
                 onChange={(e) => update({ tracking: { ...project.tracking, date: e.target.value } })}
               />
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-400" style={{ minWidth: 50 }}>הערה</span>
+            <div className="flex items-center gap-2 text-base">
+              <span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>הערה</span>
               <input
                 title="הערת מעקב"
-                className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
+                className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1"
                 style={{ direction: "rtl" }}
                 value={project.tracking.note}
                 onChange={(e) => update({ tracking: { ...project.tracking, note: e.target.value } })}
               />
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-400" style={{ minWidth: 50 }}>גורם</span>
+            <div className="flex items-center gap-2 text-base">
+              <span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>גורם</span>
               <input
                 title="גורם אחראי"
-                className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
+                className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1"
                 style={{ direction: "rtl" }}
                 value={project.tracking.agent}
                 onChange={(e) => update({ tracking: { ...project.tracking, agent: e.target.value } })}
               />
             </div>
-            <div className="flex items-center gap-2 text-sm">
-              <span className="text-gray-400" style={{ minWidth: 50 }}>ביצוע!</span>
+            <div className="flex items-center gap-2 text-base">
+              <span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>ביצוע!</span>
               <input
                 title="יוזם"
-                className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
+                className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1"
                 style={{ direction: "rtl" }}
                 placeholder="ראש העיר / מנכ״ל / מאן דהוא"
                 value={project.initiator}
@@ -356,6 +356,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       {project && (() => {
