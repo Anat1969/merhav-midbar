@@ -691,6 +691,43 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </div>
               )}
             </div>
+
+            {/* Left — Haiku square box (poetic domains only) */}
+            {config.extraFields === "poetic" && (
+              <div
+                className="flex-shrink-0 border-r border-gray-100 flex flex-col items-center justify-center cursor-pointer group"
+                style={{ width: 140, minHeight: 140, background: "#FAFAF8" }}
+                onClick={() => startInlineEdit(p.id, "poeticName", p.poeticName)}
+                title="לחץ לעריכת שיר הייקו"
+              >
+                {editingField?.id === p.id && editingField.field === "poeticName" ? (
+                  <div className="w-full h-full p-2 flex flex-col gap-1">
+                    <textarea
+                      title="שיר הייקו"
+                      className="flex-1 w-full rounded border border-gray-300 p-1.5 text-sm font-bold text-center resize-none focus:outline-none focus:ring-1"
+                      style={{ direction: "rtl" }}
+                      value={editText}
+                      onChange={(e) => setEditText(e.target.value)}
+                      autoFocus
+                      placeholder="כתוב הייקו..."
+                    />
+                    <div className="flex gap-1 justify-center">
+                      <button title="שמור" className="text-[10px] px-2 py-0.5 rounded text-white" style={{ background: config.color }} onClick={(e) => { e.stopPropagation(); saveInlineEdit(); }}>✓</button>
+                      <button title="ביטול" className="text-[10px] px-2 py-0.5 rounded border border-gray-200 text-gray-500" onClick={(e) => { e.stopPropagation(); setEditingField(null); }}>✕</button>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center">
+                    <span className="text-[10px] text-gray-400 mb-1">🎋 הייקו</span>
+                    {p.poeticName ? (
+                      <span className="text-sm font-bold text-gray-700 whitespace-pre-line leading-relaxed">{p.poeticName}</span>
+                    ) : (
+                      <span className="text-xs text-gray-300 group-hover:text-gray-400 transition-colors">לחץ להוספה</span>
+                    )}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>
