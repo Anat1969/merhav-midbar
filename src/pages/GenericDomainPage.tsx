@@ -116,22 +116,52 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
     const subs = getSubsForCategory(config, newCatValue);
     const newSubValue = subs.length > 0 ? subs[0] : newCatValue;
     persist(
-      projects.map((p) =>
-        p.id === id
-          ? { ...p, category: newCatValue, sub: newSubValue, history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history] }
-          : p
-      )
+      projects.map((p) => {
+        if (p.id !== id) return p;
+        const nameParts = p.name.split(" - ");
+        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
+        const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
+        return {
+          ...p,
+          name: newFullName,
+          category: newCatValue,
+          sub: newSubValue,
+          history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history],
+        };
+      })
     );
   };
 
   const changeSub = (id: number, newSubValue: string) => {
     persist(
-      projects.map((p) =>
-        p.id === id
-          ? { ...p, sub: newSubValue, history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history] }
-          : p
-      )
+      projects.map((p) => {
+        if (p.id !== id) return p;
+        const nameParts = p.name.split(" - ");
+        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
+        const newFullName = `${p.category}:${newSubValue} - ${uniqueName}`;
+        return {
+          ...p,
+          name: newFullName,
+          sub: newSubValue,
+          history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history],
+        };
+      })
     );
+  };
+
+  const moveToDomain = (project: GenericProject, targetDomain: string) => {
+    if (targetDomain === config.domainName) return;
+    if (!window.confirm(`להעביר את "${project.name}" לדומיין ${targetDomain}?`)) return;
+    let result;
+    if (targetDomain === "מבנים") {
+      result = moveGenericToBinui(project, config.domainName);
+    } else {
+      result = moveGenericToGeneric(project, config.domainName, targetDomain);
+    }
+    if (result.success) {
+      setProjects(loadGenericProjects(config.storageKey));
+      toast.success(`הפרויקט הועבר ל${targetDomain}`);
+    }
   };
 
   const handleImage = (id: number, file: File) => {
