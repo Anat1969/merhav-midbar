@@ -56,6 +56,12 @@ export interface SearchResult {
   sub: string;
   project: Project;
   color: string;
+  /** Direct route to detail page, if available */
+  detailRoute?: string;
+}
+
+function matchesQuery(text: string | undefined | null, q: string): boolean {
+  return !!text && text.toLowerCase().includes(q);
 }
 
 export function searchAllProjects(query: string): SearchResult[] {
@@ -66,32 +72,41 @@ export function searchAllProjects(query: string): SearchResult[] {
   // Search binui_projects first
   const binuiProjects = loadBinuiProjects();
   for (const p of binuiProjects) {
-    if (p.name.toLowerCase().includes(q)) {
+    if (matchesQuery(p.name, q) || matchesQuery(p.category, q) || matchesQuery(p.sub, q) || matchesQuery(p.note, q)) {
       results.push({
         domain: "מבנים",
         category: p.category,
         sub: p.sub,
         project: { id: p.id, name: p.name, status: p.status as any, created: p.created, note: p.note, history: p.history },
         color: HIERARCHY["מבנים"]?.color ?? "#2C6E6A",
+        detailRoute: `/binui/${p.id}`,
       });
     }
-    if (results.length >= 8) return results;
+    if (results.length >= 30) return results;
   }
 
   // Search generic domain projects
   for (const gd of GENERIC_DOMAINS) {
     const projects = loadGenericProjects(gd.storageKey);
     for (const p of projects) {
-      if (p.name.toLowerCase().includes(q)) {
+      if (
+        matchesQuery(p.name, q) ||
+        matchesQuery(p.poeticName, q) ||
+        matchesQuery(p.description, q) ||
+        matchesQuery(p.note, q) ||
+        matchesQuery(p.category, q) ||
+        matchesQuery(p.sub, q)
+      ) {
         results.push({
           domain: gd.domainName,
           category: p.category,
           sub: p.sub,
           project: { id: p.id, name: p.name, status: p.status as any, created: p.created, note: p.note, history: p.history },
           color: HIERARCHY[gd.domainName]?.color ?? "#666",
+          detailRoute: `/${gd.config.routeBase}/${p.id}`,
         });
       }
-      if (results.length >= 8) return results;
+      if (results.length >= 30) return results;
     }
   }
 
@@ -102,11 +117,11 @@ export function searchAllProjects(query: string): SearchResult[] {
       for (const sub of subs) {
         const projects = getProjects(domain, cat, sub);
         for (const p of projects) {
-          if (p.name.toLowerCase().includes(q)) {
+          if (matchesQuery(p.name, q) || matchesQuery(p.note, q) || matchesQuery(cat, q) || matchesQuery(sub, q)) {
             results.push({ domain, category: cat, sub, project: p, color: def.color });
           }
         }
-        if (results.length >= 8) return results;
+        if (results.length >= 30) return results;
       }
     }
   }

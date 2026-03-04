@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { searchAllProjects, SearchResult } from "@/lib/storage";
 import { STATUS_CONFIG } from "@/lib/hierarchy";
 
@@ -11,6 +12,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (query.trim().length > 0) {
@@ -32,6 +34,16 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
     return () => document.removeEventListener("mousedown", handler);
   }, []);
 
+  const handleSelect = (r: SearchResult) => {
+    if (r.detailRoute) {
+      navigate(r.detailRoute);
+    } else {
+      onOpenPanel(r.domain, r.category, r.sub);
+    }
+    setShowDropdown(false);
+    setQuery("");
+  };
+
   return (
     <div ref={containerRef} className="relative w-full max-w-sm">
       <input
@@ -44,16 +56,15 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
       />
       {showDropdown && results.length > 0 && (
         <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white shadow-lg max-h-80 overflow-y-auto">
+          <div className="px-3 py-1.5 text-[11px] text-gray-400 border-b bg-gray-50">
+            {results.length} תוצאות
+          </div>
           {results.map((r, i) => {
             const st = STATUS_CONFIG[r.project.status];
             return (
               <button
                 key={`${r.project.id}-${i}`}
-                onClick={() => {
-                  onOpenPanel(r.domain, r.category, r.sub);
-                  setShowDropdown(false);
-                  setQuery("");
-                }}
+                onClick={() => handleSelect(r)}
                 className="flex w-full items-center gap-3 px-3 py-2 text-right text-sm hover:bg-gray-50 transition-colors"
                 dir="rtl"
               >
@@ -69,9 +80,9 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
                 </div>
                 <span
                   className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium"
-                  style={{ backgroundColor: st.bg, color: st.color }}
+                  style={{ backgroundColor: st?.bg, color: st?.color }}
                 >
-                  {st.label}
+                  {st?.label}
                 </span>
               </button>
             );
