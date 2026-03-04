@@ -169,6 +169,20 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         >
           ✉️ שלח חוות דעת
         </button>
+
+        <button
+          title="מחק פרויקט"
+          className="h-10 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-1.5"
+          onClick={() => {
+            if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
+              persist(projects.filter((_, i) => i !== projectIdx));
+              toast.success("הפרויקט נמחק");
+              navigate(`/${config.routeBase}`);
+            }
+          }}
+        >
+          🗑️ מחק
+        </button>
       </div>
 
       {/* ═══════════════ TOP FRAME — Post | Title+Idea | Image ═══════════════ */}
