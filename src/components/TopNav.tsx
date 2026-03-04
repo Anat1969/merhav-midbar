@@ -52,6 +52,7 @@ export const TopNav: React.FC = () => {
         </div>
       </nav>
       <EmailModal isOpen={emailOpen} onClose={() => setEmailOpen(false)} />
+      <LinksManager isOpen={linksOpen} onClose={() => setLinksOpen(false)} />
     </>
   );
 };
