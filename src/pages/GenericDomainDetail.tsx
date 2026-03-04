@@ -174,6 +174,13 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       {/* Navigation buttons */}
       <div className="no-print mx-4 mt-3 flex items-center gap-2">
         <button
+          title="חזור אחורה"
+          className="h-8 px-3 rounded-lg border border-border bg-card text-xs hover:bg-muted transition-colors"
+          onClick={() => navigate(-1 as any)}
+        >
+          ← חזור
+        </button>
+        <button
           title="קדימה"
           disabled={!nextProject}
           className="h-8 px-3 rounded-lg border border-border bg-card text-xs disabled:opacity-30 hover:bg-muted transition-colors"

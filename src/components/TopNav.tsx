@@ -29,13 +29,6 @@ export const TopNav: React.FC = () => {
             🔗 קישורים
           </button>
           <button
-            title="חזור אחורה"
-            onClick={() => window.history.back()}
-            className="rounded border border-gray-300 px-3 py-1.5 text-xs transition-colors hover:bg-gray-50"
-          >
-            ← חזור אחורה
-          </button>
-          <button
             title="הדפס"
             onClick={() => window.print()}
             className="rounded border border-gray-300 px-3 py-1.5 text-xs transition-colors hover:bg-gray-50"
