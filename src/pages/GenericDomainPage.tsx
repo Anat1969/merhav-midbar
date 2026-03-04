@@ -743,7 +743,8 @@ function InlineField({
 }
 
 /* ─── Filter pill ─── */
-function FilterPill({ children, active, color, onClick }: { children: React.ReactNode; active: boolean; color?: string; onClick: () => void }) {
+function FilterPill({ children, active, color, variant, onClick }: { children: React.ReactNode; active: boolean; color?: string; variant?: "status"; onClick: () => void }) {
+  const isStatus = variant === "status";
   return (
     <button
       title={typeof children === "string" ? children : ""}
@@ -752,7 +753,9 @@ function FilterPill({ children, active, color, onClick }: { children: React.Reac
       style={
         active
           ? { background: color || "#666", color: "#fff", borderColor: color || "#666" }
-          : { background: "#F5F5F2", color: "#666", borderColor: "#E0E0D8" }
+          : isStatus && color
+            ? { background: "#fff", color: color, borderColor: color + "66" }
+            : { background: "#F5F5F2", color: "#666", borderColor: "#E0E0D8" }
       }
     >
       {children}
