@@ -224,42 +224,67 @@ const BinuiPage: React.FC = () => {
   const activeSubs = filterCat ? BINUI_CATEGORIES[filterCat]?.subs ?? [] : [];
 
   return (
-    <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
+    <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
       <TopNav />
       <PrintHeader />
-      {/* Breadcrumb */}
-      <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
-        <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>
-          דשבורד
-        </span>
-        <span>←</span>
-        <span style={{ color: "#2C6E6A", fontWeight: 600 }}>מבנים</span>
+
+      {/* Domain header banner */}
+      <div
+        className="mx-4 mt-4 rounded-2xl px-6 py-5 text-white print:hidden"
+        style={{ background: "linear-gradient(135deg, #2C6E6A 0%, #2C6E6ACC 100%)" }}
+      >
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">🏛</span>
+            <div>
+              <div className="text-xs font-light opacity-80 flex items-center gap-1">
+                <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
+                <span>←</span>
+                <span>מבנים</span>
+              </div>
+              <h1 className="text-2xl font-black">מבנים</h1>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            {projects.length > 0 && (
+              <span className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-bold backdrop-blur-sm">
+                {projects.length} פרויקטים
+              </span>
+            )}
+            <button
+              onClick={() => navigate("/")}
+              className="rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium backdrop-blur-sm hover:bg-white/25 transition-colors"
+            >
+              🏠 חזור לדשבורד
+            </button>
+          </div>
+        </div>
       </div>
 
       {/* Action bar */}
-      <div className="no-print mx-6 mb-4 rounded-xl bg-white shadow-sm p-5 space-y-4">
+      <div className="no-print mx-4 mt-4 mb-4 rounded-xl bg-card shadow-sm p-5 space-y-4">
 
         {/* === Section 1: Search === */}
         <div>
           <div className="relative" style={{ maxWidth: 360 }}>
-            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               title="חיפוש פרויקט"
-              className="w-full h-10 rounded-lg border border-gray-200 pr-9 pl-3 text-sm focus:outline-none focus:ring-2"
+              className="w-full h-10 rounded-lg border border-input pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-background"
               style={{ direction: "rtl" }}
               placeholder="חיפוש לפי שם פרויקט..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <p className="text-[11px] text-gray-400 mt-1">חיפוש חופשי ברשימת הפרויקטים</p>
+          <p className="text-[11px] text-muted-foreground mt-1">חיפוש חופשי ברשימת הפרויקטים</p>
         </div>
 
         <div className="border-t border-gray-100" />
 
         {/* === Section 2: Add new record === */}
         <div>
-          <div className="text-xs font-bold text-gray-500 mb-2">➕ הוספת רשומה חדשה</div>
+          <div className="text-xs font-bold text-muted-foreground mb-2">➕ הוספת רשומה חדשה</div>
           <div className="flex flex-wrap gap-2 items-center">
             {/* Step 1: Category */}
             <div className="flex flex-col gap-0.5">
@@ -332,7 +357,7 @@ const BinuiPage: React.FC = () => {
 
         {/* === Section 3: Filters === */}
         <div>
-          <div className="text-xs font-bold text-gray-500 mb-3">🔽 סינון היררכי — דומיין ← קטגוריה ← נושא ← סטטוס</div>
+          <div className="text-xs font-bold text-muted-foreground mb-3">🔽 סינון היררכי — דומיין ← קטגוריה ← נושא ← סטטוס</div>
           <div className="flex items-start justify-between gap-4 flex-wrap">
             {/* Right side: Hierarchy */}
             <div className="flex flex-col gap-2">
@@ -438,9 +463,9 @@ const BinuiPage: React.FC = () => {
       </div>
 
       {/* Project cards */}
-      <div className="px-6 pb-12 space-y-3">
+      <div className="px-4 pb-12 space-y-3">
         {filtered.length === 0 && (
-          <div className="text-center py-20 text-gray-400">
+          <div className="text-center py-20 text-muted-foreground">
             <div className="text-5xl mb-3">🏗</div>
             <div className="text-lg">אין פרויקטים להצגה</div>
             <div className="text-sm mt-1">הוסף פרויקט חדש מהשורה למעלה</div>
@@ -449,7 +474,7 @@ const BinuiPage: React.FC = () => {
         {filtered.map((p, idx) => (
           <div
             key={p.id}
-            className="project-card bg-white rounded-xl shadow-sm overflow-hidden flex"
+            className="project-card bg-card rounded-xl shadow-sm overflow-hidden flex border border-border/50"
             style={{ minHeight: 140 }}
           >
             {/* Left — images */}
@@ -562,15 +587,16 @@ const BinuiPage: React.FC = () => {
               <div className="flex items-center gap-2 mt-auto">
                 <button
                   title="סרטוט / פתח"
-                  className="h-7 px-3 rounded-md text-white text-xs font-bold hover:opacity-90 transition-opacity"
-                  style={{ background: "#2C6E6A" }}
+                  className="h-7 px-4 rounded-md text-white text-xs font-bold hover:brightness-110 transition-all shadow-sm"
+                  style={{ background: "linear-gradient(135deg, #2C6E6A, #2C6E6ADD)" }}
                   onClick={() => navigate(`/binui/${p.id}`)}
                 >
-                  סרטוט / פתח
+                  סרטוט / פתח ←
                 </button>
                 <button
                   title="חוות דעת"
-                  className="h-7 px-3 rounded-md border border-gray-200 text-xs text-gray-600 hover:bg-gray-50 transition-colors"
+                  className="h-7 px-3 rounded-md border text-xs font-medium hover:brightness-110 transition-all"
+                  style={{ borderColor: "#2C6E6A44", color: "#2C6E6A", background: "#2C6E6A0A" }}
                   onClick={() => {
                     setNoteOpen(noteOpen === p.id ? null : p.id);
                     setNoteText(p.note);
