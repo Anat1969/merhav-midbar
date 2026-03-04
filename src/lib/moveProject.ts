@@ -44,6 +44,7 @@ export function moveBinuiToGeneric(
     id: Date.now(),
     name: newFullName,
     poeticName: "",
+    poem: "",
     category: firstCat,
     sub: firstSub,
     status: project.status as any,

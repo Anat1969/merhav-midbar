@@ -211,12 +211,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             )}
           </div>
 
-          {/* Poetic Name — saveable field */}
+          {/* Poetic Name — centered */}
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם פואטי</div>
             <input
               title="שם פואטי"
-              className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic"
+              className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center"
               style={{ direction: "rtl", background: config.color + "0A" }}
               placeholder="שם פואטי לפרויקט..."
               value={project.poeticName}
@@ -224,16 +224,16 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             />
           </div>
 
-          {/* Haiku / poem — enlarged font */}
+          {/* Poem — separate field, centered, large font */}
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שיר / רעיון</div>
             <textarea
-              title="רעיון / הייקו"
+              title="שיר / רעיון"
               className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed"
               style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }}
               placeholder="הייקו / רעיון / שיר..."
-              value={project.poeticName}
-              onChange={(e) => update({ poeticName: e.target.value })}
+              value={project.poem}
+              onChange={(e) => update({ poem: e.target.value })}
             />
           </div>
         </div>
@@ -258,7 +258,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           <div className="text-lg font-bold mb-2" style={{ color: config.color }}>תיאור קצר</div>
           <textarea
             title="תיאור הפרויקט"
-            className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed"
+            className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed"
             style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }}
             placeholder="תיאור קצר..."
             value={project.note}

@@ -86,6 +86,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       id: Date.now(),
       name: fullName,
       poeticName: "",
+      poem: "",
       category: newCat,
       sub: newSub,
       status: "planning",
