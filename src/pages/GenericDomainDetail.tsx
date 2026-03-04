@@ -255,7 +255,6 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                   </div>
                 </div>
               </div>
-              </div>
 
               {/* Image side */}
               <div className="lg:w-[280px] shrink-0 p-5 lg:border-r border-t lg:border-t-0" style={{ borderColor: config.color + "25" }}>
