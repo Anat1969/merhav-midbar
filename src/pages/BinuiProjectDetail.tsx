@@ -62,15 +62,15 @@ const BinuiProjectDetail: React.FC = () => {
 
   if (!project) {
     return (
-      <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
+      <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
         <TopNav />
-        <div className="text-center py-20 text-gray-400">
+        <div className="text-center py-20 text-muted-foreground">
           <div className="text-5xl mb-3">🚫</div>
           <div>פרויקט לא נמצא</div>
           <button
             title="חזור לרשימה"
-            className="mt-4 px-4 py-2 rounded-lg text-white text-sm"
-            style={{ background: "#2C6E6A" }}
+            className="mt-4 px-4 py-2 rounded-lg text-white text-sm hover:brightness-110 transition-all"
+            style={{ background: "linear-gradient(135deg, #2C6E6A, #2C6E6ADD)" }}
             onClick={() => navigate("/binui")}
           >
             חזור לרשימה
@@ -152,25 +152,84 @@ const BinuiProjectDetail: React.FC = () => {
   const nextProject = projectIdx < projects.length - 1 ? projects[projectIdx + 1] : null;
 
   return (
-    <div className="min-h-screen" style={{ background: "#F2F1EE", direction: "rtl" }}>
+    <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
       <TopNav />
       <PrintHeader />
 
-      {/* Breadcrumb */}
-      <div className="breadcrumb px-6 py-3 text-sm flex gap-1 items-center" style={{ color: "#888" }}>
-        <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
-        <span>←</span>
-        <span className="cursor-pointer hover:underline" onClick={() => navigate("/binui")}>מבנים</span>
-        <span>←</span>
-        <span style={{ color: "#2C6E6A", fontWeight: 600 }}>{project.name}</span>
+      {/* Domain header banner */}
+      <div
+        className="mx-4 mt-4 rounded-2xl px-6 py-4 text-white print:hidden"
+        style={{ background: "linear-gradient(135deg, #2C6E6A 0%, #2C6E6ACC 100%)" }}
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <div className="text-xs font-light opacity-80 flex items-center gap-1">
+              <span className="cursor-pointer hover:underline" onClick={() => navigate("/")}>דשבורד</span>
+              <span>←</span>
+              <span className="cursor-pointer hover:underline" onClick={() => navigate("/binui")}>מבנים</span>
+              <span>←</span>
+              <span className="font-medium">{project.name}</span>
+            </div>
+            <div className="flex items-center gap-3 mt-1">
+              {editingName ? (
+                <div className="inline-flex gap-2 items-center">
+                  <input
+                    title="שם פרויקט"
+                    className="h-8 rounded-lg border border-white/30 bg-white/10 px-3 text-sm font-extrabold text-white placeholder:text-white/50"
+                    style={{ direction: "rtl" }}
+                    value={tempName}
+                    onChange={(e) => setTempName(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && saveName()}
+                    autoFocus
+                  />
+                  <button title="שמור" className="text-xs bg-white/20 text-white px-2 h-7 rounded hover:bg-white/30 transition-colors" onClick={saveName}>שמור</button>
+                  <button title="ביטול" className="text-xs text-white/70 hover:underline" onClick={() => setEditingName(false)}>ביטול</button>
+                </div>
+              ) : (
+                <h1
+                  className="text-xl font-black cursor-pointer hover:underline"
+                  title="לחץ לעריכת שם"
+                  onClick={() => { setEditingName(true); setTempName(project.name); }}
+                >
+                  {project.name}
+                </h1>
+              )}
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <select
+              title="שנה סטטוס"
+              className="h-8 rounded-lg border text-xs px-2 font-medium"
+              style={{
+                direction: "rtl",
+                color: STATUS_OPTIONS.find((s) => s.value === project.status)?.color,
+                background: STATUS_OPTIONS.find((s) => s.value === project.status)?.bg,
+                borderColor: STATUS_OPTIONS.find((s) => s.value === project.status)?.color + "44",
+              }}
+              value={project.status}
+              onChange={(e) => changeStatus(e.target.value)}
+            >
+              {STATUS_OPTIONS.map((s) => (
+                <option key={s.value} value={s.value}>{s.label}</option>
+              ))}
+            </select>
+            <button
+              title="שלח חוות דעת במייל"
+              className="h-8 px-3 rounded-lg bg-white/15 text-xs text-white hover:bg-white/25 transition-colors backdrop-blur-sm"
+              onClick={() => setEmailOpen(true)}
+            >
+              ✉️ שלח חוות דעת
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* Header bar */}
-      <div className="no-print mx-6 mb-4 bg-white rounded-xl shadow-sm p-4 flex items-center gap-3">
+      {/* Navigation buttons */}
+      <div className="no-print mx-4 mt-3 flex items-center gap-2">
         <button
           title="קדימה"
           disabled={!nextProject}
-          className="h-8 px-3 rounded-lg border border-gray-200 text-xs disabled:opacity-30 hover:bg-gray-50 transition-colors"
+          className="h-8 px-3 rounded-lg border border-border bg-card text-xs disabled:opacity-30 hover:bg-muted transition-colors"
           onClick={() => nextProject && navigate(`/binui/${nextProject.id}`)}
         >
           קדימה &gt;
@@ -178,67 +237,17 @@ const BinuiProjectDetail: React.FC = () => {
         <button
           title="אחורה"
           disabled={!prevProject}
-          className="h-8 px-3 rounded-lg border border-gray-200 text-xs disabled:opacity-30 hover:bg-gray-50 transition-colors"
+          className="h-8 px-3 rounded-lg border border-border bg-card text-xs disabled:opacity-30 hover:bg-muted transition-colors"
           onClick={() => prevProject && navigate(`/binui/${prevProject.id}`)}
         >
           &lt; אחורה
         </button>
-
-        <div className="flex-1 text-center">
-          {editingName ? (
-            <div className="inline-flex gap-2 items-center">
-              <input
-                title="שם פרויקט"
-                className="h-8 rounded-lg border border-gray-300 px-3 text-sm font-extrabold"
-                style={{ direction: "rtl" }}
-                value={tempName}
-                onChange={(e) => setTempName(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && saveName()}
-                autoFocus
-              />
-              <button title="שמור" className="text-xs text-white px-2 h-7 rounded" style={{ background: "#2C6E6A" }} onClick={saveName}>שמור</button>
-              <button title="ביטול" className="text-xs text-gray-500 hover:underline" onClick={() => setEditingName(false)}>ביטול</button>
-            </div>
-          ) : (
-            <span
-              className="font-extrabold text-lg cursor-pointer hover:underline"
-              title="לחץ לעריכת שם"
-              onClick={() => { setEditingName(true); setTempName(project.name); }}
-            >
-              {project.name}
-            </span>
-          )}
-        </div>
-
-        <select
-          title="שנה סטטוס"
-          className="h-8 rounded-lg border text-xs px-2"
-          style={{
-            direction: "rtl",
-            color: STATUS_OPTIONS.find((s) => s.value === project.status)?.color,
-            background: STATUS_OPTIONS.find((s) => s.value === project.status)?.bg,
-            borderColor: STATUS_OPTIONS.find((s) => s.value === project.status)?.color + "44",
-          }}
-          value={project.status}
-          onChange={(e) => changeStatus(e.target.value)}
-        >
-          {STATUS_OPTIONS.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
-          ))}
-        </select>
-        <button
-          title="שלח חוות דעת במייל"
-          className="h-8 px-3 rounded-lg border border-gray-200 text-xs hover:bg-gray-50 transition-colors"
-          onClick={() => setEmailOpen(true)}
-        >
-          ✉️ שלח חוות דעת
-        </button>
       </div>
 
       {/* Main two-column grid */}
-      <div className="detail-grid mx-6 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="detail-grid mx-4 mt-4 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
         {/* Left — note / history */}
-        <div className="detail-column bg-white rounded-xl shadow-sm overflow-hidden">
+        <div className="detail-column bg-card rounded-xl shadow-sm overflow-hidden">
           <div className="flex border-b">
             <TabBtn active={activeTab === "note"} onClick={() => setActiveTab("note")}>מסמך (חוות דעת)</TabBtn>
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")}>היסטוריה</TabBtn>
@@ -300,7 +309,7 @@ const BinuiProjectDetail: React.FC = () => {
         {/* Right — video/pres + images */}
         <div className="detail-column space-y-4">
           {/* Video / presentation */}
-          <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+          <div className="bg-card rounded-xl shadow-sm overflow-hidden">
             <div className="flex border-b">
               <TabBtn active>סרטון</TabBtn>
               <TabBtn active={false} onClick={() => alert("העלאת קבצים תתווסף בגרסה הבאה")}>מצגת</TabBtn>
@@ -316,7 +325,7 @@ const BinuiProjectDetail: React.FC = () => {
           </div>
 
           {/* Images */}
-          <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="bg-card rounded-xl shadow-sm p-4">
             <div className="text-sm font-semibold mb-2" style={{ color: "#2C6E6A" }}>תמונות הפרויקט</div>
             <div className="grid grid-cols-3 gap-2">
               {(["tashrit", "tza", "hadmaya"] as const).map((slot) => (
@@ -333,7 +342,7 @@ const BinuiProjectDetail: React.FC = () => {
           </div>
 
           {/* Documents / Attachments */}
-          <div className="bg-white rounded-xl shadow-sm p-4">
+          <div className="bg-card rounded-xl shadow-sm p-4">
             <div className="flex items-center gap-2 mb-2">
               <Paperclip size={14} style={{ color: "#2C6E6A" }} />
               <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>מסמכים מצורפים</span>
@@ -376,12 +385,12 @@ const BinuiProjectDetail: React.FC = () => {
       </div>
 
       {/* Detail cards */}
-      <div className="mx-6 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="mx-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
         {Object.entries(DETAIL_FIELDS).map(([section, fields]) => {
           const editing = editingSections[section];
           const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
           return (
-            <div key={section} className="detail-card bg-white rounded-xl shadow-sm overflow-hidden">
+            <div key={section} className="detail-card bg-card rounded-xl shadow-sm overflow-hidden">
               <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: "#FAFAF8" }}>
                 <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>{section}</span>
                 {editing ? (
@@ -422,7 +431,7 @@ const BinuiProjectDetail: React.FC = () => {
       </div>
 
       {/* Summary pills */}
-      <div className="mx-6 mb-12 bg-white rounded-xl shadow-sm p-4">
+      <div className="mx-4 mb-12 bg-card rounded-xl shadow-sm p-4">
         <div className="text-sm font-semibold mb-2" style={{ color: "#2C6E6A" }}>סיכום פרטים</div>
         <div className="pills-row flex flex-wrap gap-1.5">
           {DETAIL_FIELDS["פרטים"].map((f) => {
