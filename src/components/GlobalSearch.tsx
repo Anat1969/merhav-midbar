@@ -55,7 +55,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
         dir="rtl"
       />
       {showDropdown && results.length > 0 && (
-        <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white shadow-lg max-h-80 overflow-y-auto">
+        <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white text-gray-900 shadow-lg max-h-80 overflow-y-auto">
           <div className="px-3 py-1.5 text-[11px] text-gray-400 border-b bg-gray-50">
             {results.length} תוצאות
           </div>
@@ -90,8 +90,8 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
         </div>
       )}
       {showDropdown && query.trim().length > 0 && results.length === 0 && (
-        <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white p-3 text-center text-sm text-gray-400 shadow-lg">
-          לא נמצאו תוצאות
+        <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white text-gray-900 p-3 text-center text-sm shadow-lg">
+          <span className="text-gray-400">לא נמצאו תוצאות</span>
         </div>
       )}
     </div>
