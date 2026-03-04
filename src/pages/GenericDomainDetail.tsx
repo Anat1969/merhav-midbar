@@ -357,7 +357,6 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           </div>
         </div>
       </div>
-      </div>
 
       {project && (() => {
         const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
