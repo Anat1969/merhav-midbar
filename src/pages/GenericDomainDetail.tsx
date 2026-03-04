@@ -232,7 +232,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                     <textarea
                       title="פוסט"
                       className="w-full rounded-lg border border-border p-3 text-sm resize-none bg-card"
-                      style={{ direction: "rtl", minHeight: 120 }}
+                      style={{ direction: "rtl", minHeight: 220 }}
                       placeholder="כתוב פוסט..."
                       value={project.description}
                       onChange={(e) => update({ description: e.target.value })}
