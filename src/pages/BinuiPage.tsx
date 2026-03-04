@@ -636,10 +636,10 @@ const BinuiPage: React.FC = () => {
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
-                  className="no-print mr-auto text-gray-300 hover:text-red-500 transition-colors text-lg leading-none"
+                  className="no-print mr-auto h-7 px-3 rounded-md bg-red-50 border border-red-200 text-red-500 hover:bg-red-500 hover:text-white text-xs font-bold transition-colors flex items-center gap-1"
                   onClick={() => deleteProject(p.id)}
                 >
-                  ×
+                  🗑️ מחק
                 </button>
               </div>
 
