@@ -4,7 +4,7 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
-import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
 import {
   DomainConfig,
   GenericProject,
@@ -18,6 +18,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/domainConstants";
 import { toast } from "sonner";
+import { ALL_DOMAINS, moveGenericToBinui, moveGenericToGeneric } from "@/lib/moveProject";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
@@ -115,22 +116,52 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
     const subs = getSubsForCategory(config, newCatValue);
     const newSubValue = subs.length > 0 ? subs[0] : newCatValue;
     persist(
-      projects.map((p) =>
-        p.id === id
-          ? { ...p, category: newCatValue, sub: newSubValue, history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history] }
-          : p
-      )
+      projects.map((p) => {
+        if (p.id !== id) return p;
+        const nameParts = p.name.split(" - ");
+        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
+        const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
+        return {
+          ...p,
+          name: newFullName,
+          category: newCatValue,
+          sub: newSubValue,
+          history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history],
+        };
+      })
     );
   };
 
   const changeSub = (id: number, newSubValue: string) => {
     persist(
-      projects.map((p) =>
-        p.id === id
-          ? { ...p, sub: newSubValue, history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history] }
-          : p
-      )
+      projects.map((p) => {
+        if (p.id !== id) return p;
+        const nameParts = p.name.split(" - ");
+        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
+        const newFullName = `${p.category}:${newSubValue} - ${uniqueName}`;
+        return {
+          ...p,
+          name: newFullName,
+          sub: newSubValue,
+          history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history],
+        };
+      })
     );
+  };
+
+  const moveToDomain = (project: GenericProject, targetDomain: string) => {
+    if (targetDomain === config.domainName) return;
+    if (!window.confirm(`להעביר את "${project.name}" לדומיין ${targetDomain}?`)) return;
+    let result;
+    if (targetDomain === "מבנים") {
+      result = moveGenericToBinui(project, config.domainName);
+    } else {
+      result = moveGenericToGeneric(project, config.domainName, targetDomain);
+    }
+    if (result.success) {
+      setProjects(loadGenericProjects(config.storageKey));
+      toast.success(`הפרויקט הועבר ל${targetDomain}`);
+    }
   };
 
   const handleImage = (id: number, file: File) => {
@@ -487,6 +518,17 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                     ))}
                   </select>
                 )}
+                <select
+                  title="העבר לדומיין"
+                  className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  style={{ direction: "rtl" }}
+                  value={config.domainName}
+                  onChange={(e) => moveToDomain(p, e.target.value)}
+                >
+                  {ALL_DOMAINS.map((d) => (
+                    <option key={d.name} value={d.name}>{d.icon} {d.name}</option>
+                  ))}
+                </select>
                 <select
                   title="שנה סטטוס"
                   className="status-badge mr-auto h-7 rounded-md border text-xs px-2"

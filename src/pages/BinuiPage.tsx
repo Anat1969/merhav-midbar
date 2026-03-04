@@ -16,7 +16,8 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
-import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
+import { ALL_DOMAINS, moveBinuiToGeneric } from "@/lib/moveProject";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
@@ -99,6 +100,52 @@ const BinuiPage: React.FC = () => {
           : p
       )
     );
+  };
+
+  const changeCategory = (id: number, newCatValue: string) => {
+    const newSubValue = BINUI_CATEGORIES[newCatValue].subs[0];
+    persist(
+      projects.map((p) => {
+        if (p.id !== id) return p;
+        const nameParts = p.name.split(" - ");
+        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
+        const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
+        return {
+          ...p,
+          name: newFullName,
+          category: newCatValue,
+          sub: newSubValue,
+          history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history],
+        };
+      })
+    );
+  };
+
+  const changeSub = (id: number, newSubValue: string) => {
+    persist(
+      projects.map((p) => {
+        if (p.id !== id) return p;
+        const nameParts = p.name.split(" - ");
+        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
+        const newFullName = `${p.category}:${newSubValue} - ${uniqueName}`;
+        return {
+          ...p,
+          name: newFullName,
+          sub: newSubValue,
+          history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history],
+        };
+      })
+    );
+  };
+
+  const moveToDomain = (project: BinuiProject, targetDomain: string) => {
+    if (targetDomain === "מבנים") return;
+    if (!window.confirm(`להעביר את "${project.name}" לדומיין ${targetDomain}?`)) return;
+    const result = moveBinuiToGeneric(project, targetDomain);
+    if (result.success) {
+      setProjects(loadBinuiProjects());
+      toast.success(`הפרויקט הועבר ל${targetDomain}`);
+    }
   };
 
   const handleImage = (id: number, slot: "tashrit" | "tza" | "hadmaya", file: File) => {
@@ -432,7 +479,39 @@ const BinuiPage: React.FC = () => {
                 >
                   {p.name}
                 </span>
-                <span className="text-xs text-gray-400 mr-1">{p.category} / {p.sub}</span>
+                <select
+                  title="שנה קטגוריה"
+                  className="text-xs text-gray-500 mr-1 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  style={{ direction: "rtl" }}
+                  value={p.category}
+                  onChange={(e) => changeCategory(p.id, e.target.value)}
+                >
+                  {Object.keys(BINUI_CATEGORIES).map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+                <select
+                  title="שנה תת-קטגוריה"
+                  className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  style={{ direction: "rtl" }}
+                  value={p.sub}
+                  onChange={(e) => changeSub(p.id, e.target.value)}
+                >
+                  {BINUI_CATEGORIES[p.category]?.subs.map((s) => (
+                    <option key={s} value={s}>{s}</option>
+                  ))}
+                </select>
+                <select
+                  title="העבר לדומיין"
+                  className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  style={{ direction: "rtl" }}
+                  value="מבנים"
+                  onChange={(e) => moveToDomain(p, e.target.value)}
+                >
+                  {ALL_DOMAINS.map((d) => (
+                    <option key={d.name} value={d.name}>{d.icon} {d.name}</option>
+                  ))}
+                </select>
                 <select
                   title="שנה סטטוס"
                   className="status-badge mr-auto h-7 rounded-md border text-xs px-2"
