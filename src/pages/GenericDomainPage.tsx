@@ -519,6 +519,17 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   </select>
                 )}
                 <select
+                  title="העבר לדומיין"
+                  className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  style={{ direction: "rtl" }}
+                  value={config.domainName}
+                  onChange={(e) => moveToDomain(p, e.target.value)}
+                >
+                  {ALL_DOMAINS.map((d) => (
+                    <option key={d.name} value={d.name}>{d.icon} {d.name}</option>
+                  ))}
+                </select>
+                <select
                   title="שנה סטטוס"
                   className="status-badge mr-auto h-7 rounded-md border text-xs px-2"
                   style={{
