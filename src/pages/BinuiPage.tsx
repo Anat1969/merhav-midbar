@@ -285,12 +285,31 @@ const BinuiPage: React.FC = () => {
 
         {/* === Section 3: Filters === */}
         <div>
-          <div className="text-xs font-bold text-gray-500 mb-3">🔽 סינון לפי קטגוריה וסטטוס</div>
+          <div className="text-xs font-bold text-gray-500 mb-3">🔽 סינון היררכי — דומיין ← קטגוריה ← נושא ← סטטוס</div>
           <div className="flex items-start justify-between gap-4 flex-wrap">
-            {/* Right side: Category hierarchy */}
+            {/* Right side: Hierarchy */}
             <div className="flex flex-col gap-2">
-              {/* Level 1: Categories */}
+              {/* Level 0: Domains */}
               <div className="flex items-center gap-1.5">
+                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">דומיין:</span>
+                {[
+                  { name: "מבנים", icon: "🏛", color: "#2C6E6A", route: "/binui" },
+                  { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
+                  { name: "מיידעים", icon: "📋", color: "#4A6741", route: "/meyadim" },
+                  { name: "פעולות", icon: "⚡", color: "#5A5A7A", route: "/peulot" },
+                ].map((d) => (
+                  <FilterPill
+                    key={d.name}
+                    active={d.name === "מבנים"}
+                    color={d.color}
+                    onClick={() => d.name !== "מבנים" && navigate(d.route)}
+                  >
+                    {d.icon} {d.name}
+                  </FilterPill>
+                ))}
+              </div>
+              {/* Level 1: Categories */}
+              <div className="flex items-center gap-1.5 pr-14">
                 <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">קטגוריה:</span>
                 <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
                   הכל
@@ -308,7 +327,7 @@ const BinuiPage: React.FC = () => {
               </div>
               {/* Level 2: Sub-categories (shown when category selected) */}
               {activeSubs.length > 0 && (
-                <div className="flex items-center gap-1.5 pr-14">
+                <div className="flex items-center gap-1.5 pr-28">
                   <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">נושא:</span>
                   <FilterPill active={!filterSub} onClick={() => setFilterSub(null)}
                     color={BINUI_CATEGORIES[filterCat!]?.color}>
@@ -347,7 +366,7 @@ const BinuiPage: React.FC = () => {
               ))}
             </div>
           </div>
-          <p className="text-[11px] text-gray-400 mt-2">בחר קטגוריה ← נושא ← סטטוס. ניתן לשלב סינונים יחד</p>
+          <p className="text-[11px] text-gray-400 mt-2">עץ היררכי: דומיין ← קטגוריה ← נושא ← סטטוס. ניתן לשלב סינונים יחד</p>
         </div>
 
         <div className="border-t border-gray-100" />
