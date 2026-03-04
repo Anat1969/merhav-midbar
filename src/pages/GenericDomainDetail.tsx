@@ -239,14 +239,14 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       </div>
 
       {/* ═══════════════ BOTTOM FRAME — Practical ═══════════════ */}
-      <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ minHeight: 360 }}>
         {/* 1. תיאור */}
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
-          <div className="text-base font-bold mb-2" style={{ color: config.color }}>תיאור</div>
+          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>תיאור</div>
           <textarea
             title="תיאור הפרויקט"
             className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed"
-            style={{ direction: "rtl", minHeight: 180, background: "#FAFAF8" }}
+            style={{ direction: "rtl", minHeight: 280, background: "#FAFAF8" }}
             placeholder="תיאור מפורט..."
             value={project.note}
             onChange={(e) => update({ note: e.target.value })}
@@ -255,11 +255,11 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
 
         {/* 2. מסמך (חוות דעת) */}
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
-          <div className="text-base font-bold mb-2" style={{ color: config.color }}>מסמך (חוות דעת)</div>
+          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מסמך (חוות דעת)</div>
           <textarea
             title="חוות דעת"
             className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed"
-            style={{ direction: "rtl", minHeight: 180, background: "#FAFAF8" }}
+            style={{ direction: "rtl", minHeight: 280, background: "#FAFAF8" }}
             placeholder="כתוב חוות דעת..."
             value={project.note}
             onChange={(e) => update({ note: e.target.value })}
