@@ -28,18 +28,15 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
 
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  const [activeTab, setActiveTab] = useState<"note" | "history">("note");
+  const [activeTab, setActiveTab] = useState<"note" | "history" | "tracking">("note");
   const [historyInput, setHistoryInput] = useState("");
   const [emailOpen, setEmailOpen] = useState(false);
-  const fileRef = useRef<HTMLInputElement | null>(null);
 
   const persist = (updated: GenericProject[]) => {
     const prev = projects;
     setProjects(updated);
     const ok = saveGenericProjects(config.storageKey, updated);
-    if (!ok) {
-      setProjects(prev);
-    }
+    if (!ok) setProjects(prev);
   };
 
   const update = (patch: Partial<GenericProject>) => {
@@ -98,6 +95,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
 
   const prevProject = projectIdx > 0 ? projects[projectIdx - 1] : null;
   const nextProject = projectIdx < projects.length - 1 ? projects[projectIdx + 1] : null;
+
+  const isPoetic = config.extraFields === "poetic";
 
   return (
     <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
@@ -192,84 +191,89 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </button>
       </div>
 
-      {/* Two-column grid */}
-      <div className="detail-grid mx-4 mt-4 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* LEFT — note / history */}
-        <div className="detail-column bg-card rounded-xl shadow-sm overflow-hidden">
-          <div className="flex border-b">
-            <TabBtn active={activeTab === "note"} onClick={() => setActiveTab("note")} color={config.color}>מסמך (חוות דעת)</TabBtn>
-            <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")} color={config.color}>היסטוריה</TabBtn>
-          </div>
-          <div className="p-4">
-            {activeTab === "note" ? (
-              <>
-                <textarea
-                  title="חוות דעת"
-                  className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none"
-                  style={{ direction: "rtl", minHeight: 200, background: "#FAFAF8" }}
-                  placeholder="כתוב חוות דעת, הערות, עדכונים..."
-                  value={project.note}
-                  onChange={(e) => update({ note: e.target.value })}
-                />
-                <button
-                  title="שמור הערה"
-                  className="mt-2 h-8 px-4 rounded-lg text-white text-xs font-bold"
-                  style={{ background: config.color }}
-                  onClick={() => update({ note: project.note })}
-                >
-                  שמור הערה
-                </button>
-              </>
-            ) : (
-              <>
-                <div className="flex gap-2 mb-3">
+      {/* ═══════════════════════════════════════════════════════════
+          UPPER FRAME — POETIC / CONCEPTUAL
+          ═══════════════════════════════════════════════════════════ */}
+      {isPoetic && (
+        <div className="mx-4 mt-4">
+          <div
+            className="rounded-2xl border-2 overflow-hidden"
+            style={{ borderColor: config.color + "40" }}
+          >
+            {/* Section label */}
+            <div
+              className="px-5 py-2 text-sm font-bold text-white"
+              style={{ background: config.color }}
+            >
+              שם פואטי:
+            </div>
+
+            {/* Content: text fields + image */}
+            <div className="flex flex-col lg:flex-row">
+              {/* Text side */}
+              <div className="flex-1 p-5 space-y-4">
+                {/* Poetic Name — large */}
+                <div>
                   <input
-                    title="הוסף רשומה"
-                    className="flex-1 h-8 rounded-lg border border-gray-200 px-3 text-sm"
-                    style={{ direction: "rtl" }}
-                    placeholder="הוסף רשומת היסטוריה..."
-                    value={historyInput}
-                    onChange={(e) => setHistoryInput(e.target.value)}
-                    onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()}
+                    title="שם פואטי"
+                    className="w-full rounded-lg border border-border px-4 py-3 text-2xl font-black italic bg-card"
+                    style={{ direction: "rtl", color: config.color }}
+                    placeholder="שם פואטי..."
+                    value={project.poeticName}
+                    onChange={(e) => update({ poeticName: e.target.value })}
                   />
-                  <button
-                    title="הוסף"
-                    className="h-8 w-8 rounded-lg text-white text-sm flex items-center justify-center"
-                    style={{ background: config.color }}
-                    onClick={addHistoryEntry}
-                  >
-                    +
-                  </button>
                 </div>
-                <div className="history-list space-y-2 max-h-[300px] overflow-y-auto">
-                  {project.history.map((h, i) => (
-                    <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1" style={{ borderColor: config.color + "33" }}>
-                      <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
-                      <span>{h.note}</span>
-                    </div>
-                  ))}
+
+                {/* Haiku + Post row */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Post — smaller font */}
+                  <div>
+                    <div className="text-xs font-semibold mb-1 text-muted-foreground">פוסט:</div>
+                    <textarea
+                      title="פוסט"
+                      className="w-full rounded-lg border border-border p-3 text-sm resize-none bg-card"
+                      style={{ direction: "rtl", minHeight: 120 }}
+                      placeholder="כתוב פוסט..."
+                      value={project.description}
+                      onChange={(e) => update({ description: e.target.value })}
+                    />
+                  </div>
+                  {/* Haiku — medium */}
+                  <div>
+                    <div className="text-xs font-semibold mb-1 text-muted-foreground">הייקו:</div>
+                    <textarea
+                      title="הייקו"
+                      className="w-full rounded-lg border border-border p-3 text-base font-semibold italic resize-none bg-card"
+                      style={{ direction: "rtl", minHeight: 120, color: config.color }}
+                      placeholder="הייקו — שלושה שורות..."
+                      value={project.task}
+                      onChange={(e) => update({ task: e.target.value })}
+                    />
+                  </div>
                 </div>
-              </>
-            )}
+              </div>
+
+              {/* Image side */}
+              <div className="lg:w-[280px] shrink-0 p-5 lg:border-r border-t lg:border-t-0" style={{ borderColor: config.color + "25" }}>
+                <div className="text-xs font-semibold mb-2 text-muted-foreground">תמונה</div>
+                <FileDropZone
+                  onFile={(f) => handleImage(f)}
+                  onDelete={() => update({ image: null })}
+                  currentSrc={project.image}
+                  label="תמונה"
+                  className="aspect-[3/4] border-2 border-dashed border-border rounded-lg hover:bg-muted/50 overflow-hidden"
+                />
+              </div>
+            </div>
           </div>
         </div>
+      )}
 
-        {/* RIGHT — poetic name, image, status block */}
-        <div className="detail-column space-y-4">
-          {/* Poetic name */}
-          <div className="bg-card rounded-xl shadow-sm p-4">
-            <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>שם פואטי</div>
-            <input
-              title="שם פואטי"
-              className="w-full h-9 rounded-lg border border-gray-200 px-3 text-sm italic"
-              style={{ direction: "rtl" }}
-              placeholder="שם פואטי / הייקו..."
-              value={project.poeticName}
-              onChange={(e) => update({ poeticName: e.target.value })}
-            />
-          </div>
-
-          {/* Single image */}
+      {/* ═══════════════════════════════════════════════════════════
+          NON-POETIC: image + simple fields  
+          ═══════════════════════════════════════════════════════════ */}
+      {!isPoetic && (
+        <div className="mx-4 mt-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
           <div className="bg-card rounded-xl shadow-sm p-4">
             <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>תמונה</div>
             <FileDropZone
@@ -277,86 +281,159 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
               onDelete={() => update({ image: null })}
               currentSrc={project.image}
               label="תמונה"
-              className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-50 overflow-hidden"
+              className="aspect-[4/3] border-2 border-dashed border-border rounded-lg hover:bg-muted/50 overflow-hidden"
             />
           </div>
+          <div className="bg-card rounded-xl shadow-sm p-4 space-y-3">
+            <div className="text-sm font-semibold" style={{ color: config.color }}>תיאור</div>
+            <textarea
+              title="תיאור"
+              className="w-full rounded-lg border border-border p-3 text-sm resize-none bg-background"
+              style={{ direction: "rtl", minHeight: 180 }}
+              placeholder="תיאור מפורט..."
+              value={project.description}
+              onChange={(e) => update({ description: e.target.value })}
+            />
+          </div>
+        </div>
+      )}
 
-          {/* Status block */}
-          <div className="detail-card bg-card rounded-xl shadow-sm p-4 space-y-3">
-            <div className="text-sm font-semibold" style={{ color: config.color }}>מעקב</div>
-            <div className="space-y-2">
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-400" style={{ minWidth: 60 }}>סטטוס</span>
-                <select
-                  title="סטטוס"
-                  className="h-7 rounded border text-xs px-2 flex-1"
+      {/* ═══════════════════════════════════════════════════════════
+          LOWER FRAME — PRACTICAL / MANAGEMENT
+          ═══════════════════════════════════════════════════════════ */}
+      <div className="mx-4 mt-4 mb-12">
+        <div
+          className="rounded-2xl border-2 overflow-hidden"
+          style={{ borderColor: config.color + "30" }}
+        >
+          {/* Section label */}
+          <div
+            className="px-5 py-2 text-sm font-bold text-white flex items-center justify-between"
+            style={{ background: config.color + "DD" }}
+          >
+            <span>שם פרקטי:</span>
+            <span className="text-xs opacity-80 font-normal">{project.name}</span>
+          </div>
+
+          {/* 4-column practical grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x md:divide-x-reverse" style={{ borderColor: config.color + "15" }}>
+            {/* Description / Document */}
+            <div className="p-4">
+              <div className="text-xs font-bold mb-2" style={{ color: config.color }}>תאור:</div>
+              <textarea
+                title="תיאור פרקטי"
+                className="w-full rounded-lg border border-border p-2 text-xs resize-none bg-background"
+                style={{ direction: "rtl", minHeight: 140 }}
+                placeholder={isPoetic ? "תיאור פרקטי, מטרות ויעדים..." : "תיאור..."}
+                value={isPoetic ? project.decision : project.description}
+                onChange={(e) => update(isPoetic ? { decision: e.target.value } : { description: e.target.value })}
+              />
+            </div>
+
+            {/* Document / Opinion */}
+            <div className="p-4">
+              <div className="text-xs font-bold mb-2" style={{ color: config.color }}>מסמך:</div>
+              <textarea
+                title="חוות דעת"
+                className="w-full rounded-lg border border-border p-2 text-xs resize-none bg-background"
+                style={{ direction: "rtl", minHeight: 140 }}
+                placeholder="כתוב חוות דעת, הערות, עדכונים..."
+                value={project.note}
+                onChange={(e) => update({ note: e.target.value })}
+              />
+            </div>
+
+            {/* History */}
+            <div className="p-4">
+              <div className="text-xs font-bold mb-2" style={{ color: config.color }}>היסטוריה:</div>
+              <div className="flex gap-1 mb-2">
+                <input
+                  title="הוסף רשומה"
+                  className="flex-1 h-7 rounded border border-border px-2 text-xs bg-background"
                   style={{ direction: "rtl" }}
-                  value={project.status}
-                  onChange={(e) => changeStatus(e.target.value)}
+                  placeholder="הוסף..."
+                  value={historyInput}
+                  onChange={(e) => setHistoryInput(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()}
+                />
+                <button
+                  title="הוסף"
+                  className="h-7 w-7 rounded text-white text-xs flex items-center justify-center shrink-0"
+                  style={{ background: config.color }}
+                  onClick={addHistoryEntry}
                 >
-                  {STATUS_OPTIONS.map((s) => (
-                    <option key={s.value} value={s.value}>{s.label}</option>
-                  ))}
-                </select>
+                  +
+                </button>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-400" style={{ minWidth: 60 }}>תאריך</span>
-                <input
-                  title="תאריך מעקב"
-                  type="date"
-                  className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
-                  value={project.tracking.date}
-                  onChange={(e) => update({ tracking: { ...project.tracking, date: e.target.value } })}
-                />
+              <div className="space-y-1 max-h-[160px] overflow-y-auto">
+                {project.history.map((h, i) => (
+                  <div key={i} className="text-[11px] border-r-2 pr-2 py-0.5" style={{ borderColor: config.color + "33" }}>
+                    <span className="text-muted-foreground font-mono">{h.date}</span>
+                    <div>{h.note}</div>
+                  </div>
+                ))}
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-400" style={{ minWidth: 60 }}>הערה</span>
-                <input
-                  title="הערת מעקב"
-                  className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
-                  style={{ direction: "rtl" }}
-                  value={project.tracking.note}
-                  onChange={(e) => update({ tracking: { ...project.tracking, note: e.target.value } })}
-                />
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-400" style={{ minWidth: 60 }}>גורם</span>
-                <input
-                  title="גורם אחראי"
-                  className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
-                  style={{ direction: "rtl" }}
-                  value={project.tracking.agent}
-                  onChange={(e) => update({ tracking: { ...project.tracking, agent: e.target.value } })}
-                />
-              </div>
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-gray-400" style={{ minWidth: 60 }}>יוזם</span>
-                <input
-                  title="יוזם"
-                  className="h-7 rounded border border-gray-200 px-2 text-xs flex-1"
-                  style={{ direction: "rtl" }}
-                  placeholder="ראש העיר / מנכ״ל / מאן דהוא"
-                  value={project.initiator}
-                  onChange={(e) => update({ initiator: e.target.value })}
-                />
+            </div>
+
+            {/* Tracking */}
+            <div className="p-4">
+              <div className="text-xs font-bold mb-2" style={{ color: config.color }}>מעקב:</div>
+              <div className="space-y-2">
+                {[
+                  { label: "סטטוס", type: "status" },
+                  { label: "תאריך", type: "date" },
+                  { label: "הערה", type: "note" },
+                  { label: "גורם", type: "agent" },
+                  { label: "יוזם", type: "initiator" },
+                ].map(({ label, type }) => (
+                  <div key={type} className="flex items-center gap-1.5 text-xs">
+                    <span className="text-muted-foreground shrink-0" style={{ minWidth: 36 }}>{label}</span>
+                    {type === "status" ? (
+                      <select
+                        title="סטטוס"
+                        className="h-6 rounded border border-border text-[11px] px-1 flex-1 bg-background"
+                        style={{ direction: "rtl" }}
+                        value={project.status}
+                        onChange={(e) => changeStatus(e.target.value)}
+                      >
+                        {STATUS_OPTIONS.map((s) => (
+                          <option key={s.value} value={s.value}>{s.label}</option>
+                        ))}
+                      </select>
+                    ) : type === "date" ? (
+                      <input
+                        title={label}
+                        type="date"
+                        className="h-6 rounded border border-border px-1 text-[11px] flex-1 bg-background"
+                        value={project.tracking.date}
+                        onChange={(e) => update({ tracking: { ...project.tracking, date: e.target.value } })}
+                      />
+                    ) : type === "initiator" ? (
+                      <input
+                        title={label}
+                        className="h-6 rounded border border-border px-1 text-[11px] flex-1 bg-background"
+                        style={{ direction: "rtl" }}
+                        placeholder="ראש העיר / מנכ״ל..."
+                        value={project.initiator}
+                        onChange={(e) => update({ initiator: e.target.value })}
+                      />
+                    ) : (
+                      <input
+                        title={label}
+                        className="h-6 rounded border border-border px-1 text-[11px] flex-1 bg-background"
+                        style={{ direction: "rtl" }}
+                        value={project.tracking[type as "note" | "agent"]}
+                        onChange={(e) => update({ tracking: { ...project.tracking, [type]: e.target.value } })}
+                      />
+                    )}
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Description — full width */}
-      <div className="mx-4 mb-12 bg-card rounded-xl shadow-sm p-4">
-        <div className="text-sm font-semibold mb-2" style={{ color: config.color }}>תיאור</div>
-        <textarea
-          title="תיאור הפרויקט"
-          className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none"
-          style={{ direction: "rtl", minHeight: 150, background: "#FAFAF8" }}
-          placeholder="תיאור מפורט של הפרויקט..."
-          value={project.description}
-          onChange={(e) => update({ description: e.target.value })}
-        />
-      </div>
       {project && (() => {
         const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
         return (
@@ -372,22 +449,5 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
     </div>
   );
 };
-
-function TabBtn({ children, active, onClick, color }: { children: React.ReactNode; active: boolean; onClick?: () => void; color: string }) {
-  return (
-    <button
-      title={typeof children === "string" ? children : ""}
-      className="flex-1 py-2.5 text-sm font-medium transition-colors border-b-2"
-      style={{
-        borderColor: active ? color : "transparent",
-        color: active ? color : "#999",
-        background: active ? color + "0D" : "transparent",
-      }}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  );
-}
 
 export default GenericDomainDetail;
