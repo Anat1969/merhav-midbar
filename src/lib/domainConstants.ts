@@ -20,6 +20,7 @@ export interface GenericProject {
   created: string;
   note: string;
   description: string;
+  document: string;
   task: string;
   decision: string;
   history: { date: string; note: string }[];
@@ -86,7 +87,7 @@ export function loadGenericProjects(key: string): GenericProject[] {
   try {
     const raw = localStorage.getItem(key);
     const list: GenericProject[] = raw ? JSON.parse(raw) : [];
-    return list.map((p) => ({ ...p, attachments: p.attachments || [] }));
+    return list.map((p) => ({ ...p, attachments: p.attachments || [], document: p.document || "" }));
   } catch {
     return [];
   }

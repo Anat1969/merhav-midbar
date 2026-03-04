@@ -50,6 +50,7 @@ export function moveBinuiToGeneric(
     created: project.created,
     note: project.note,
     description: "",
+    document: "",
     task: "",
     decision: "",
     history: [{ date: now, note: `הועבר מ: מבנים` }, ...project.history],

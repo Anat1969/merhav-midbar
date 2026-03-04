@@ -92,6 +92,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       created: now,
       note: "",
       description: "",
+      document: "",
       task: "",
       decision: "",
       history: [{ date: now, note: "נוצר" }],
