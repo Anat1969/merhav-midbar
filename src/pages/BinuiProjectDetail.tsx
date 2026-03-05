@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
@@ -9,18 +10,19 @@ import {
   DETAIL_FIELDS,
   BinuiProject,
   BinuiAttachment,
-  loadBinuiProjects,
-  saveBinuiProjects,
   getHebrewDateNow,
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
 import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
+import { uploadProjectFile } from "@/lib/fileStorage";
+import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
-  if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
-  if (src.startsWith("data:video") || /\.(mp4|webm|ogg|mov)$/i.test(src)) return "video";
-  if (src.startsWith("data:application/pdf") || /\.pdf$/i.test(src)) return "pdf";
+  if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
+  if (/^(data:video|https?:.*\.(mp4|webm|ogg|mov))/i.test(src)) return "video";
+  if (/^(data:application\/pdf|https?:.*\.pdf)/i.test(src)) return "pdf";
   return "other";
 }
 
@@ -33,7 +35,11 @@ const IMAGE_LABELS: Record<string, string> = {
 const BinuiProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<BinuiProject[]>(loadBinuiProjects);
+  const qc = useQueryClient();
+  const { data: projects = [], isLoading } = useBinuiProjects();
+  const saveMutation = useSaveBinuiProject();
+  const deleteMutation = useDeleteBinuiProject();
+
   const projectIdx = projects.findIndex((p) => String(p.id) === id);
   const project = projects[projectIdx];
 
@@ -47,18 +53,21 @@ const BinuiProjectDetail: React.FC = () => {
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const persist = (updated: BinuiProject[]) => {
-    const prev = projects;
-    setProjects(updated);
-    const ok = saveBinuiProjects(updated);
-    if (!ok) {
-      setProjects(prev);
-    }
+  const update = async (patch: Partial<BinuiProject>) => {
+    if (!project) return;
+    try {
+      await saveMutation.mutateAsync({ ...project, ...patch });
+    } catch {}
   };
 
-  const update = (patch: Partial<BinuiProject>) => {
-    persist(projects.map((p, i) => (i === projectIdx ? { ...p, ...patch } : p)));
-  };
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ direction: "rtl" }}>
+        <TopNav />
+        <div className="text-muted-foreground animate-pulse">טוען...</div>
+      </div>
+    );
+  }
 
   if (!project) {
     return (
@@ -104,32 +113,40 @@ const BinuiProjectDetail: React.FC = () => {
     setHistoryInput("");
   };
 
-  const handleImage = (slot: "tashrit" | "tza" | "hadmaya", file: File) => {
+  const handleImage = async (slot: "tashrit" | "tza" | "hadmaya", file: File) => {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      update({ images: { ...project.images, [slot]: reader.result as string } });
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadProjectFile(file, "binui", project.id);
+      await update({ images: { ...project.images, [slot]: url } });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת תמונה");
+    }
   };
 
-  const addAttachment = (file: File) => {
+  const addAttachment = async (file: File) => {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      update({ attachments: [...project.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] });
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadProjectFile(file, "binui", project.id);
+      await saveAttachmentAsync("binui", project.id, file.name, url);
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת קובץ");
+    }
   };
 
-  const removeAttachment = (attachId: number) => {
-    update({ attachments: project.attachments.filter((a) => a.id !== attachId) });
+  const removeAttachment = async (attachId: number) => {
+    try {
+      await deleteAttachmentAsync(attachId);
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה במחיקת קובץ");
+    }
   };
 
   const startEdit = (section: string) => {
@@ -263,11 +280,13 @@ const BinuiProjectDetail: React.FC = () => {
         <button
           title="מחק פרויקט"
           className="h-10 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-1.5"
-          onClick={() => {
+          onClick={async () => {
             if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
-              persist(projects.filter((_, i) => i !== projectIdx));
-              toast.success("הפרויקט נמחק");
-              navigate("/binui");
+              try {
+                await deleteMutation.mutateAsync(project.id);
+                toast.success("הפרויקט נמחק");
+                navigate("/binui");
+              } catch {}
             }
           }}
         >
@@ -486,6 +505,7 @@ const BinuiProjectDetail: React.FC = () => {
           })}
         </div>
       </div>
+
       {/* Fullscreen attachment viewer */}
       {viewerData && (
         <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center" onClick={() => setViewerData(null)} style={{ direction: "rtl" }}>
@@ -532,6 +552,7 @@ const BinuiProjectDetail: React.FC = () => {
           </div>
         </div>
       )}
+
       {(() => {
         const details = project.details?.["פרטים"] ?? {};
         const location = project.details?.["מיקום"] ?? {};

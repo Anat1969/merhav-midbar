@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
@@ -10,19 +11,20 @@ import {
   DETAIL_FIELDS,
   BinuiProject,
   BinuiAttachment,
-  loadBinuiProjects,
-  saveBinuiProjects,
   getHebrewDateNow,
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
 import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
-import { ALL_DOMAINS, moveBinuiToGeneric } from "@/lib/moveProject";
+import { ALL_DOMAINS } from "@/lib/moveProject";
+import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
+import { uploadProjectFile } from "@/lib/fileStorage";
+import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
-  if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
-  if (src.startsWith("data:video") || /\.(mp4|webm|ogg|mov)$/i.test(src)) return "video";
-  if (src.startsWith("data:application/pdf") || /\.pdf$/i.test(src)) return "pdf";
+  if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
+  if (/^(data:video|https?:.*\.(mp4|webm|ogg|mov))/i.test(src)) return "video";
+  if (/^(data:application\/pdf|https?:.*\.pdf)/i.test(src)) return "pdf";
   return "other";
 }
 
@@ -34,7 +36,11 @@ const IMAGE_LABELS: Record<string, string> = {
 
 const BinuiPage: React.FC = () => {
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<BinuiProject[]>(loadBinuiProjects);
+  const qc = useQueryClient();
+  const { data: projects = [], isLoading } = useBinuiProjects();
+  const saveMutation = useSaveBinuiProject();
+  const deleteMutation = useDeleteBinuiProject();
+
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
   const [newCat, setNewCat] = useState(Object.keys(BINUI_CATEGORIES)[0]);
@@ -49,24 +55,21 @@ const BinuiPage: React.FC = () => {
   const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const persist = useCallback((updated: BinuiProject[]) => {
-    const prev = projects;
-    setProjects(updated);
-    const ok = saveBinuiProjects(updated);
-    if (!ok) {
-      setProjects(prev);
-    }
-  }, [projects]);
+  const saveOne = useCallback(async (project: BinuiProject) => {
+    try {
+      await saveMutation.mutateAsync(project);
+    } catch {}
+  }, [saveMutation]);
 
   const namePrefix = `${newCat}:${newSub} - `;
 
-  const addProject = () => {
+  const addProject = async () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
     const fullName = `${namePrefix}${trimmed}`;
     const now = getHebrewDateNow();
     const p: BinuiProject = {
-      id: Date.now(),
+      id: 0, // Will be assigned by DB
       name: fullName,
       category: newCat,
       sub: newSub,
@@ -78,117 +81,116 @@ const BinuiPage: React.FC = () => {
       images: { tashrit: null, tza: null, hadmaya: null },
       attachments: [],
     };
-    persist([p, ...projects]);
-    setNewName("");
+    try {
+      await saveMutation.mutateAsync(p);
+      setNewName("");
+    } catch {}
   };
 
-  const deleteProject = (id: number) => {
+  const deleteProject = async (id: number) => {
     if (!window.confirm("האם למחוק את הפרויקט?")) return;
-    persist(projects.filter((p) => p.id !== id));
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch {}
   };
 
-  const changeStatus = (id: number, status: string) => {
+  const changeStatus = async (id: number, status: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
     const label = STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
-    persist(
-      projects.map((p) =>
-        p.id === id
-          ? {
-              ...p,
-              status,
-              history: [{ date: getHebrewDateNow(), note: `סטטוס שונה ל: ${label}` }, ...p.history],
-            }
-          : p
-      )
-    );
+    await saveOne({
+      ...project,
+      status,
+      history: [{ date: getHebrewDateNow(), note: `סטטוס שונה ל: ${label}` }, ...project.history],
+    });
   };
 
-  const changeCategory = (id: number, newCatValue: string) => {
+  const changeCategory = async (id: number, newCatValue: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
     const newSubValue = BINUI_CATEGORIES[newCatValue].subs[0];
-    persist(
-      projects.map((p) => {
-        if (p.id !== id) return p;
-        const nameParts = p.name.split(" - ");
-        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
-        const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
-        return {
-          ...p,
-          name: newFullName,
-          category: newCatValue,
-          sub: newSubValue,
-          history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history],
-        };
-      })
-    );
+    const nameParts = project.name.split(" - ");
+    const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : project.name;
+    const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
+    await saveOne({
+      ...project,
+      name: newFullName,
+      category: newCatValue,
+      sub: newSubValue,
+      history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...project.history],
+    });
   };
 
-  const changeSub = (id: number, newSubValue: string) => {
-    persist(
-      projects.map((p) => {
-        if (p.id !== id) return p;
-        const nameParts = p.name.split(" - ");
-        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
-        const newFullName = `${p.category}:${newSubValue} - ${uniqueName}`;
-        return {
-          ...p,
-          name: newFullName,
-          sub: newSubValue,
-          history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history],
-        };
-      })
-    );
+  const changeSub = async (id: number, newSubValue: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    const nameParts = project.name.split(" - ");
+    const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : project.name;
+    const newFullName = `${project.category}:${newSubValue} - ${uniqueName}`;
+    await saveOne({
+      ...project,
+      name: newFullName,
+      sub: newSubValue,
+      history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...project.history],
+    });
   };
 
-  const moveToDomain = (project: BinuiProject, targetDomain: string) => {
+  const moveToDomain = async (project: BinuiProject, targetDomain: string) => {
     if (targetDomain === "מבנים") return;
     if (!window.confirm(`להעביר את "${project.name}" לדומיין ${targetDomain}?`)) return;
+    // For now, use the existing sync move function — will be migrated later
+    const { moveBinuiToGeneric } = await import("@/lib/moveProject");
     const result = moveBinuiToGeneric(project, targetDomain);
     if (result.success) {
-      setProjects(loadBinuiProjects());
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+      qc.invalidateQueries({ queryKey: ["generic-projects"] });
       toast.success(`הפרויקט הועבר ל${targetDomain}`);
     }
   };
 
-  const handleImage = (id: number, slot: "tashrit" | "tza" | "hadmaya", file: File) => {
+  const handleImage = async (id: number, slot: "tashrit" | "tza" | "hadmaya", file: File) => {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      persist(
-        projects.map((p) =>
-          p.id === id ? { ...p, images: { ...p.images, [slot]: reader.result as string } } : p
-        )
-      );
-    };
-    reader.readAsDataURL(file);
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    try {
+      const url = await uploadProjectFile(file, "binui", id);
+      await saveOne({ ...project, images: { ...project.images, [slot]: url } });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת תמונה");
+    }
   };
 
-  const saveNote = (id: number) => {
-    persist(projects.map((p) => (p.id === id ? { ...p, note: noteText } : p)));
+  const saveNote = async (id: number) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    await saveOne({ ...project, note: noteText });
     setNoteOpen(null);
   };
 
-  const addAttachment = (id: number, file: File) => {
+  const addAttachment = async (id: number, file: File) => {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      persist(projects.map((p) => p.id === id
-        ? { ...p, attachments: [...p.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] }
-        : p
-      ));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadProjectFile(file, "binui", id);
+      await saveAttachmentAsync("binui", id, file.name, url);
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת קובץ");
+    }
   };
 
-  const removeAttachment = (projectId: number, attachId: number) => {
-    persist(projects.map((p) => p.id === projectId
-      ? { ...p, attachments: p.attachments.filter((a) => a.id !== attachId) }
-      : p
-    ));
+  const removeAttachment = async (projectId: number, attachId: number) => {
+    try {
+      await deleteAttachmentAsync(attachId);
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה במחיקת קובץ");
+    }
   };
 
   const filtered = useMemo(() => {
@@ -222,6 +224,18 @@ const BinuiPage: React.FC = () => {
   }, [projects, filterCat]);
 
   const activeSubs = filterCat ? BINUI_CATEGORIES[filterCat]?.subs ?? [] : [];
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ direction: "rtl" }}>
+        <TopNav />
+        <div className="text-center">
+          <div className="text-4xl mb-3 animate-pulse">🏛</div>
+          <div className="text-muted-foreground">טוען פרויקטים...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
@@ -427,7 +441,7 @@ const BinuiPage: React.FC = () => {
             )}
           </div>
 
-          {/* Left side: Status + counter + save */}
+          {/* Left side: Status + counter */}
           <div className="flex flex-col gap-2 items-end">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold text-gray-400 shrink-0">סטטוס:</span>
@@ -453,13 +467,6 @@ const BinuiPage: React.FC = () => {
               >
                 מציג {filtered.length} מתוך {projects.length}
               </span>
-              <button
-                title="שמירה ידנית של הנתונים"
-                onClick={() => { saveBinuiProjects(projects); toast.success("הנתונים נשמרו"); }}
-                className="h-8 px-3 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors"
-              >
-                💾 שמירה
-              </button>
             </div>
           </div>
         </div>
@@ -486,7 +493,9 @@ const BinuiPage: React.FC = () => {
                 <FileDropZone
                   key={slot}
                   onFile={(f) => handleImage(p.id, slot, f)}
-                  onDelete={() => { const updated = projects.map((pr) => pr.id === p.id ? { ...pr, images: { ...pr.images, [slot]: null } } : pr); setProjects(updated); saveBinuiProjects(updated); }}
+                  onDelete={async () => {
+                    await saveOne({ ...p, images: { ...p.images, [slot]: null } });
+                  }}
                   currentSrc={p.images[slot]}
                   label={IMAGE_LABELS[slot]}
                   className="flex-1 border-l border-gray-100 hover:bg-gray-50"
