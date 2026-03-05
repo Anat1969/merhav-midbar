@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { searchAllProjects, SearchResult } from "@/lib/storage";
+import { searchAllProjectsAsync, SearchResult } from "@/lib/supabaseStorage";
 import { STATUS_CONFIG } from "@/lib/hierarchy";
 
 interface GlobalSearchProps {
@@ -11,13 +11,21 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  const [loading, setLoading] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
     if (query.trim().length > 0) {
-      setResults(searchAllProjects(query));
-      setShowDropdown(true);
+      setLoading(true);
+      const timeout = setTimeout(() => {
+        searchAllProjectsAsync(query).then((r) => {
+          setResults(r);
+          setShowDropdown(true);
+          setLoading(false);
+        }).catch(() => setLoading(false));
+      }, 300); // debounce
+      return () => clearTimeout(timeout);
     } else {
       setResults([]);
       setShowDropdown(false);
@@ -60,7 +68,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
             {results.length} תוצאות
           </div>
           {results.map((r, i) => {
-            const st = STATUS_CONFIG[r.project.status];
+            const st = STATUS_CONFIG[r.project.status as keyof typeof STATUS_CONFIG];
             return (
               <button
                 key={`${r.project.id}-${i}`}
@@ -68,28 +76,18 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
                 className="flex w-full items-center gap-3 px-3 py-2 text-right text-sm hover:bg-gray-50 transition-colors"
                 dir="rtl"
               >
-                <span
-                  className="h-3 w-3 shrink-0 rounded-full"
-                  style={{ backgroundColor: r.color }}
-                />
+                <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: r.color }} />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{r.project.name}</div>
-                  <div className="text-[11px] text-gray-400">
-                    {r.domain} / {r.category} / {r.sub}
-                  </div>
+                  <div className="text-[11px] text-gray-400">{r.domain} / {r.category} / {r.sub}</div>
                 </div>
-                <span
-                  className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium"
-                  style={{ backgroundColor: st?.bg, color: st?.color }}
-                >
-                  {st?.label}
-                </span>
+                <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: st?.bg, color: st?.color }}>{st?.label}</span>
               </button>
             );
           })}
         </div>
       )}
-      {showDropdown && query.trim().length > 0 && results.length === 0 && (
+      {showDropdown && query.trim().length > 0 && results.length === 0 && !loading && (
         <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white text-gray-900 p-3 text-center text-sm shadow-lg">
           <span className="text-gray-400">לא נמצאו תוצאות</span>
         </div>

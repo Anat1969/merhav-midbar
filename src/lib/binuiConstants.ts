@@ -1,6 +1,6 @@
 import { toast } from "sonner";
 
-export const MAX_FILE_SIZE_BYTES = 1 * 1024 * 1024; // 1MB
+export const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20MB
 
 export const BINUI_CATEGORIES: Record<string, { color: string; subs: string[]; description: string }> = {
   "תכנון": {

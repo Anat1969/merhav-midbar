@@ -1,5 +1,6 @@
 import React from "react";
-import { getAllStatusCounts } from "@/lib/storage";
+import { useQuery } from "@tanstack/react-query";
+import { countAllStatusAsync } from "@/lib/supabaseStorage";
 import { STATUS_CONFIG } from "@/lib/hierarchy";
 
 interface StatsBarProps {
@@ -7,13 +8,17 @@ interface StatsBarProps {
 }
 
 export const StatsBar: React.FC<StatsBarProps> = ({ refreshKey }) => {
-  const counts = getAllStatusCounts();
-  const total = Object.values(counts).reduce((a, b) => a + b, 0);
+  const { data: counts } = useQuery({
+    queryKey: ["status-counts", refreshKey],
+    queryFn: countAllStatusAsync,
+  });
 
+  if (!counts) return null;
+  const total = Object.values(counts).reduce((a, b) => a + b, 0);
   if (total === 0) return null;
 
   return (
-    <div className="mx-4 mt-3 rounded-xl bg-white p-4 shadow-sm animate-fade-in" dir="rtl" key={refreshKey}>
+    <div className="mx-4 mt-3 rounded-xl bg-white p-4 shadow-sm animate-fade-in" dir="rtl">
       <div className="flex flex-wrap items-center gap-6 text-sm">
         <div className="font-bold" style={{ color: "#2C6E6A" }}>
           סה״כ: {total} פרויקטים
