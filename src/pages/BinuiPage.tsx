@@ -475,11 +475,7 @@ const BinuiPage: React.FC = () => {
       {/* Project cards */}
       <div className="px-4 pb-12 space-y-3">
         {filtered.length === 0 && (
-          <div className="text-center py-20 text-muted-foreground">
-            <div className="text-5xl mb-3">🏗</div>
-            <div className="text-lg">אין פרויקטים להצגה</div>
-            <div className="text-sm mt-1">הוסף פרויקט חדש מהשורה למעלה</div>
-          </div>
+          <EmptyState domainName="מבנים" />
         )}
         {filtered.map((p, idx) => (
           <div
