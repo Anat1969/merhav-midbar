@@ -354,7 +354,7 @@ export async function searchAllProjectsAsync(query: string): Promise<SearchResul
       domain: "מבנים",
       category: p.category,
       sub: p.sub,
-      project: { id: p.id, name: p.name, status: p.status, created: p.created, note: p.note, history: p.history || [] },
+      project: { id: p.id, name: p.name, status: p.status, created: p.created, note: p.note, history: (p.history as any[]) || [] },
       color: "#2C6E6A",
       detailRoute: `/binui/${p.id}`,
     });
@@ -376,7 +376,7 @@ export async function searchAllProjectsAsync(query: string): Promise<SearchResul
       domain: domainNames[p.domain] || p.domain,
       category: p.category,
       sub: p.sub,
-      project: { id: p.id, name: p.name, status: p.status, created: p.created, note: p.note, history: p.history || [] },
+      project: { id: p.id, name: p.name, status: p.status, created: p.created, note: p.note, history: (p.history as any[]) || [] },
       color: domainColors[p.domain] || "#666",
       detailRoute: `/${domainRoutes[p.domain] || p.domain}/${p.id}`,
     });
