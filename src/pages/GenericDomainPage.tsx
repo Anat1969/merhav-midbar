@@ -1,5 +1,6 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
@@ -10,15 +11,16 @@ import {
   GenericProject,
   Attachment,
   STATUS_OPTIONS,
-  loadGenericProjects,
-  saveGenericProjects,
   getHebrewDateNow,
   getSubsForCategory,
   getAllCategoryNames,
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/domainConstants";
 import { toast } from "sonner";
-import { ALL_DOMAINS, moveGenericToBinui, moveGenericToGeneric } from "@/lib/moveProject";
+import { ALL_DOMAINS } from "@/lib/moveProject";
+import { useGenericProjects, useSaveGenericProject, useDeleteGenericProject } from "@/hooks/use-generic-projects";
+import { uploadProjectFile } from "@/lib/fileStorage";
+import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 
 const DOMAIN_ICONS: Record<string, string> = {
   "מבנים": "🏛",
@@ -29,9 +31,9 @@ const DOMAIN_ICONS: Record<string, string> = {
 };
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
-  if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
-  if (src.startsWith("data:video") || /\.(mp4|webm|ogg|mov)$/i.test(src)) return "video";
-  if (src.startsWith("data:application/pdf") || /\.pdf$/i.test(src)) return "pdf";
+  if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
+  if (/^(data:video|https?:.*\.(mp4|webm|ogg|mov))/i.test(src)) return "video";
+  if (/^(data:application\/pdf|https?:.*\.pdf)/i.test(src)) return "pdf";
   return "other";
 }
 
@@ -41,15 +43,18 @@ interface Props {
 
 const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const navigate = useNavigate();
+  const qc = useQueryClient();
   const [searchParams, setSearchParams] = useSearchParams();
   const catNames = getAllCategoryNames(config);
   const firstCat = catNames[0];
   const firstSubs = getSubsForCategory(config, firstCat);
 
-  // Read initial sub-filter from URL param (e.g. ?filter=מדריכים)
   const urlFilter = searchParams.get("filter");
 
-  const [projects, setProjects] = useState<GenericProject[]>(() => loadGenericProjects(config.storageKey));
+  const { data: projects = [], isLoading } = useGenericProjects(config.storageKey);
+  const saveMutation = useSaveGenericProject(config.storageKey);
+  const deleteMutation = useDeleteGenericProject(config.storageKey);
+
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
   const [newCat, setNewCat] = useState(firstCat);
@@ -66,24 +71,21 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
-  const persist = useCallback((updated: GenericProject[]) => {
-    const prev = projects;
-    setProjects(updated);
-    const ok = saveGenericProjects(config.storageKey, updated);
-    if (!ok) {
-      setProjects(prev);
-    }
-  }, [config.storageKey, projects]);
+  const saveOne = useCallback(async (project: GenericProject) => {
+    try {
+      await saveMutation.mutateAsync(project);
+    } catch {}
+  }, [saveMutation]);
 
   const namePrefix = `${newCat}:${newSub} - `;
 
-  const addProject = () => {
+  const addProject = async () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
     const fullName = `${namePrefix}${trimmed}`;
     const now = getHebrewDateNow();
     const p: GenericProject = {
-      id: Date.now(),
+      id: 0,
       name: fullName,
       poeticName: "",
       poem: "",
@@ -102,66 +104,65 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       image: null,
       attachments: [],
     };
-    persist([p, ...projects]);
-    setNewName("");
+    try {
+      await saveMutation.mutateAsync(p);
+      setNewName("");
+    } catch {}
   };
 
-  const deleteProject = (id: number) => {
+  const deleteProject = async (id: number) => {
     if (!window.confirm("האם למחוק את הפרויקט?")) return;
-    persist(projects.filter((p) => p.id !== id));
+    try {
+      await deleteMutation.mutateAsync(id);
+    } catch {}
   };
 
-  const changeStatus = (id: number, status: string) => {
+  const changeStatus = async (id: number, status: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
     const label = STATUS_OPTIONS.find((s) => s.value === status)?.label ?? status;
-    persist(
-      projects.map((p) =>
-        p.id === id
-          ? { ...p, status: status as any, history: [{ date: getHebrewDateNow(), note: `סטטוס שונה ל: ${label}` }, ...p.history] }
-          : p
-      )
-    );
+    await saveOne({
+      ...project,
+      status: status as any,
+      history: [{ date: getHebrewDateNow(), note: `סטטוס שונה ל: ${label}` }, ...project.history],
+    });
   };
 
-  const changeCategory = (id: number, newCatValue: string) => {
+  const changeCategory = async (id: number, newCatValue: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
     const subs = getSubsForCategory(config, newCatValue);
     const newSubValue = subs.length > 0 ? subs[0] : newCatValue;
-    persist(
-      projects.map((p) => {
-        if (p.id !== id) return p;
-        const nameParts = p.name.split(" - ");
-        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
-        const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
-        return {
-          ...p,
-          name: newFullName,
-          category: newCatValue,
-          sub: newSubValue,
-          history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...p.history],
-        };
-      })
-    );
+    const nameParts = project.name.split(" - ");
+    const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : project.name;
+    const newFullName = `${newCatValue}:${newSubValue} - ${uniqueName}`;
+    await saveOne({
+      ...project,
+      name: newFullName,
+      category: newCatValue,
+      sub: newSubValue,
+      history: [{ date: getHebrewDateNow(), note: `קטגוריה שונתה ל: ${newCatValue}` }, ...project.history],
+    });
   };
 
-  const changeSub = (id: number, newSubValue: string) => {
-    persist(
-      projects.map((p) => {
-        if (p.id !== id) return p;
-        const nameParts = p.name.split(" - ");
-        const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : p.name;
-        const newFullName = `${p.category}:${newSubValue} - ${uniqueName}`;
-        return {
-          ...p,
-          name: newFullName,
-          sub: newSubValue,
-          history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...p.history],
-        };
-      })
-    );
+  const changeSub = async (id: number, newSubValue: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    const nameParts = project.name.split(" - ");
+    const uniqueName = nameParts.length > 1 ? nameParts.slice(1).join(" - ") : project.name;
+    const newFullName = `${project.category}:${newSubValue} - ${uniqueName}`;
+    await saveOne({
+      ...project,
+      name: newFullName,
+      sub: newSubValue,
+      history: [{ date: getHebrewDateNow(), note: `תת-קטגוריה שונתה ל: ${newSubValue}` }, ...project.history],
+    });
   };
 
-  const moveToDomain = (project: GenericProject, targetDomain: string) => {
+  const moveToDomain = async (project: GenericProject, targetDomain: string) => {
     if (targetDomain === config.domainName) return;
     if (!window.confirm(`להעביר את "${project.name}" לדומיין ${targetDomain}?`)) return;
+    const { moveGenericToBinui, moveGenericToGeneric } = await import("@/lib/moveProject");
     let result;
     if (targetDomain === "מבנים") {
       result = moveGenericToBinui(project, config.domainName);
@@ -169,25 +170,31 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       result = moveGenericToGeneric(project, config.domainName, targetDomain);
     }
     if (result.success) {
-      setProjects(loadGenericProjects(config.storageKey));
+      qc.invalidateQueries({ queryKey: ["generic-projects"] });
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
       toast.success(`הפרויקט הועבר ל${targetDomain}`);
     }
   };
 
-  const handleImage = (id: number, file: File) => {
+  const handleImage = async (id: number, file: File) => {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      persist(projects.map((p) => p.id === id ? { ...p, image: reader.result as string } : p));
-    };
-    reader.readAsDataURL(file);
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    try {
+      const url = await uploadProjectFile(file, "generic", id);
+      await saveOne({ ...project, image: url });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת תמונה");
+    }
   };
 
-  const saveNote = (id: number) => {
-    persist(projects.map((p) => (p.id === id ? { ...p, note: noteText } : p)));
+  const saveNote = async (id: number) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    await saveOne({ ...project, note: noteText });
     setNoteOpen(null);
   };
 
@@ -196,32 +203,35 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
     setEditText(current);
   };
 
-  const saveInlineEdit = () => {
+  const saveInlineEdit = async () => {
     if (!editingField) return;
-    persist(projects.map((p) => p.id === editingField.id ? { ...p, [editingField.field]: editText } : p));
+    const project = projects.find((p) => p.id === editingField.id);
+    if (!project) return;
+    await saveOne({ ...project, [editingField.field]: editText });
     setEditingField(null);
   };
 
-  const addAttachment = (id: number, file: File) => {
+  const addAttachment = async (id: number, file: File) => {
     if (file.size > MAX_FILE_SIZE_BYTES) {
-      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 1MB.");
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
       return;
     }
-    const reader = new FileReader();
-    reader.onload = () => {
-      persist(projects.map((p) => p.id === id
-        ? { ...p, attachments: [...p.attachments, { id: Date.now(), name: file.name, data: reader.result as string }] }
-        : p
-      ));
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadProjectFile(file, "generic", id);
+      await saveAttachmentAsync("generic", id, file.name, url);
+      qc.invalidateQueries({ queryKey: ["generic-projects", config.storageKey] });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת קובץ");
+    }
   };
 
-  const removeAttachment = (projectId: number, attachId: number) => {
-    persist(projects.map((p) => p.id === projectId
-      ? { ...p, attachments: p.attachments.filter((a) => a.id !== attachId) }
-      : p
-    ));
+  const removeAttachment = async (projectId: number, attachId: number) => {
+    try {
+      await deleteAttachmentAsync(attachId);
+      qc.invalidateQueries({ queryKey: ["generic-projects", config.storageKey] });
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה במחיקת קובץ");
+    }
   };
 
   const filtered = useMemo(() => {
@@ -248,6 +258,18 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
   const currentSubs = getSubsForCategory(config, newCat);
   const hasSubs = config.categories[newCat]?.length > 0;
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center" style={{ direction: "rtl" }}>
+        <TopNav />
+        <div className="text-center">
+          <div className="text-4xl mb-3 animate-pulse">{DOMAIN_ICONS[config.domainName] || "📁"}</div>
+          <div className="text-muted-foreground">טוען פרויקטים...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
@@ -396,7 +418,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-card shadow-sm border border-border/50 p-4">
         <div className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">🔽 סינון היררכי</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          {/* Right side: Hierarchy filters */}
           <div className="flex flex-col gap-2 flex-1">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">דומיין:</span>
@@ -458,7 +479,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             )}
           </div>
 
-          {/* Left side: Status + counter + save */}
           <div className="flex flex-col gap-2 items-end">
             <div className="flex items-center gap-1.5">
               <span className="text-[10px] font-bold text-gray-400 shrink-0">סטטוס:</span>
@@ -484,13 +504,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               >
                 מציג {filtered.length} מתוך {projects.length}
               </span>
-              <button
-                title="שמירה ידנית של הנתונים"
-                onClick={() => { saveGenericProjects(config.storageKey, projects); toast.success("הנתונים נשמרו"); }}
-                className="h-8 px-3 rounded-lg border border-gray-200 text-xs text-gray-500 hover:bg-gray-50 transition-colors"
-              >
-                💾 שמירה
-              </button>
             </div>
           </div>
         </div>
@@ -510,7 +523,9 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             {/* Right — image */}
             <FileDropZone
               onFile={(f) => handleImage(p.id, f)}
-              onDelete={() => { const updated = projects.map((pr) => pr.id === p.id ? { ...pr, image: null } : pr); setProjects(updated); saveGenericProjects(config.storageKey, updated); }}
+              onDelete={async () => {
+                await saveOne({ ...p, image: null });
+              }}
               currentSrc={p.image}
               label="תמונה"
               className="flex-shrink-0 border-l border-gray-100 hover:bg-gray-50"
@@ -519,7 +534,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
             {/* Center — info */}
             <div className="flex-1 p-4 flex flex-col gap-1.5">
-              {/* Row 1: index + name + category + status */}
               <div className="flex items-center gap-3">
                 <span className="text-xs text-gray-400 font-mono w-6">{idx + 1}.</span>
                 <span
@@ -595,7 +609,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 onCancel={() => setEditingField(null)}
               />
 
-              {/* Row 3: extra fields (non-poetic only) */}
               {config.extraFields !== "poetic" && (
                 <>
                   <InlineField
