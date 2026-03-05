@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { EmailModal } from "./EmailModal";
 import { LinksManager } from "./LinksManager";
+import { DataMigration } from "./DataMigration";
 
 export const TopNav: React.FC = () => {
   const [emailOpen, setEmailOpen] = useState(false);
   const [linksOpen, setLinksOpen] = useState(false);
+  const [migrateOpen, setMigrateOpen] = useState(false);
 
   return (
     <>
@@ -42,10 +44,18 @@ export const TopNav: React.FC = () => {
           >
             ✉️ שלח מייל
           </button>
+          <button
+            title="העבר נתונים ל-Cloud"
+            onClick={() => setMigrateOpen(true)}
+            className="rounded border border-orange-300 bg-orange-50 px-3 py-1.5 text-xs transition-colors hover:bg-orange-100"
+          >
+            ☁️ העבר ל-Cloud
+          </button>
         </div>
       </nav>
       <EmailModal isOpen={emailOpen} onClose={() => setEmailOpen(false)} />
       <LinksManager isOpen={linksOpen} onClose={() => setLinksOpen(false)} />
+      <DataMigration open={migrateOpen} onOpenChange={setMigrateOpen} />
     </>
   );
 };
