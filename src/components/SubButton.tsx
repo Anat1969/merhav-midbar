@@ -1,5 +1,6 @@
 import React from "react";
-import { countSubProjects } from "@/lib/storage";
+import { useQuery } from "@tanstack/react-query";
+import { countSubProjectsAsync } from "@/lib/supabaseStorage";
 
 interface SubButtonProps {
   label: string;
@@ -20,7 +21,10 @@ export const SubButton: React.FC<SubButtonProps> = ({
   onClick,
   refreshKey,
 }) => {
-  const count = countSubProjects(domain, category, sub);
+  const { data: count = 0 } = useQuery({
+    queryKey: ["sub-count", domain, category, sub, refreshKey],
+    queryFn: () => countSubProjectsAsync(domain, category, sub),
+  });
 
   return (
     <button

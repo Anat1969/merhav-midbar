@@ -21,6 +21,7 @@ import { ALL_DOMAINS } from "@/lib/moveProject";
 import { useGenericProjects, useSaveGenericProject, useDeleteGenericProject } from "@/hooks/use-generic-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
+import { EmptyState } from "@/components/EmptyState";
 
 const DOMAIN_ICONS: Record<string, string> = {
   "מבנים": "🏛",
@@ -511,12 +512,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
       {/* Project cards */}
       <div className="px-4 pb-12 space-y-3">
-        {filtered.length === 0 && (
-          <div className="text-center py-20 text-gray-400">
-            <div className="text-5xl mb-3">📂</div>
-            <div className="text-lg">אין פרויקטים להצגה</div>
-            <div className="text-sm mt-1">הוסף פרויקט חדש מהשורה למעלה</div>
-          </div>
+      {filtered.length === 0 && (
+          <EmptyState domainName={config.domainName} storageKey={config.storageKey} />
         )}
         {filtered.map((p, idx) => (
           <div key={p.id} className="project-card bg-card rounded-xl shadow-sm overflow-hidden flex border border-border/50" style={{ minHeight: 140 }}>

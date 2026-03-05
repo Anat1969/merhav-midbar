@@ -1,40 +1,54 @@
 
-מובן למה זה מבלבל — ויש כאן 2 מקורות נתונים שונים שרצים במקביל.
+# דשבורד אדריכלית העיר — Implementation Plan
 
-מה מצאתי:
-1) במסד הנתונים בענן כרגע יש 0 רשומות בכל הטבלאות (projects + attachments).
-2) בדשבורד, לפחות חלק מהמונהים (בעיקר ברמת תתי-קטגוריה) עדיין נקראים מ-localStorage דרך `src/lib/storage.ts` (`countSubProjects`), ולכן אפשר לראות “יש תיקים”.
-3) כשנכנסים לרשימות הדומיינים (`/pitua`, `/binui` וכו׳), הדפים טוענים רק מהענן (`useGenericProjects`/`useBinuiProjects`), ולכן מתקבל “אין פרויקטים להצגה”.
+## Overview
+A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
 
-כלומר: הדשבורד והרשימות לא מסתכלים על אותו מקור נתונים.
+## Pages & Layout
 
-תכנית תיקון:
-1) לאחד את המונים בדשבורד למקור ענן בלבד  
-   - להחליף ב-`SubButton` את `countSubProjects` (localStorage) ב-`countSubProjectsAsync` מהענן עם React Query.
-   - כך כל המספרים בדשבורד יהיו עקביים עם מה שרואים ברשימות.
+### Home Page (single page app)
+- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
+- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
+- **Stats bar** — conditionally shown summary of project counts by status
+- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
 
-2) לשפר Empty State כדי למנוע בלבול  
-   - אם אין נתונים בענן אבל יש נתונים מקומיים, להציג הודעה מפורשת:  
-     “יש נתונים מקומיים בדפדפן שטרם הועברו לענן” + CTA להעברה.
-   - אם אין בכלל נתונים בשני המקורות, להשאיר את ההודעה הרגילה.
+## Key Components
 
-3) לחזק את כלי ההעברה ל-Cloud  
-   - להוסיף סיכום ברור בסוף: כמה רשומות נמצאו מקומית, כמה הועברו, כמה נכשלו.
-   - להציג שגיאה בולטת אם לא הועבר כלום.
-   - לבצע רענון נתונים אוטומטי אחרי העברה מוצלחת כדי שהרשימות יתעדכנו מייד.
+1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
+2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
+3. **ProjectPanel** — slide-in overlay from left (420px), with:
+   - Colored header with breadcrumb + close
+   - Add project input row
+   - Search/filter input
+   - Scrollable project list (name, date, status dropdown, delete with confirm)
+   - Footer with status counts
+4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
+5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
 
-4) ניקוי טכני מינימלי  
-   - להסיר תלותים מיותרים בקריאות localStorage במסך הדשבורד (רק היכן שמוצגים מונים למשתמש).
-   - להשאיר localStorage רק לכלי migration/תאימות זמנית.
+## Data & State
+- All data in localStorage with key pattern `{domain}__{category}__{sub}`
+- Project shape: id, name, status, created (Hebrew date), note, history
+- No external state library — React useState + localStorage read/write
+- Hardcoded HIERARCHY constant defines the domain tree
 
-בדיקות קבלה שאבצע אחרי מימוש:
-- בדשבורד: כל המונים תואמים לרשימות.
-- תרחיש “יש מקומי/אין ענן”: מופיעה הודעת העברה ברורה.
-- אחרי העברה מוצלחת: כניסה ל-`/pitua`, `/meyadim`, `/peulot`, `/binui` מציגה פרויקטים בפועל.
-- אין מצב שבו הדשבורד מציג מספרים והרשימות ריקות (אלא אם מופיעה הודעת “לא הועבר לענן עדיין”).
+## Styling
+- RTL direction globally, Heebo font from Google Fonts
+- Background #F2F1EE, domain-specific color palette
+- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
+- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
+- Print CSS: hide nav, white background, A4-friendly layout
 
-פרטים טכניים (למימוש):
-- `src/components/SubButton.tsx` – מעבר לספירה אסינכרונית מהענן.
-- `src/components/DomainCard.tsx` – לוודא שכל הספירות בדומיין מגיעות מאותו מקור.
-- `src/pages/GenericDomainPage.tsx` + `src/pages/BinuiPage.tsx` – Empty state מותנה ענן/מקומי.
-- `src/components/DataMigration.tsx` – סיכום סטטוס, רענון שאילתות לאחר migration.
+## Files to Create/Modify
+- `index.html` — add Heebo font link
+- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
+- `src/lib/hierarchy.ts` — HIERARCHY constant + types
+- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
+- `src/components/TopNav.tsx` — sticky navigation bar
+- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
+- `src/components/GlobalSearch.tsx` — search input + results dropdown
+- `src/components/StatsBar.tsx` — conditional stats summary
+- `src/components/DomainCard.tsx` — domain card with categories
+- `src/components/SubButton.tsx` — item button with count
+- `src/components/ProjectPanel.tsx` — slide-in project management panel
+- `src/components/EmailModal.tsx` — email compose dialog
+- `src/pages/Index.tsx` — compose all components into the dashboard layout

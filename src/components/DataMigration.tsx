@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface MigrationLog {
   message: string;
@@ -19,6 +20,7 @@ const GENERIC_DOMAINS = [
 ];
 
 export const DataMigration: React.FC<{ open: boolean; onOpenChange: (v: boolean) => void }> = ({ open, onOpenChange }) => {
+  const qc = useQueryClient();
   const [migrating, setMigrating] = useState(false);
   const [logs, setLogs] = useState<MigrationLog[]>([]);
   const [done, setDone] = useState(false);
@@ -93,9 +95,11 @@ export const DataMigration: React.FC<{ open: boolean; onOpenChange: (v: boolean)
       if (totalLocal === 0) {
         log("לא נמצאו נתונים ב-localStorage להעברה", "info");
       } else {
-        log("✅ ההעברה הסתיימה!", "success");
+        log(`✅ ההעברה הסתיימה! סה"כ ${totalLocal} רשומות`, "success");
         toast.success("הנתונים הועברו בהצלחה ל-Cloud");
       }
+      // Invalidate all queries to refresh UI
+      qc.invalidateQueries();
       setDone(true);
     } catch (err: any) {
       log(`❌ שגיאה כללית: ${err.message}`, "error");

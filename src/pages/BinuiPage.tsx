@@ -20,6 +20,7 @@ import { ALL_DOMAINS } from "@/lib/moveProject";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
+import { EmptyState } from "@/components/EmptyState";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
@@ -475,11 +476,7 @@ const BinuiPage: React.FC = () => {
       {/* Project cards */}
       <div className="px-4 pb-12 space-y-3">
         {filtered.length === 0 && (
-          <div className="text-center py-20 text-muted-foreground">
-            <div className="text-5xl mb-3">🏗</div>
-            <div className="text-lg">אין פרויקטים להצגה</div>
-            <div className="text-sm mt-1">הוסף פרויקט חדש מהשורה למעלה</div>
-          </div>
+          <EmptyState domainName="מבנים" />
         )}
         {filtered.map((p, idx) => (
           <div
