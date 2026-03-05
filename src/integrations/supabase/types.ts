@@ -14,7 +14,141 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      binui_projects: {
+        Row: {
+          category: string
+          created: string
+          created_at: string
+          details: Json
+          history: Json
+          id: number
+          images: Json
+          name: string
+          note: string
+          status: string
+          sub: string
+        }
+        Insert: {
+          category: string
+          created: string
+          created_at?: string
+          details?: Json
+          history?: Json
+          id?: never
+          images?: Json
+          name: string
+          note?: string
+          status?: string
+          sub: string
+        }
+        Update: {
+          category?: string
+          created?: string
+          created_at?: string
+          details?: Json
+          history?: Json
+          id?: never
+          images?: Json
+          name?: string
+          note?: string
+          status?: string
+          sub?: string
+        }
+        Relationships: []
+      }
+      generic_projects: {
+        Row: {
+          category: string
+          created: string
+          created_at: string
+          decision: string
+          description: string
+          document: string
+          domain: string
+          history: Json
+          id: number
+          image: string | null
+          initiator: string
+          name: string
+          note: string
+          poem: string
+          poetic_name: string
+          status: string
+          sub: string
+          task: string
+          tracking: Json
+        }
+        Insert: {
+          category: string
+          created: string
+          created_at?: string
+          decision?: string
+          description?: string
+          document?: string
+          domain: string
+          history?: Json
+          id?: never
+          image?: string | null
+          initiator?: string
+          name: string
+          note?: string
+          poem?: string
+          poetic_name?: string
+          status?: string
+          sub: string
+          task?: string
+          tracking?: Json
+        }
+        Update: {
+          category?: string
+          created?: string
+          created_at?: string
+          decision?: string
+          description?: string
+          document?: string
+          domain?: string
+          history?: Json
+          id?: never
+          image?: string | null
+          initiator?: string
+          name?: string
+          note?: string
+          poem?: string
+          poetic_name?: string
+          status?: string
+          sub?: string
+          task?: string
+          tracking?: Json
+        }
+        Relationships: []
+      }
+      project_attachments: {
+        Row: {
+          created_at: string
+          file_url: string
+          id: number
+          name: string
+          project_id: number
+          project_type: string
+        }
+        Insert: {
+          created_at?: string
+          file_url: string
+          id?: never
+          name: string
+          project_id: number
+          project_type: string
+        }
+        Update: {
+          created_at?: string
+          file_url?: string
+          id?: never
+          name?: string
+          project_id?: number
+          project_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
