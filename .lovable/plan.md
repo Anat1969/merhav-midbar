@@ -1,54 +1,79 @@
 
-# דשבורד אדריכלית העיר — Implementation Plan
 
-## Overview
-A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
+## Migration Plan: localStorage to Lovable Cloud
 
-## Pages & Layout
+This is a large migration touching the entire data layer. I'll break it into phases.
 
-### Home Page (single page app)
-- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
-- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
-- **Stats bar** — conditionally shown summary of project counts by status
-- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
+### Phase 1: Database Schema
 
-## Key Components
+Create two tables matching existing data structures:
 
-1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
-2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
-3. **ProjectPanel** — slide-in overlay from left (420px), with:
-   - Colored header with breadcrumb + close
-   - Add project input row
-   - Search/filter input
-   - Scrollable project list (name, date, status dropdown, delete with confirm)
-   - Footer with status counts
-4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
-5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
+**`binui_projects`** — for מבנים domain:
+- `id` (bigint, PK), `name`, `category`, `sub`, `status`, `created` (text), `note` (text)
+- `history` (jsonb), `details` (jsonb), `images` (jsonb), `created_at` (timestamptz)
 
-## Data & State
-- All data in localStorage with key pattern `{domain}__{category}__{sub}`
-- Project shape: id, name, status, created (Hebrew date), note, history
-- No external state library — React useState + localStorage read/write
-- Hardcoded HIERARCHY constant defines the domain tree
+**`generic_projects`** — for פיתוח, מיידעים, פעולות domains:
+- `id` (bigint, PK), `domain` (text — "pitua"/"meyadim"/"peulot"), `name`, `poetic_name`, `poem`, `category`, `sub`, `status`, `created` (text), `note`, `description`, `document`, `task`, `decision`
+- `history` (jsonb), `tracking` (jsonb), `initiator` (text), `image` (text, nullable), `created_at` (timestamptz)
 
-## Styling
-- RTL direction globally, Heebo font from Google Fonts
-- Background #F2F1EE, domain-specific color palette
-- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
-- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
-- Print CSS: hide nav, white background, A4-friendly layout
+**`project_attachments`** — shared attachment metadata:
+- `id` (bigint, PK), `project_type` (text — "binui"/"generic"), `project_id` (bigint), `name` (text), `file_url` (text), `created_at` (timestamptz)
 
-## Files to Create/Modify
-- `index.html` — add Heebo font link
-- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
-- `src/lib/hierarchy.ts` — HIERARCHY constant + types
-- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
-- `src/components/TopNav.tsx` — sticky navigation bar
-- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
-- `src/components/GlobalSearch.tsx` — search input + results dropdown
-- `src/components/StatsBar.tsx` — conditional stats summary
-- `src/components/DomainCard.tsx` — domain card with categories
-- `src/components/SubButton.tsx` — item button with count
-- `src/components/ProjectPanel.tsx` — slide-in project management panel
-- `src/components/EmailModal.tsx` — email compose dialog
-- `src/pages/Index.tsx` — compose all components into the dashboard layout
+**Storage bucket**: `project-files` (public) for file uploads.
+
+**RLS policies**: Since there's no authentication yet, all tables will have public read/write policies for `anon` role. Authentication can be layered on later.
+
+### Phase 2: File Storage Utility
+
+Create **`src/lib/fileStorage.ts`**:
+- `uploadFile(file: File, path: string)` → uploads to `project-files` bucket, returns public URL
+- `deleteFile(path: string)` → removes from storage
+- Increase `MAX_FILE_SIZE_BYTES` to 20MB in both constants files
+
+### Phase 3: Data Access Layer
+
+Create **`src/lib/supabaseStorage.ts`** — async replacements for all localStorage functions:
+- `loadBinuiProjectsAsync()` / `saveBinuiProjectAsync(project)` / `deleteBinuiProject(id)`
+- `loadGenericProjectsAsync(domain)` / `saveGenericProjectAsync(domain, project)` / `deleteGenericProject(domain, id)`
+- `loadAttachments(projectType, projectId)` / `saveAttachment(...)` / `deleteAttachment(id)`
+
+### Phase 4: Update Constants & Storage Layer
+
+- **`binuiConstants.ts`**: Change `MAX_FILE_SIZE_BYTES` to 20MB, keep types, remove localStorage load/save functions (replaced by supabaseStorage)
+- **`domainConstants.ts`**: Same — raise limit, remove localStorage functions
+- **`storage.ts`**: Replace `getProjects`/`saveProjects`/`countProjects` and all search/count functions to use async Supabase queries
+- **`moveProject.ts`**: Update move functions to use async Supabase operations
+
+### Phase 5: Update All Page Components
+
+Update these 6 pages to use async data fetching (React Query):
+
+1. **`BinuiPage.tsx`** — Replace `useState(loadBinuiProjects)` with `useQuery`, replace `persist()` with mutation calls
+2. **`BinuiProjectDetail.tsx`** — Same pattern
+3. **`GenericDomainPage.tsx`** — Replace `loadGenericProjects` with async query
+4. **`GenericDomainDetail.tsx`** — Same pattern
+5. **`Index.tsx`** — Update stats/counts to use async queries
+6. **`DomainPage.tsx`** — Update ProjectPanel to use async data
+
+Update supporting components:
+- **`GlobalSearch.tsx`** — async search
+- **`StatsBar.tsx`** — async counts
+- **`ProjectPanel.tsx`** — async load/save
+- **`FileDropZone.tsx`** — use new upload utility instead of FileReader base64
+
+### Phase 6: Data Migration Helper
+
+Add a one-time migration button/utility that reads existing localStorage data and inserts it into the database, so no existing data is lost.
+
+---
+
+### Summary of Scope
+
+- 1 SQL migration (3 tables + 1 storage bucket + RLS policies)
+- 2 new utility files (`fileStorage.ts`, `supabaseStorage.ts`)
+- 2 constants files updated (raise file limit)
+- ~10 components/pages refactored to async
+- 1 migration helper for existing data
+
+This is a significant refactor. I recommend implementing it in stages across multiple messages to avoid errors.
+
