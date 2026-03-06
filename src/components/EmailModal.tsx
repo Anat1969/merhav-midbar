@@ -3,12 +3,18 @@ import emailjs from "@emailjs/browser";
 import { EMAILJS_CONFIG } from "@/config/emailjs";
 import { X } from "lucide-react";
 
+interface EmailAttachment {
+  name: string;
+  base64: string;
+}
+
 interface EmailModalProps {
   isOpen: boolean;
   onClose: () => void;
   subject?: string;
   body?: string;
   domainColor?: string;
+  attachment?: EmailAttachment;
 }
 
 type SendState = "idle" | "loading" | "success" | "error";
