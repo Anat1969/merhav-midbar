@@ -754,7 +754,7 @@ const BinuiProjectDetail: React.FC = () => {
                       className="mt-2 h-8 px-4 rounded-lg text-white text-xs font-bold"
                       style={{ background: "#2C6E6A" }}
                       onClick={() => {
-                        update({ note: `${project.note}\n\n--- המלצה סופית ---\n${recommendation}` });
+                        update({ history: [{ date: getHebrewDateNow(), note: `המלצה סופית: ${recommendation}` }, ...project.history] });
                         toast.success("ההמלצה נשמרה");
                       }}
                     >
