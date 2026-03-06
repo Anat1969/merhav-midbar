@@ -42,6 +42,7 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
 
   return (
     <div className="bg-card rounded-xl shadow-sm overflow-hidden">
+      <div className="px-4 pt-3 pb-1 text-xs font-bold" style={{ color: "#2C6E6A" }}>חומרים</div>
       <div className="flex border-b">
         <TabBtn active={tab === "presentation"} onClick={() => setTab("presentation")}>מצגת</TabBtn>
         <TabBtn active={tab === "devplan"} onClick={() => setTab("devplan")}>תוכנית פיתוח</TabBtn>
