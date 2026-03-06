@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo } from "react";
+import React, { useState, useRef, useMemo, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
@@ -119,7 +119,12 @@ const BinuiProjectDetail: React.FC = () => {
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
+  const [localNote, setLocalNote] = useState(project?.note || "");
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  useEffect(() => {
+    if (project) setLocalNote(project.note || "");
+  }, [project?.id]);
 
   const update = async (patch: Partial<BinuiProject>) => {
     if (!project) return;
@@ -425,8 +430,9 @@ const BinuiProjectDetail: React.FC = () => {
                       className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-vertical mb-1"
                       style={{ direction: "rtl", minHeight: 180, background: "#F7F7F5" }}
                       placeholder="כתוב תיאור לפרויקט..."
-                      value={project.note || ""}
-                      onChange={(e) => update({ note: e.target.value })}
+                      value={localNote}
+                      onChange={(e) => setLocalNote(e.target.value)}
+                      onBlur={() => update({ note: localNote })}
                     />
                     <span className="text-[10px] text-muted-foreground block mb-2">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
                   </div>
