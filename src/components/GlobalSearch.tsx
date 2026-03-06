@@ -59,12 +59,12 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="🔍 חיפוש פרויקט..."
-        className="w-full rounded-lg border-0 bg-white/20 px-4 py-2.5 text-sm text-white placeholder-white/70 backdrop-blur-sm outline-none focus:bg-white/30 transition-colors"
+        className="w-full rounded-lg border-0 bg-white/20 px-4 py-3 text-base text-white placeholder-white/70 backdrop-blur-sm outline-none focus:bg-white/30 transition-colors"
         dir="rtl"
       />
       {showDropdown && results.length > 0 && (
         <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white text-gray-900 shadow-lg max-h-80 overflow-y-auto">
-          <div className="px-3 py-1.5 text-[11px] text-gray-400 border-b bg-gray-50">
+          <div className="px-3 py-1.5 text-sm text-gray-400 border-b bg-gray-50">
             {results.length} תוצאות
           </div>
           {results.map((r, i) => {
@@ -73,22 +73,22 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
               <button
                 key={`${r.project.id}-${i}`}
                 onClick={() => handleSelect(r)}
-                className="flex w-full items-center gap-3 px-3 py-2 text-right text-sm hover:bg-gray-50 transition-colors"
+                className="flex w-full items-center gap-3 px-3 py-2.5 text-right text-base hover:bg-gray-50 transition-colors"
                 dir="rtl"
               >
                 <span className="h-3 w-3 shrink-0 rounded-full" style={{ backgroundColor: r.color }} />
                 <div className="flex-1 min-w-0">
                   <div className="font-medium truncate">{r.project.name}</div>
-                  <div className="text-[11px] text-gray-400">{r.domain} / {r.category} / {r.sub}</div>
+                  <div className="text-sm text-gray-400">{r.domain} / {r.category} / {r.sub}</div>
                 </div>
-                <span className="shrink-0 rounded px-1.5 py-0.5 text-[10px] font-medium" style={{ backgroundColor: st?.bg, color: st?.color }}>{st?.label}</span>
+                <span className="shrink-0 rounded px-2 py-0.5 text-xs font-medium" style={{ backgroundColor: st?.bg, color: st?.color }}>{st?.label}</span>
               </button>
             );
           })}
         </div>
       )}
       {showDropdown && query.trim().length > 0 && results.length === 0 && !loading && (
-        <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white text-gray-900 p-3 text-center text-sm shadow-lg">
+        <div className="absolute top-full right-0 left-0 z-50 mt-1 rounded-lg border bg-white text-gray-900 p-3 text-center text-base shadow-lg">
           <span className="text-gray-400">לא נמצאו תוצאות</span>
         </div>
       )}

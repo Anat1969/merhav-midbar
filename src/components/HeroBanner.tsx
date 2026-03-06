@@ -16,11 +16,11 @@ export const HeroBanner: React.FC<HeroBannerProps> = ({ onOpenPanel }) => {
     >
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
         <div className="flex-1">
-          <p className="mb-1 text-sm font-light opacity-80">
+          <p className="mb-1 text-base font-light opacity-80">
             אדריכלות עיר — ניהול ידע ופרויקטים
           </p>
-          <h1 className="mb-2 text-4xl font-black leading-tight">מרחב ביניים</h1>
-          <p className="text-sm font-light opacity-90">
+          <h1 className="mb-2 text-5xl font-black leading-tight">מרחב ביניים</h1>
+          <p className="text-base font-light opacity-90">
             רווחת האדם — סביבה מקיימת — תפעול אפקטיבי
           </p>
         </div>
