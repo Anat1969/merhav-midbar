@@ -252,7 +252,16 @@ export const EmailModal: React.FC<EmailModalProps> = ({
               )}
             </div>
           </div>
-        </div>
+          </div>
+
+          {/* Word attachment indicator */}
+          {attachment && (
+            <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-muted text-sm">
+              <span>📎</span>
+              <span className="font-medium">{attachment.name}</span>
+              <span className="text-muted-foreground text-xs">(יצורף למייל)</span>
+            </div>
+          )}
 
         {/* Error message */}
         {sendState === "error" && errorMsg && (
