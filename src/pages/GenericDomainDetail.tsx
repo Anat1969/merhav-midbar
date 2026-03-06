@@ -146,8 +146,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             <input title="שם פואטי" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם פואטי לפרויקט..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
           </div>
           <div className="flex-1 flex flex-col">
-            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שיר / רעיון</div>
-            <textarea title="שיר / רעיון" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו / רעיון / שיר..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
+            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>הייקו</div>
+            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="כתוב הייקו..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
