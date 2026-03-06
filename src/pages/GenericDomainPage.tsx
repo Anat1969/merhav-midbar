@@ -331,31 +331,31 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       <div className="no-print mx-4 mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
 
         {/* Panel 1: Search */}
-        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-4">
-          <div className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">🔍 חיפוש</div>
+        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-5">
+          <div className="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">🔍 חיפוש</div>
           <div className="relative">
-            <Search size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <input
               title="חיפוש פרויקט"
-              className="w-full h-10 rounded-lg border border-input pr-9 pl-3 text-sm focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+              className="w-full h-12 rounded-lg border border-input pr-10 pl-3 text-base focus:outline-none focus:ring-2 focus:ring-ring bg-background"
               style={{ direction: "rtl" }}
               placeholder="חיפוש לפי שם, תיאור..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1.5">חיפוש חופשי ברשימת הפרויקטים</p>
+          <p className="text-sm text-muted-foreground mt-2">חיפוש חופשי ברשימת הפרויקטים</p>
         </div>
 
         {/* Panel 2: Add new record */}
-        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-4 lg:col-span-2">
-          <div className="text-sm font-bold text-gray-700 mb-2 flex items-center gap-1.5">➕ הוספת רשומה חדשה</div>
-          <div className="flex flex-wrap gap-2 items-end">
-            <div className="flex flex-col gap-0.5">
-              <label className="text-[10px] text-gray-400 font-medium">① קטגוריה</label>
+        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-5 lg:col-span-2">
+          <div className="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">➕ הוספת רשומה חדשה</div>
+          <div className="flex flex-wrap gap-3 items-end">
+            <div className="flex flex-col gap-1">
+              <label className="text-sm text-gray-400 font-medium">① קטגוריה</label>
               <select
                 title="קטגוריה"
-                className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white"
+                className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white"
                 style={{ direction: "rtl" }}
                 value={newCat}
                 onChange={(e) => {
@@ -370,11 +370,11 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               </select>
             </div>
             {hasSubs && (
-              <div className="flex flex-col gap-0.5">
-                <label className="text-[10px] text-gray-400 font-medium">② תת-קטגוריה</label>
+              <div className="flex flex-col gap-1">
+                <label className="text-sm text-gray-400 font-medium">② תת-קטגוריה</label>
                 <select
                   title="תת-קטגוריה"
-                  className="h-9 rounded-lg border border-gray-200 px-2 text-sm bg-white"
+                  className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white"
                   style={{ direction: "rtl" }}
                   value={newSub}
                   onChange={(e) => setNewSub(e.target.value)}
@@ -385,15 +385,15 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </select>
               </div>
             )}
-            <div className="flex flex-col gap-0.5 flex-1 min-w-[160px]">
-              <label className="text-[10px] text-gray-400 font-medium">{hasSubs ? "③" : "②"} שם ייחודי</label>
-              <div className="h-9 flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
-                <span className="px-2 text-xs font-medium text-gray-400 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
+            <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
+              <label className="text-sm text-gray-400 font-medium">{hasSubs ? "③" : "②"} שם ייחודי</label>
+              <div className="h-11 flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
+                <span className="px-3 text-sm font-medium text-gray-400 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
                   {namePrefix}
                 </span>
                 <input
                   title="שם פרויקט חדש"
-                  className="h-full flex-1 px-2 text-sm focus:outline-none"
+                  className="h-full flex-1 px-3 text-base focus:outline-none"
                   style={{ direction: "rtl" }}
                   placeholder="הקלד שם..."
                   value={newName}
@@ -405,23 +405,23 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             <button
               title="הוסף פרויקט"
               onClick={addProject}
-              className="h-9 px-6 rounded-lg text-white text-sm font-bold hover:opacity-90 transition-opacity"
+              className="h-11 px-8 rounded-lg text-white text-base font-bold hover:opacity-90 transition-opacity"
               style={{ background: config.color }}
             >
               + הוספה
             </button>
           </div>
-          <p className="text-[11px] text-gray-400 mt-1.5">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ולחץ הוספה</p>
+          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ולחץ הוספה</p>
         </div>
       </div>
 
       {/* Panel 3: Filters + Summary */}
-      <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-card shadow-sm border border-border/50 p-4">
-        <div className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-1.5">🔽 סינון היררכי</div>
+      <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-card shadow-sm border border-border/50 p-5">
+        <div className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">🔽 סינון היררכי</div>
         <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex flex-col gap-2 flex-1">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">דומיין:</span>
+          <div className="flex flex-col gap-3 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-gray-400 w-16 shrink-0">דומיין:</span>
               {[
                 { name: "מבנים", icon: "🏛", color: "#2C6E6A", route: "/binui" },
                 { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
@@ -438,8 +438,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </FilterPill>
               ))}
             </div>
-            <div className="flex items-center gap-1.5 pr-14">
-              <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">קטגוריה:</span>
+            <div className="flex items-center gap-2 pr-16">
+              <span className="text-sm font-bold text-gray-400 w-16 shrink-0">קטגוריה:</span>
               <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>
                 הכל
               </FilterPill>
@@ -458,8 +458,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               })}
             </div>
             {filterCat && config.categories[filterCat]?.length > 0 && (
-              <div className="flex items-center gap-1.5 pr-28">
-                <span className="text-[10px] font-bold text-gray-400 w-14 shrink-0">נושא:</span>
+              <div className="flex items-center gap-2 pr-32">
+                <span className="text-sm font-bold text-gray-400 w-16 shrink-0">נושא:</span>
                 <FilterPill active={!filterSub} onClick={() => { setFilterSub(null); setSearchParams({}); }} color={config.color}>
                   הכל
                 </FilterPill>
@@ -480,9 +480,9 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             )}
           </div>
 
-          <div className="flex flex-col gap-2 items-end">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[10px] font-bold text-gray-400 shrink-0">סטטוס:</span>
+          <div className="flex flex-col gap-3 items-end">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-bold text-gray-400 shrink-0">סטטוס:</span>
               <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} variant="status">
                 הכל
               </FilterPill>
@@ -500,7 +500,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             </div>
             <div className="flex items-center gap-2">
               <span
-                className="text-xs font-semibold px-3 py-1.5 rounded-full"
+                className="text-sm font-semibold px-4 py-2 rounded-full"
                 style={{ background: config.color + "1A", color: config.color }}
               >
                 מציג {filtered.length} מתוך {projects.length}
@@ -882,7 +882,7 @@ function FilterPill({ children, active, color, variant, onClick }: { children: R
     <button
       title={typeof children === "string" ? children : ""}
       onClick={onClick}
-      className="h-7 px-3 rounded-full text-xs font-medium transition-all border"
+      className="h-9 px-4 rounded-full text-sm font-semibold transition-all border"
       style={
         active
           ? { background: color || "#666", color: "#fff", borderColor: color || "#666" }
