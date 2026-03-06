@@ -146,6 +146,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
     architect: { date: "", text: "" },
+    committee: { date: "", text: "" },
   });
 
   const CONSULTANT_PARTIES = [
