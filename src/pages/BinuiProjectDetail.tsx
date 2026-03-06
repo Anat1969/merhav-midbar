@@ -52,13 +52,14 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
           <>
             <input ref={presRef} type="file" className="hidden" accept=".pptx,.ppt,.pdf,.key" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
             <button
-              title="העלה מצגת"
+              title="העלה קובץ מצגת בפורמט PPTX, PDF או KEY"
               className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
               style={{ background: "#2C6E6A" }}
               onClick={() => presRef.current?.click()}
             >
               📎 העלה מצגת
             </button>
+            <span className="text-[10px] text-muted-foreground">העלאת קובץ מצגת (PPTX, PDF, KEY)</span>
             {presFiles.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-1">
                 {presFiles.map((f) => (
@@ -72,13 +73,14 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
           <>
             <input ref={devRef} type="file" className="hidden" accept="image/*,application/pdf,.pptx,.docx,.xlsx,.dwg,.dxf" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
             <button
-              title="העלה תוכנית פיתוח"
+              title="העלה קובץ תוכנית פיתוח — תמונה, PDF, DOCX, DWG ועוד"
               className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
               style={{ background: "#2C6E6A" }}
               onClick={() => devRef.current?.click()}
             >
               📎 העלה תוכנית פיתוח
             </button>
+            <span className="text-[10px] text-muted-foreground">העלאת תוכנית פיתוח (PDF, DOCX, DWG, תמונות)</span>
             {devFiles.length > 0 && (
               <div className="flex flex-wrap gap-2 mt-1">
                 {devFiles.map((f) => (
@@ -294,11 +296,12 @@ const BinuiProjectDetail: React.FC = () => {
               ))}
             </select>
             <button
-              title="שלח חוות דעת במייל"
-              className="h-8 px-3 rounded-lg bg-white/15 text-xs text-white hover:bg-white/25 transition-colors backdrop-blur-sm"
+              title="שליחת סיכום חוות דעת בדוא״ל"
+              className="h-8 px-3 rounded-lg bg-white/15 text-xs text-white hover:bg-white/25 transition-colors backdrop-blur-sm flex flex-col items-center"
               onClick={() => setEmailOpen(true)}
             >
-              ✉️ שלח חוות דעת
+              <span>✉️ שלח חוות דעת</span>
+              <span className="text-[9px] opacity-70">שליחת סיכום במייל</span>
             </button>
           </div>
         </div>
@@ -307,42 +310,46 @@ const BinuiProjectDetail: React.FC = () => {
       {/* Navigation buttons */}
       <div className="no-print mx-4 mt-3 flex items-center gap-3">
         <button
-          title="חזור לדשבורד"
-          className="h-14 px-10 rounded-xl text-white text-lg font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
+          title="חזור לדף הראשי של הדשבורד"
+          className="h-14 px-10 rounded-xl text-white text-lg font-black hover:brightness-110 transition-all shadow-lg flex flex-col items-center justify-center"
           style={{ background: "linear-gradient(135deg, #2C6E6A, #1E5E5A)" }}
           onClick={() => navigate("/")}
         >
-          🏠 דשבורד
+          <span>🏠 דשבורד</span>
+          <span className="text-[9px] font-normal opacity-70">חזרה לדף הראשי</span>
         </button>
         <button
-          title="חזור אחורה"
-          className="h-12 px-6 rounded-xl border-2 border-gray-300 text-base font-bold text-gray-600 hover:bg-muted transition-colors"
+          title="חזרה לדף הקודם שביקרת בו"
+          className="h-12 px-6 rounded-xl border-2 border-gray-300 text-base font-bold text-gray-600 hover:bg-muted transition-colors flex flex-col items-center justify-center"
           onClick={() => navigate(-1 as any)}
         >
-          ← חזור
+          <span>← חזור</span>
+          <span className="text-[9px] font-normal text-gray-400">דף קודם</span>
         </button>
         <button
-          title="קדימה"
+          title="מעבר לפרויקט הבא ברשימה"
           disabled={!nextProject}
-          className="h-12 px-5 rounded-xl border border-border bg-card text-base font-medium disabled:opacity-30 hover:bg-muted transition-colors"
+          className="h-12 px-5 rounded-xl border border-border bg-card text-base font-medium disabled:opacity-30 hover:bg-muted transition-colors flex flex-col items-center justify-center"
           onClick={() => nextProject && navigate(`/binui/${nextProject.id}`)}
         >
-          קדימה &gt;
+          <span>קדימה &gt;</span>
+          <span className="text-[9px] font-normal text-gray-400">פרויקט הבא</span>
         </button>
         <button
-          title="אחורה"
+          title="מעבר לפרויקט הקודם ברשימה"
           disabled={!prevProject}
-          className="h-12 px-5 rounded-xl border border-border bg-card text-base font-medium disabled:opacity-30 hover:bg-muted transition-colors"
+          className="h-12 px-5 rounded-xl border border-border bg-card text-base font-medium disabled:opacity-30 hover:bg-muted transition-colors flex flex-col items-center justify-center"
           onClick={() => prevProject && navigate(`/binui/${prevProject.id}`)}
         >
-          &lt; אחורה
+          <span>&lt; אחורה</span>
+          <span className="text-[9px] font-normal text-gray-400">פרויקט קודם</span>
         </button>
 
         <div className="flex-1" />
 
         <button
-          title="מחק פרויקט"
-          className="h-10 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-1.5"
+          title="מחיקת הפרויקט לצמיתות — פעולה בלתי הפיכה"
+          className="h-12 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex flex-col items-center justify-center"
           onClick={async () => {
             if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
               try {
@@ -353,7 +360,8 @@ const BinuiProjectDetail: React.FC = () => {
             }
           }}
         >
-          🗑️ מחק
+          <span>🗑️ מחק</span>
+          <span className="text-[9px] font-normal opacity-70">מחיקה לצמיתות</span>
         </button>
       </div>
 
@@ -380,8 +388,8 @@ const BinuiProjectDetail: React.FC = () => {
                     onChange={(e) => setHistoryInput(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()}
                   />
-                  <button
-                    title="הוסף"
+                   <button
+                    title="הוסף רשומת היסטוריה חדשה לתיעוד פעולה שבוצעה"
                     className="h-8 w-8 rounded-lg text-white text-sm flex items-center justify-center"
                     style={{ background: "#2C6E6A" }}
                     onClick={addHistoryEntry}
@@ -389,6 +397,7 @@ const BinuiProjectDetail: React.FC = () => {
                     +
                   </button>
                 </div>
+                <p className="text-[10px] text-muted-foreground mb-2">תיעוד אוטומטי וידני של כל פעולה שנעשתה ברשומה זו</p>
                 <div className="history-list space-y-2 max-h-[300px] overflow-y-auto">
                   {project.history.map((h, i) => (
                     <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1" style={{ borderColor: "#2C6E6A33" }}>
@@ -414,8 +423,8 @@ const BinuiProjectDetail: React.FC = () => {
                       onChange={(e) => setOpinionInput(e.target.value)}
                     />
                   </div>
-                  <button
-                    title="הוסף חוות דעת"
+                   <button
+                    title="הוסף חוות דעת חדשה עם תאריך — תתווסף לריכוז חוות הדעת"
                     className="h-8 px-4 rounded-lg text-white text-xs font-bold"
                     style={{ background: "#2C6E6A" }}
                     onClick={() => {
@@ -429,6 +438,7 @@ const BinuiProjectDetail: React.FC = () => {
                   >
                     הוסף חוות דעת
                   </button>
+                  <span className="text-[10px] text-muted-foreground">כתוב הערה — תישמר עם תאריך ותוצג בריכוז חוות הדעת</span>
                 </div>
                 <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>חוות דעת קודמות</div>
                 <div className="space-y-2 max-h-[250px] overflow-y-auto">
@@ -443,8 +453,8 @@ const BinuiProjectDetail: React.FC = () => {
                         </div>
                         {!isConfirmed && (
                           <button
-                            title="אשר חוות דעת"
-                            className="mt-1 h-6 px-2 rounded border text-[10px] font-bold flex items-center gap-1 hover:bg-green-50 transition-colors"
+                            title="אישור שההערה נרשמה — לאחר אישור תוסר מפרוטוקול הוועדה"
+                            className="mt-1 h-6 px-2 rounded border text-[10px] font-bold flex flex-col items-center gap-0.5 hover:bg-green-50 transition-colors"
                             style={{ borderColor: "#10B98166", color: "#10B981" }}
                             onClick={() => {
                               const newHistory = project.history.map((entry) =>
@@ -453,10 +463,10 @@ const BinuiProjectDetail: React.FC = () => {
                               update({ history: newHistory });
                             }}
                           >
-                            ✓ אישור
+                            <span>✓ אישור</span>
                           </button>
                         )}
-                        {isConfirmed && <span className="text-green-500 text-xs mt-1">✓ אושר</span>}
+                        {isConfirmed && <span className="text-green-500 text-[10px] mt-1 flex flex-col items-center">✓ אושר<span className="text-[8px] text-gray-400">הוסר מהפרוטוקול</span></span>}
                       </div>
                     );
                   })}
@@ -520,7 +530,7 @@ const BinuiProjectDetail: React.FC = () => {
                       onChange={(e) => setRecommendation(e.target.value)}
                     />
                     <button
-                      title="שמור המלצה"
+                      title="שמירת ההמלצה הסופית — תצורף לתחתית הערות הפרויקט"
                       className="mt-2 h-8 px-4 rounded-lg text-white text-xs font-bold"
                       style={{ background: "#2C6E6A" }}
                       onClick={() => {
@@ -530,6 +540,7 @@ const BinuiProjectDetail: React.FC = () => {
                     >
                       שמור המלצה
                     </button>
+                    <span className="text-[10px] text-muted-foreground mt-1 block">ההמלצה תצורף לתחתית מסמך ההערות של הפרויקט</span>
                   </div>
                 </div>
               </>
