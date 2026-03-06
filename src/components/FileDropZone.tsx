@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from "react";
 import { Camera, Eye, X, Download, Trash2, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { downloadFile, openFileInNewTab } from "@/lib/fileAccess";
 
 function getFileType(src: string): "image" | "video" | "pdf" | "other" {
   if (src.startsWith("data:image") || /\.(jpg|jpeg|png|gif|webp|svg)$/i.test(src)) return "image";
@@ -93,14 +94,11 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
     inputRef.current?.click();
   };
 
-  const handleDownload = (e: React.MouseEvent) => {
+  const handleDownload = async (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!currentSrc) return;
-    const a = document.createElement("a");
-    a.href = currentSrc;
     const ext = fileType === "pdf" ? "pdf" : fileType === "video" ? "mp4" : fileType === "image" ? "png" : "bin";
-    a.download = `${label}.${ext}`;
-    a.click();
+    await downloadFile(currentSrc, `${label}.${ext}`);
   };
 
   /* ─── Thumbnail preview ─── */
@@ -243,10 +241,13 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
               {fileType === "pdf" && (
                 <div className="flex flex-col items-center justify-center p-12">
                   <FileText size={48} className="text-red-400 mb-4" />
-                  <a href={currentSrc} target="_blank" rel="noopener noreferrer"
-                     className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium">
+                  <button
+                    title="פתח PDF"
+                    className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium"
+                    onClick={() => void openFileInNewTab(currentSrc)}
+                  >
                     פתח PDF
-                  </a>
+                  </button>
                 </div>
               )}
               {fileType === "other" && (

@@ -21,6 +21,7 @@ import { ALL_DOMAINS } from "@/lib/moveProject";
 import { useGenericProjects, useSaveGenericProject, useDeleteGenericProject } from "@/hooks/use-generic-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
+import { openFileInNewTab, downloadFile } from "@/lib/fileAccess";
 import { EmptyState } from "@/components/EmptyState";
 
 const DOMAIN_ICONS: Record<string, string> = {
@@ -795,10 +796,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 )}
                 <button title="הורד" className="h-7 px-2 rounded text-xs border border-gray-200 text-gray-600 hover:bg-gray-100 flex items-center gap-1" onClick={() => {
                   const att = viewerData.attachments[viewerData.index];
-                  const a = document.createElement("a");
-                  a.href = att.data;
-                  a.download = att.name;
-                  a.click();
+                  void downloadFile(att.data, att.name);
                 }}><Download size={12} /> הורד</button>
                 <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-700" onClick={() => setViewerData(null)}><X size={16} /></button>
               </div>
@@ -813,10 +811,12 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 if (ft === "pdf") return (
                   <div className="flex flex-col items-center justify-center p-12">
                     <FileText size={48} className="text-red-400 mb-4" />
-                    <a href={att.data} target="_blank" rel="noopener noreferrer"
-                       className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium">
+                    <button
+                      className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium"
+                      onClick={() => void openFileInNewTab(att.data)}
+                    >
                       פתח PDF
-                    </a>
+                    </button>
                   </div>
                 );
                 return (
@@ -824,7 +824,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                     <FileSpreadsheet size={40} className="text-blue-400" />
                     <span className="text-sm text-gray-500 mt-3">סוג קובץ זה אינו נתמך לצפייה ישירה</span>
                     <button className="mt-4 h-8 px-4 rounded-lg text-white text-xs font-bold" style={{ background: "#3B82F6" }} onClick={() => {
-                      const a = document.createElement("a"); a.href = att.data; a.download = att.name; a.click();
+                      void downloadFile(att.data, att.name);
                     }}>הורד קובץ</button>
                   </div>
                 );
