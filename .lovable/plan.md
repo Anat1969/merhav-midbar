@@ -1,37 +1,54 @@
 
+# דשבורד אדריכלית העיר — Implementation Plan
 
-## Plan: Attach Word file directly to email via EmailJS
+## Overview
+A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
 
-### Problem
-Currently the "Send Recommendation Draft" button downloads the Word file separately and opens the email modal with a text note saying "📎 קובץ Word מצורף בנפרד". The Word file is not actually attached to the email.
+## Pages & Layout
 
-### Solution
-EmailJS supports file attachments via base64 content. We will:
+### Home Page (single page app)
+- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
+- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
+- **Stats bar** — conditionally shown summary of project counts by status
+- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
 
-1. **Generate the .docx as base64** instead of just downloading it, and pass it to the `EmailModal` as a prop.
+## Key Components
 
-2. **Update `EmailModal`** to accept an optional `attachment` prop (`{ name: string; data: string }`) and include it in the EmailJS template params as `attachment` (base64 data).
+1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
+2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
+3. **ProjectPanel** — slide-in overlay from left (420px), with:
+   - Colored header with breadcrumb + close
+   - Add project input row
+   - Search/filter input
+   - Scrollable project list (name, date, status dropdown, delete with confirm)
+   - Footer with status counts
+4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
+5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
 
-3. **Update `BinuiProjectDetail`** to use `generateDraftDocx` (not `downloadDraftDocx`) to get the blob, convert it to base64, and pass it to the email modal. Still also trigger the download.
+## Data & State
+- All data in localStorage with key pattern `{domain}__{category}__{sub}`
+- Project shape: id, name, status, created (Hebrew date), note, history
+- No external state library — React useState + localStorage read/write
+- Hardcoded HIERARCHY constant defines the domain tree
 
-4. **Update EmailJS template params** to send `content` with base64 data. EmailJS uses the `content` field in attachments.
+## Styling
+- RTL direction globally, Heebo font from Google Fonts
+- Background #F2F1EE, domain-specific color palette
+- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
+- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
+- Print CSS: hide nav, white background, A4-friendly layout
 
-### Technical Details
-
-**EmailModal changes** (`src/components/EmailModal.tsx`):
-- Add prop `attachment?: { name: string; base64: string }`.
-- In `handleSend`, add the attachment to template params. EmailJS supports attachments via a `content` object with `{ type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document", name: "...", data: "base64..." }`.
-- Note: EmailJS free tier has attachment limits. The `image_data` field is already used for images. For file attachments, EmailJS uses the template variable approach where the base64 is passed as a parameter.
-
-**BinuiProjectDetail changes** (`src/pages/BinuiProjectDetail.tsx`):
-- Import `generateDraftDocx` alongside `downloadDraftDocx`.
-- After generating the blob, convert to base64 string.
-- Store in state and pass to `EmailModal` as the `attachment` prop.
-- Remove the "📎 קובץ Word מצורף בנפרד" text line since it will actually be attached.
-
-**EmailJS template note**: The EmailJS template needs a `{{attachment}}` variable configured. Since EmailJS sends attachments via the `content` parameter in the API, we will pass the base64 data in the template params. The user's EmailJS template may need updating to support this — we will use the `content` field approach which EmailJS supports natively.
-
-### Files to Edit
-- `src/components/EmailModal.tsx` — add attachment prop and include in send params
-- `src/pages/BinuiProjectDetail.tsx` — generate base64 from docx blob, pass to modal
-
+## Files to Create/Modify
+- `index.html` — add Heebo font link
+- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
+- `src/lib/hierarchy.ts` — HIERARCHY constant + types
+- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
+- `src/components/TopNav.tsx` — sticky navigation bar
+- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
+- `src/components/GlobalSearch.tsx` — search input + results dropdown
+- `src/components/StatsBar.tsx` — conditional stats summary
+- `src/components/DomainCard.tsx` — domain card with categories
+- `src/components/SubButton.tsx` — item button with count
+- `src/components/ProjectPanel.tsx` — slide-in project management panel
+- `src/components/EmailModal.tsx` — email compose dialog
+- `src/pages/Index.tsx` — compose all components into the dashboard layout

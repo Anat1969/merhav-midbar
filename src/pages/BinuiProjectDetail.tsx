@@ -18,7 +18,7 @@ import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Fi
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
-import { downloadDraftDocx } from "@/lib/generateDraftDocx";
+import { generateDraftDocx, downloadDraftDocx } from "@/lib/generateDraftDocx";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
@@ -144,6 +144,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
   const [draftEmailBody, setDraftEmailBody] = useState<string | null>(null);
+  const [draftAttachment, setDraftAttachment] = useState<{ name: string; base64: string } | null>(null);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
@@ -776,8 +777,7 @@ const BinuiProjectDetail: React.FC = () => {
                               text: h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, ""),
                             }));
 
-                          try {
-                            await downloadDraftDocx({
+                          const docxParams = {
                               projectName: project.name,
                               category: project.category,
                               sub: project.sub,
@@ -788,10 +788,32 @@ const BinuiProjectDetail: React.FC = () => {
                               note: project.note || "",
                               notDoneComments: notDone,
                               recommendation: recommendation || "",
+                            };
+
+                          try {
+                            // Generate blob, download, and convert to base64
+                            const blob = await downloadDraftDocx(docxParams);
+                            
+                            // Convert blob to base64 for email attachment
+                            const reader = new FileReader();
+                            const base64Promise = new Promise<string>((resolve) => {
+                              reader.onload = () => {
+                                const result = reader.result as string;
+                                resolve(result.split(",")[1]); // strip data:... prefix
+                              };
+                              reader.readAsDataURL(blob);
                             });
+                            const base64 = await base64Promise;
+                            
+                            setDraftAttachment({
+                              name: `טיוטת_המלצה_${project.name.replace(/\s+/g, "_")}.docx`,
+                              base64,
+                            });
+                            
                             toast.success("קובץ Word הורד בהצלחה");
                           } catch (err) {
                             toast.error("שגיאה ביצירת קובץ Word");
+                            setDraftAttachment(null);
                           }
 
                           // Also open email with text body
@@ -806,7 +828,6 @@ const BinuiProjectDetail: React.FC = () => {
                             notDone.forEach((c) => lines.push(`  ${c.date} — ${c.text}`));
                           }
                           if (recommendation) lines.push(`\nהמלצה סופית:\n${recommendation}`);
-                          lines.push(`\n📎 קובץ Word מצורף בנפרד`);
                           setDraftEmailBody(lines.join("\n"));
                           setEmailOpen(true);
                         }}
@@ -1013,10 +1034,11 @@ const BinuiProjectDetail: React.FC = () => {
         return (
           <EmailModal
             isOpen={emailOpen}
-            onClose={() => { setEmailOpen(false); setDraftEmailBody(null); }}
+            onClose={() => { setEmailOpen(false); setDraftEmailBody(null); setDraftAttachment(null); }}
             subject={draftEmailBody ? `טיוטת המלצה: ${project.name}` : `חוות דעת: ${project.name}`}
             body={draftEmailBody || `שם פרויקט: ${project.name}\nקטגוריה: ${project.category} › ${project.sub}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`}
             domainColor="#2C6E6A"
+            attachment={draftAttachment || undefined}
           />
         );
       })()}

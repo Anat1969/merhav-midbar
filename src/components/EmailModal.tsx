@@ -3,12 +3,18 @@ import emailjs from "@emailjs/browser";
 import { EMAILJS_CONFIG } from "@/config/emailjs";
 import { X } from "lucide-react";
 
+interface EmailAttachment {
+  name: string;
+  base64: string;
+}
+
 interface EmailModalProps {
   isOpen: boolean;
   onClose: () => void;
   subject?: string;
   body?: string;
   domainColor?: string;
+  attachment?: EmailAttachment;
 }
 
 type SendState = "idle" | "loading" | "success" | "error";
@@ -19,6 +25,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
   subject: initSubject = "",
   body: initBody = "",
   domainColor = "#2C6E6A",
+  attachment,
 }) => {
   const [to, setTo] = useState("");
   const [cc, setCc] = useState("");
@@ -86,7 +93,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
     setErrorMsg("");
 
     try {
-      const templateParams = {
+      const templateParams: Record<string, any> = {
         to_email: to,
         cc_email: cc,
         subject,
@@ -95,6 +102,15 @@ export const EmailModal: React.FC<EmailModalProps> = ({
         sent_from: "דשבורד אדריכלית העיר",
         sent_date: new Date().toLocaleDateString("he-IL"),
       };
+
+      // Attach Word file if provided
+      if (attachment) {
+        templateParams.content = {
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          name: attachment.name,
+          data: attachment.base64,
+        };
+      }
 
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
@@ -236,7 +252,16 @@ export const EmailModal: React.FC<EmailModalProps> = ({
               )}
             </div>
           </div>
-        </div>
+          </div>
+
+          {/* Word attachment indicator */}
+          {attachment && (
+            <div className="flex items-center gap-2 mt-2 p-2 rounded-lg bg-muted text-sm">
+              <span>📎</span>
+              <span className="font-medium">{attachment.name}</span>
+              <span className="text-muted-foreground text-xs">(יצורף למייל)</span>
+            </div>
+          )}
 
         {/* Error message */}
         {sendState === "error" && errorMsg && (
