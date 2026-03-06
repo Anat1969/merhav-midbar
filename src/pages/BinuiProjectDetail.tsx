@@ -562,12 +562,6 @@ const BinuiProjectDetail: React.FC = () => {
                   <div className="border-b pb-2">
                     <span className="font-semibold">תאריך יצירה:</span> {project.created}
                   </div>
-                  {project.note && (
-                    <div className="border-b pb-2">
-                      <span className="font-semibold">תיאור הפרויקט:</span>
-                      <div className="mr-4 text-gray-700 whitespace-pre-wrap mt-1">{project.note}</div>
-                    </div>
-                  )}
                   {Object.entries(DETAIL_FIELDS).map(([section, fields]) => {
                     const vals = project.details?.[section] ?? {};
                     const hasValues = fields.some((f) => vals[f.key]);
@@ -583,14 +577,14 @@ const BinuiProjectDetail: React.FC = () => {
                   })}
                   {project.note && (
                     <div className="border-b pb-2">
-                      <span className="font-semibold">הערות:</span>
-                      <div className="mr-4 text-gray-700 whitespace-pre-wrap">{project.note}</div>
+                      <span className="font-semibold">תיאור הפרויקט:</span>
+                      <div className="mr-4 text-gray-700 whitespace-pre-wrap mt-1">{project.note}</div>
                     </div>
                   )}
-                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[בוצע]") && !h.note.endsWith("[מאושר]")).length > 0 && (
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && h.note.endsWith("[לא בוצע]")).length > 0 && (
                     <div className="border-b pb-2">
-                      <div className="font-semibold mb-1">ריכוז חוות דעת:</div>
-                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[בוצע]") && !h.note.endsWith("[מאושר]")).map((h, i) => (
+                      <div className="font-semibold mb-1">ריכוז הערות:</div>
+                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && h.note.endsWith("[לא בוצע]")).map((h, i) => (
                         <div key={i} className="mr-4 text-gray-700 mb-1">
                           <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, "")}
                         </div>
