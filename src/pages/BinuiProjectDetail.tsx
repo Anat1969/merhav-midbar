@@ -358,8 +358,9 @@ const BinuiProjectDetail: React.FC = () => {
 
       {/* Main two-column grid */}
       <div className="detail-grid mx-4 mt-4 mb-4 grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Left — note / history */}
+        {/* Left — תהליך ביקורת */}
         <div className="detail-column bg-card rounded-xl shadow-sm overflow-hidden">
+          <div className="px-4 pt-3 pb-1 text-xs font-bold" style={{ color: "#2C6E6A" }}>תהליך ביקורת</div>
           <div className="flex border-b">
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")}>היסטוריה</TabBtn>
             <TabBtn active={activeTab === "opinion"} onClick={() => setActiveTab("opinion")}>חוות דעת</TabBtn>
