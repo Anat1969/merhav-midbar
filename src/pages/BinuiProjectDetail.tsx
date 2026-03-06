@@ -120,6 +120,11 @@ const BinuiProjectDetail: React.FC = () => {
   const [emailOpen, setEmailOpen] = useState(false);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [localNote, setLocalNote] = useState(project?.note || "");
+  const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
+    architect: { date: "", text: "" },
+    consultant: { date: "", text: "" },
+    committee: { date: "", text: "" },
+  });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -436,6 +441,65 @@ const BinuiProjectDetail: React.FC = () => {
                     />
                     <span className="text-[10px] text-muted-foreground block mb-2">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
                   </div>
+
+                  {/* Three Forum Frames */}
+                  {([
+                    { key: "architect", label: "פורום אדריכלים", prefix: "פורום אדריכלים" },
+                    { key: "consultant", label: "פורום יועצים", prefix: "פורום יועצים" },
+                    { key: "committee", label: "פורום הכנה לוועדה", prefix: "פורום הכנה לוועדה" },
+                  ] as const).map((forum) => (
+                    <div key={forum.key} className="rounded-lg border p-3 space-y-2" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
+                      <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>{forum.label}</div>
+                      <div className="flex gap-2 items-center">
+                        <label className="text-[10px] text-muted-foreground whitespace-nowrap">תאריך:</label>
+                        <input
+                          type="date"
+                          title={`תאריך ${forum.label}`}
+                          className="h-7 rounded border border-gray-200 px-2 text-xs"
+                          value={forumInputs[forum.key]?.date || ""}
+                          onChange={(e) => setForumInputs((prev) => ({
+                            ...prev,
+                            [forum.key]: { ...prev[forum.key], date: e.target.value },
+                          }))}
+                        />
+                      </div>
+                      <div className="flex gap-2 items-end">
+                        <textarea
+                          title={`הערה ל${forum.label}`}
+                          className="flex-1 rounded-lg border border-gray-200 p-2 text-sm resize-none"
+                          style={{ direction: "rtl", minHeight: 60, background: "#FAFAF8" }}
+                          placeholder={`כתוב הערה ל${forum.label}...`}
+                          value={forumInputs[forum.key]?.text || ""}
+                          onChange={(e) => setForumInputs((prev) => ({
+                            ...prev,
+                            [forum.key]: { ...prev[forum.key], text: e.target.value },
+                          }))}
+                        />
+                        <button
+                          title={`הוסף הערה ל${forum.label}`}
+                          className="h-7 px-3 rounded-lg text-white text-[10px] font-bold"
+                          style={{ background: "#2C6E6A" }}
+                          onClick={() => {
+                            const t = forumInputs[forum.key]?.text?.trim();
+                            if (!t) return;
+                            const dateStr = forumInputs[forum.key]?.date
+                              ? new Date(forumInputs[forum.key].date).toLocaleDateString("he-IL", { year: "numeric", month: "long", day: "numeric" })
+                              : getHebrewDateNow();
+                            update({
+                              history: [{ date: dateStr, note: `חוות דעת: [${forum.prefix}] ${t}` }, ...project.history],
+                            });
+                            setForumInputs((prev) => ({
+                              ...prev,
+                              [forum.key]: { date: "", text: "" },
+                            }));
+                          }}
+                        >
+                          + הוסף
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+
                   <div className="flex gap-2 items-end">
                     <textarea
                       title="הערה חדשה"
