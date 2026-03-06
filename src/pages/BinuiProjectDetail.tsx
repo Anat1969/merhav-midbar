@@ -422,8 +422,8 @@ const BinuiProjectDetail: React.FC = () => {
                     <label className="text-xs font-semibold mb-1 block" style={{ color: "#2C6E6A" }}>תיאור הפרויקט</label>
                     <textarea
                       title="תיאור הפרויקט"
-                      className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none mb-2"
-                      style={{ direction: "rtl", minHeight: 60, background: "#F7F7F5" }}
+                      className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-vertical mb-2"
+                      style={{ direction: "rtl", minHeight: 180, background: "#F7F7F5" }}
                       placeholder="תיאור כללי של הפרויקט..."
                       value={project.note || ""}
                       onChange={(e) => update({ note: e.target.value })}
@@ -432,16 +432,16 @@ const BinuiProjectDetail: React.FC = () => {
                   </div>
                   <div className="flex gap-2 items-end">
                     <textarea
-                      title="חוות דעת חדשה"
+                      title="הערה חדשה"
                       className="flex-1 rounded-lg border border-gray-200 p-3 text-sm resize-none"
                       style={{ direction: "rtl", minHeight: 80, background: "#FAFAF8" }}
-                      placeholder="כתוב חוות דעת..."
+                      placeholder="כתוב הערה..."
                       value={opinionInput}
                       onChange={(e) => setOpinionInput(e.target.value)}
                     />
                   </div>
                    <button
-                    title="הוסף חוות דעת חדשה עם תאריך — תתווסף לריכוז חוות הדעת"
+                    title="הוסף הערה חדשה עם תאריך — תתווסף לריכוז ההערות"
                     className="h-8 px-4 rounded-lg text-white text-xs font-bold"
                     style={{ background: "#2C6E6A" }}
                     onClick={() => {
@@ -453,9 +453,9 @@ const BinuiProjectDetail: React.FC = () => {
                       setOpinionInput("");
                     }}
                   >
-                    הוסף חוות דעת
+                    הוסף הערה
                   </button>
-                  <span className="text-[10px] text-muted-foreground">כתוב הערה — תישמר עם תאריך ותוצג בריכוז חוות הדעת</span>
+                  <span className="text-[10px] text-muted-foreground">כתוב הערה — תישמר עם תאריך ותוצג בריכוז ההערות</span>
                 </div>
                 <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>חוות דעת קודמות</div>
                 <div className="space-y-2 max-h-[250px] overflow-y-auto">
