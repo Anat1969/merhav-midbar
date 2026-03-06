@@ -32,8 +32,6 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
     { key: "architect",    label: "אדריכל" },
     { key: "manager",      label: "מנהל פרויקט" },
     { key: "date",         label: "יום" },
-    { key: "compound",     label: "מתחם" },
-    { key: "block_parcel", label: "גוש וחלקה" },
   ],
   "מיקום": [
     { key: "quarter", label: "רובע" },
