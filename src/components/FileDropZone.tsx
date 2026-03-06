@@ -241,7 +241,13 @@ export const FileDropZone: React.FC<FileDropZoneProps> = ({
                 <video src={currentSrc} controls autoPlay className="max-w-full max-h-[80vh]" />
               )}
               {fileType === "pdf" && (
-                <iframe src={currentSrc} title={label} className="w-full" style={{ height: "80vh" }} />
+                <div className="flex flex-col items-center justify-center p-12">
+                  <FileText size={48} className="text-red-400 mb-4" />
+                  <a href={currentSrc} target="_blank" rel="noopener noreferrer"
+                     className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium">
+                    פתח PDF
+                  </a>
+                </div>
               )}
               {fileType === "other" && (
                 <div className="flex flex-col items-center justify-center p-12 text-center">
