@@ -142,12 +142,12 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             )}
           </div>
           <div>
-            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם פואטי</div>
-            <input title="שם פואטי" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם פואטי לפרויקט..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
+            <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם</div>
+            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם לפרויקט..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
           </div>
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>הייקו</div>
-            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="כתוב הייקו..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
+            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
@@ -161,8 +161,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           <textarea title="תיאור הפרויקט" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="תיאור קצר..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col lg:col-span-1">
-          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מסמך (חוות דעת)</div>
-          <textarea title="מסמך" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 320, background: "#FAFAF8" }} placeholder="כתוב מסמך מפורט, חוות דעת..." value={project.document} onChange={(e) => update({ document: e.target.value })} />
+          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>הנחיות מתכנן</div>
+          <textarea title="הנחיות מתכנן" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 320, background: "#FAFAF8" }} placeholder="הנחיות מתכנן..." value={project.document} onChange={(e) => update({ document: e.target.value })} />
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>

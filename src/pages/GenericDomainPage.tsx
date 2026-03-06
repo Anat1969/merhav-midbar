@@ -756,7 +756,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
                       autoFocus
-                      placeholder="כתוב הייקו..."
+                      placeholder="הייקו..."
                     />
                     <div className="flex gap-1 justify-center">
                       <button title="שמור" className="text-[10px] px-2 py-0.5 rounded text-white" style={{ background: config.color }} onClick={(e) => { e.stopPropagation(); saveInlineEdit(); }}>✓</button>
