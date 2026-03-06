@@ -430,12 +430,34 @@ const BinuiProjectDetail: React.FC = () => {
                 </div>
                 <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>חוות דעת קודמות</div>
                 <div className="space-y-2 max-h-[250px] overflow-y-auto">
-                  {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => (
-                    <div key={i} className="rounded-lg border border-gray-100 p-3 text-sm" style={{ background: "#FAFAF8" }}>
-                      <div className="text-xs text-gray-400 font-mono mb-1">{h.date}</div>
-                      <div>{h.note.replace(/^חוות דעת:\s*/, "")}</div>
-                    </div>
-                  ))}
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => {
+                    const isConfirmed = h.note.endsWith("[מאושר]");
+                    const text = h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[מאושר\]$/, "");
+                    return (
+                      <div key={i} className="rounded-lg border border-gray-100 p-3 text-sm flex items-start gap-3" style={{ background: isConfirmed ? "#F0FDF4" : "#FAFAF8" }}>
+                        <div className="flex-1">
+                          <div className="text-xs text-gray-400 font-mono mb-1">{h.date}</div>
+                          <div style={{ textDecoration: isConfirmed ? "line-through" : "none", color: isConfirmed ? "#999" : "inherit" }}>{text}</div>
+                        </div>
+                        {!isConfirmed && (
+                          <button
+                            title="אשר חוות דעת"
+                            className="mt-1 h-6 px-2 rounded border text-[10px] font-bold flex items-center gap-1 hover:bg-green-50 transition-colors"
+                            style={{ borderColor: "#10B98166", color: "#10B981" }}
+                            onClick={() => {
+                              const newHistory = project.history.map((entry) =>
+                                entry === h ? { ...entry, note: `${entry.note} [מאושר]` } : entry
+                              );
+                              update({ history: newHistory });
+                            }}
+                          >
+                            ✓ אישור
+                          </button>
+                        )}
+                        {isConfirmed && <span className="text-green-500 text-xs mt-1">✓ אושר</span>}
+                      </div>
+                    );
+                  })}
                   {project.history.filter((h) => h.note.startsWith("חוות דעת:")).length === 0 && (
                     <span className="text-xs text-muted-foreground">אין חוות דעת קודמות</span>
                   )}
@@ -475,10 +497,10 @@ const BinuiProjectDetail: React.FC = () => {
                       <div className="mr-4 text-gray-700 whitespace-pre-wrap">{project.note}</div>
                     </div>
                   )}
-                  {project.history.filter((h) => h.note.startsWith("חוות דעת:")).length > 0 && (
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[מאושר]")).length > 0 && (
                     <div className="border-b pb-2">
                       <div className="font-semibold mb-1">ריכוז חוות דעת:</div>
-                      {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => (
+                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[מאושר]")).map((h, i) => (
                         <div key={i} className="mr-4 text-gray-700 mb-1">
                           <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "")}
                         </div>
