@@ -418,8 +418,91 @@ const BinuiProjectDetail: React.FC = () => {
       </div>
 
       {/* Detail cards — moved above review process */}
-      <div className="mx-4 mt-4 mb-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-        {Object.entries(DETAIL_FIELDS).map(([section, fields]) => {
+      {/* פרטים — people in 3 columns */}
+      {(() => {
+        const section = "פרטים";
+        const editing = editingSections[section];
+        const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
+        const PEOPLE = [
+          { title: "אדריכל", prefix: "architect", fields: [
+            { key: "architect", label: "שם" },
+            { key: "architect_phone", label: "נייד" },
+            { key: "architect_email", label: 'דוא"ל' },
+            { key: "architect_address", label: "כתובת" },
+          ]},
+          { title: "מנהל פרויקט", prefix: "manager", fields: [
+            { key: "manager", label: "שם" },
+            { key: "manager_phone", label: "נייד" },
+            { key: "manager_email", label: 'דוא"ל' },
+            { key: "manager_address", label: "כתובת" },
+          ]},
+          { title: "יזם", prefix: "developer", fields: [
+            { key: "developer", label: "שם" },
+            { key: "developer_phone", label: "נייד" },
+            { key: "developer_email", label: 'דוא"ל' },
+            { key: "developer_address", label: "כתובת" },
+          ]},
+        ];
+        return (
+          <div className="mx-4 mt-4 mb-4 detail-card bg-card rounded-xl shadow-sm overflow-hidden">
+            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: "#FAFAF8" }}>
+              <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>פרטים</span>
+              {editing ? (
+                <div className="flex gap-2">
+                  <button title="שמור" className="text-xs text-white px-2 py-1 rounded" style={{ background: "#2C6E6A" }} onClick={() => saveSection(section)}>שמור</button>
+                  <button title="ביטול" className="text-xs text-gray-500 hover:underline" onClick={() => cancelEdit(section)}>ביטול</button>
+                </div>
+              ) : (
+                <button title="עריכה" className="text-xs hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
+              )}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-x divide-x-reverse divide-gray-100">
+              {PEOPLE.map((person) => (
+                <div key={person.prefix} className="p-3 space-y-1.5">
+                  <div className="text-xs font-bold mb-2" style={{ color: "#2C6E6A" }}>{person.title}</div>
+                  {person.fields.map((f) => (
+                    <div key={f.key} className="flex items-center gap-1.5 text-xs">
+                      <span className="text-gray-400 whitespace-nowrap" style={{ minWidth: 40 }}>{f.label}</span>
+                      {editing ? (
+                        <input
+                          title={f.label}
+                          className="flex-1 h-6 rounded border border-gray-200 px-1.5 text-xs"
+                          style={{ direction: "rtl" }}
+                          value={vals[f.key] ?? ""}
+                          onChange={(e) =>
+                            setEditValues((v) => ({
+                              ...v,
+                              [section]: { ...(v[section] ?? {}), [f.key]: e.target.value },
+                            }))
+                          }
+                        />
+                      ) : (
+                        <span className="truncate" style={{ color: vals[f.key] ? "#222" : "#ccc" }}>{vals[f.key] || "—"}</span>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+            {/* Date field */}
+            <div className="px-4 pb-3 flex items-center gap-2 text-xs border-t border-gray-100 pt-2">
+              <span className="text-gray-400">יום</span>
+              {editing ? (
+                <input title="יום" className="h-6 rounded border border-gray-200 px-1.5 text-xs" style={{ direction: "rtl" }}
+                  value={vals["date"] ?? ""}
+                  onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), date: e.target.value } }))}
+                />
+              ) : (
+                <span style={{ color: vals["date"] ? "#222" : "#ccc" }}>{vals["date"] || "—"}</span>
+              )}
+            </div>
+          </div>
+        );
+      })()}
+
+      {/* מיקום + נתוני תב"ע */}
+      <div className="mx-4 mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {Object.entries(DETAIL_FIELDS).filter(([s]) => s !== "פרטים").map(([section, fields]) => {
           const editing = editingSections[section];
           const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
           return (
@@ -440,17 +523,9 @@ const BinuiProjectDetail: React.FC = () => {
                   <div key={f.key} className="flex items-center gap-2 text-sm">
                     <span className="text-gray-400" style={{ minWidth: 120 }}>{f.label}</span>
                     {editing ? (
-                      <input
-                        title={f.label}
-                        className="flex-1 h-7 rounded border border-gray-200 px-2 text-sm"
-                        style={{ direction: "rtl" }}
+                      <input title={f.label} className="flex-1 h-7 rounded border border-gray-200 px-2 text-sm" style={{ direction: "rtl" }}
                         value={vals[f.key] ?? ""}
-                        onChange={(e) =>
-                          setEditValues((v) => ({
-                            ...v,
-                            [section]: { ...(v[section] ?? {}), [f.key]: e.target.value },
-                          }))
-                        }
+                        onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), [f.key]: e.target.value } }))}
                       />
                     ) : (
                       <span style={{ color: vals[f.key] ? "#222" : "#ccc" }}>{vals[f.key] || "—"}</span>
