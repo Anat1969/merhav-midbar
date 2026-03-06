@@ -373,7 +373,7 @@ const BinuiProjectDetail: React.FC = () => {
           <div className="flex border-b">
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")}>היסטוריה</TabBtn>
             <TabBtn active={activeTab === "opinion"} onClick={() => setActiveTab("opinion")}>חוות דעת</TabBtn>
-            <TabBtn active={activeTab === "protocol"} onClick={() => setActiveTab("protocol")}>פרוטוקול ועדה</TabBtn>
+            <TabBtn active={activeTab === "protocol"} onClick={() => setActiveTab("protocol")}>המלצת ועדה</TabBtn>
           </div>
           <div className="flex border-t-0 px-1 pb-1" style={{ background: "#F0F9F8" }}>
             <span className="flex-1 text-center text-[9px] text-muted-foreground">תיעוד כל פעולה שבוצעה</span>
@@ -418,6 +418,18 @@ const BinuiProjectDetail: React.FC = () => {
             {activeTab === "opinion" && (
               <>
                 <div className="mb-3 space-y-2">
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block" style={{ color: "#2C6E6A" }}>תיאור הפרויקט</label>
+                    <textarea
+                      title="תיאור הפרויקט"
+                      className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none mb-2"
+                      style={{ direction: "rtl", minHeight: 60, background: "#F7F7F5" }}
+                      placeholder="תיאור כללי של הפרויקט..."
+                      value={project.note || ""}
+                      onChange={(e) => update({ note: e.target.value })}
+                    />
+                    <span className="text-[10px] text-muted-foreground block mb-2">תיאור כללי של הפרויקט — ישמש כרקע לחוות הדעת</span>
+                  </div>
                   <div className="flex gap-2 items-end">
                     <textarea
                       title="חוות דעת חדשה"
@@ -471,7 +483,22 @@ const BinuiProjectDetail: React.FC = () => {
                             <span>✓ אישור</span>
                           </button>
                         )}
-                        {isConfirmed && <span className="text-green-500 text-[10px] mt-1 flex flex-col items-center">✓ אושר<span className="text-[8px] text-gray-400">הוסר מהפרוטוקול</span></span>}
+                        {isConfirmed && (
+                          <button
+                            title="ביטול אישור — ההערה תחזור לפרוטוקול הוועדה"
+                            className="mt-1 h-6 px-2 rounded border text-[10px] font-bold flex flex-col items-center gap-0.5 hover:bg-red-50 transition-colors"
+                            style={{ borderColor: "#EF444466", color: "#EF4444" }}
+                            onClick={() => {
+                              const newHistory = project.history.map((entry) =>
+                                entry === h ? { ...entry, note: entry.note.replace(/\s*\[מאושר\]$/, "") } : entry
+                              );
+                              update({ history: newHistory });
+                            }}
+                          >
+                            <span>✗ בטל אישור</span>
+                            <span className="text-[8px] text-gray-400">החזר לפרוטוקול</span>
+                          </button>
+                        )}
                       </div>
                     );
                   })}
@@ -485,7 +512,7 @@ const BinuiProjectDetail: React.FC = () => {
             {activeTab === "protocol" && (
               <>
                 <div className="rounded-lg border border-gray-200 p-4 text-sm space-y-3" style={{ background: "#FAFAF8", direction: "rtl" }}>
-                  <div className="text-center font-bold text-base mb-2" style={{ color: "#2C6E6A" }}>פרוטוקול ועדה — {project.name}</div>
+                  <div className="text-center font-bold text-base mb-2" style={{ color: "#2C6E6A" }}>המלצת ועדה — {project.name}</div>
                   <div className="border-b pb-2">
                     <span className="font-semibold">קטגוריה:</span> {project.category} › {project.sub}
                   </div>
