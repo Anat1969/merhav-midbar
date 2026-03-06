@@ -142,6 +142,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
+  const [draftEmailBody, setDraftEmailBody] = useState<string | null>(null);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
@@ -1008,9 +1009,9 @@ const BinuiProjectDetail: React.FC = () => {
         return (
           <EmailModal
             isOpen={emailOpen}
-            onClose={() => setEmailOpen(false)}
-            subject={`חוות דעת: ${project.name}`}
-            body={`שם פרויקט: ${project.name}\nקטגוריה: ${project.category} › ${project.sub}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`}
+            onClose={() => { setEmailOpen(false); setDraftEmailBody(null); }}
+            subject={draftEmailBody ? `טיוטת המלצה: ${project.name}` : `חוות דעת: ${project.name}`}
+            body={draftEmailBody || `שם פרויקט: ${project.name}\nקטגוריה: ${project.category} › ${project.sub}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`}
             domainColor="#2C6E6A"
           />
         );
