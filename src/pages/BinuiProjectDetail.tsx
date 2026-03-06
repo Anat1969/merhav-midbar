@@ -167,9 +167,6 @@ const BinuiProjectDetail: React.FC = () => {
     setEditingName(false);
   };
 
-  const saveNote = () => {
-    update({ note: project.note });
-  };
 
   const addHistoryEntry = () => {
     const t = historyInput.trim();
