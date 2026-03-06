@@ -142,6 +142,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
+  const [draftEmailBody, setDraftEmailBody] = useState<string | null>(null);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
@@ -422,7 +423,7 @@ const BinuiProjectDetail: React.FC = () => {
           <div className="flex border-b">
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")}>היסטוריה</TabBtn>
             <TabBtn active={activeTab === "opinion"} onClick={() => setActiveTab("opinion")}>חוות דעת</TabBtn>
-            <TabBtn active={activeTab === "protocol"} onClick={() => setActiveTab("protocol")}>המלצת ועדה</TabBtn>
+            <TabBtn active={activeTab === "protocol"} onClick={() => setActiveTab("protocol")}>טיוטת המלצה</TabBtn>
           </div>
           <div className="flex border-t-0 px-1 pb-1" style={{ background: "#F0F9F8" }}>
             <span className="flex-1 text-center text-[9px] text-muted-foreground">תיעוד כל פעולה שבוצעה</span>
@@ -700,7 +701,7 @@ const BinuiProjectDetail: React.FC = () => {
             {activeTab === "protocol" && (
               <>
                 <div className="rounded-lg border border-gray-200 p-4 text-sm space-y-3" style={{ background: "#FAFAF8", direction: "rtl" }}>
-                  <div className="text-center font-bold text-base mb-2" style={{ color: "#2C6E6A" }}>המלצת ועדה — {project.name}</div>
+                  <div className="text-center font-bold text-base mb-2" style={{ color: "#2C6E6A" }}>טיוטת המלצה — {project.name}</div>
                   <div className="border-b pb-2">
                     <span className="font-semibold">קטגוריה:</span> {project.category} › {project.sub}
                   </div>
@@ -749,17 +750,61 @@ const BinuiProjectDetail: React.FC = () => {
                       value={recommendation}
                       onChange={(e) => setRecommendation(e.target.value)}
                     />
-                    <button
-                      title="שמירת ההמלצה הסופית — תצורף לתחתית הערות הפרויקט"
-                      className="mt-2 h-8 px-4 rounded-lg text-white text-xs font-bold"
-                      style={{ background: "#2C6E6A" }}
-                      onClick={() => {
-                        update({ history: [{ date: getHebrewDateNow(), note: `המלצה סופית: ${recommendation}` }, ...project.history] });
-                        toast.success("ההמלצה נשמרה");
-                      }}
-                    >
-                      שמור המלצה
-                    </button>
+                    <div className="flex gap-2 mt-2 flex-wrap">
+                      <button
+                        title="שמירת ההמלצה הסופית — תצורף לתחתית הערות הפרויקט"
+                        className="h-8 px-4 rounded-lg text-white text-xs font-bold"
+                        style={{ background: "#2C6E6A" }}
+                        onClick={() => {
+                          update({ history: [{ date: getHebrewDateNow(), note: `המלצה סופית: ${recommendation}` }, ...project.history] });
+                          toast.success("ההמלצה נשמרה");
+                        }}
+                      >
+                        שמור המלצה
+                      </button>
+                      <button
+                        title="שליחת טיוטת ההמלצה כמסמך במייל"
+                        className="h-8 px-4 rounded-lg text-white text-xs font-bold"
+                        style={{ background: "#3A7D6F" }}
+                        onClick={() => {
+                          // Build the full recommendation document as email body
+                          const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
+                          const lines: string[] = [];
+                          lines.push(`טיוטת המלצה — ${project.name}`);
+                          lines.push(`קטגוריה: ${project.category} › ${project.sub}`);
+                          lines.push(`סטטוס: ${statusLabel}`);
+                          lines.push(`תאריך יצירה: ${project.created}`);
+                          // Detail sections
+                          Object.entries(DETAIL_FIELDS).forEach(([section, fields]) => {
+                            const vals = project.details?.[section] ?? {};
+                            const filled = fields.filter((f) => vals[f.key]);
+                            if (filled.length) {
+                              lines.push(`\n${section}:`);
+                              filled.forEach((f) => lines.push(`  ${f.label}: ${vals[f.key]}`));
+                            }
+                          });
+                          if (project.note) {
+                            lines.push(`\nתיאור הפרויקט:\n${project.note}`);
+                          }
+                          // Not-done comments
+                          const notDone = project.history.filter((h) => h.note.startsWith("חוות דעת:") && h.note.endsWith("[לא בוצע]"));
+                          if (notDone.length) {
+                            lines.push(`\nריכוז הערות:`);
+                            notDone.forEach((h) => {
+                              lines.push(`  ${h.date} — ${h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, "")}`);
+                            });
+                          }
+                          if (recommendation) {
+                            lines.push(`\nהמלצה סופית:\n${recommendation}`);
+                          }
+                          // Open email modal with the draft document
+                          setDraftEmailBody(lines.join("\n"));
+                          setEmailOpen(true);
+                        }}
+                      >
+                        📧 שלח טיוטת המלצה
+                      </button>
+                    </div>
                     <span className="text-[10px] text-muted-foreground mt-1 block">ההמלצה תצורף לתחתית מסמך ההערות של הפרויקט</span>
                   </div>
                 </div>
@@ -959,9 +1004,9 @@ const BinuiProjectDetail: React.FC = () => {
         return (
           <EmailModal
             isOpen={emailOpen}
-            onClose={() => setEmailOpen(false)}
-            subject={`חוות דעת: ${project.name}`}
-            body={`שם פרויקט: ${project.name}\nקטגוריה: ${project.category} › ${project.sub}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`}
+            onClose={() => { setEmailOpen(false); setDraftEmailBody(null); }}
+            subject={draftEmailBody ? `טיוטת המלצה: ${project.name}` : `חוות דעת: ${project.name}`}
+            body={draftEmailBody || `שם פרויקט: ${project.name}\nקטגוריה: ${project.category} › ${project.sub}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}\n\nפרטים:\nאדריכל: ${details.architect || "—"}\nמנהל פרויקט: ${details.manager || "—"}\nמיקום: ${location.city || ""} ${location.quarter || ""} ${location.street || ""}`}
             domainColor="#2C6E6A"
           />
         );
