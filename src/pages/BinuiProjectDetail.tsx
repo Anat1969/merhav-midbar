@@ -358,21 +358,8 @@ const BinuiProjectDetail: React.FC = () => {
 
         {/* Right — video/pres + images */}
         <div className="detail-column space-y-4">
-          {/* Video / presentation */}
-          <div className="bg-card rounded-xl shadow-sm overflow-hidden">
-            <div className="flex border-b">
-              <TabBtn active>סרטון</TabBtn>
-              <TabBtn active={false} onClick={() => alert("העלאת קבצים תתווסף בגרסה הבאה")}>מצגת</TabBtn>
-            </div>
-            <div
-              className="flex items-center justify-center text-gray-400 text-sm cursor-pointer"
-              style={{ minHeight: 100 }}
-              title="העלאת קבצים בקרוב"
-              onClick={() => alert("העלאת קבצים תתווסף בגרסה הבאה")}
-            >
-              🎬 העלאת סרטון — בקרוב
-            </div>
-          </div>
+          {/* Presentation / Development Plan */}
+          <PresentationDevPlanTabs project={project} onUpload={addAttachment} />
 
           {/* Images */}
           <div className="bg-card rounded-xl shadow-sm p-4">
