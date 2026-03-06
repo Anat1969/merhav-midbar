@@ -32,17 +32,19 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
     { key: "architect",    label: "אדריכל" },
     { key: "manager",      label: "מנהל פרויקט" },
     { key: "date",         label: "יום" },
-    { key: "area",         label: "מרחב" },
     { key: "compound",     label: "מתחם" },
     { key: "block_parcel", label: "גוש וחלקה" },
     { key: "plan_overall", label: "מס' תוכנית כוללת" },
     { key: "plan_detail",  label: "מס' תוכנית מפורטת" },
   ],
   "מיקום": [
-    { key: "city",    label: "עיר" },
     { key: "quarter", label: "רובע" },
     { key: "street",  label: "כתובת" },
+    { key: "block",   label: "גוש" },
     { key: "parcel",  label: "חלקה" },
+  ],
+  "תביעה": [
+    { key: "claim_num", label: "מס' תביעה" },
   ],
   'תב"ע': [
     { key: "taba_name",   label: 'שם תב"ע' },
