@@ -466,45 +466,79 @@ const BinuiProjectDetail: React.FC = () => {
                 <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>חוות דעת קודמות</div>
                 <div className="space-y-2 max-h-[250px] overflow-y-auto">
                   {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => {
-                    const isConfirmed = h.note.endsWith("[מאושר]");
-                    const text = h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[מאושר\]$/, "");
+                    const isDone = h.note.endsWith("[בוצע]");
+                    const isNotDone = h.note.endsWith("[לא בוצע]");
+                    const hasStatus = isDone || isNotDone;
+                    const text = h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[(בוצע|לא בוצע|מאושר)\]$/, "");
                     return (
-                      <div key={i} className="rounded-lg border border-gray-100 p-3 text-sm flex items-start gap-3" style={{ background: isConfirmed ? "#F0FDF4" : "#FAFAF8" }}>
+                      <div key={i} className="rounded-lg border border-gray-100 p-3 text-sm flex items-start gap-3" style={{ background: isDone ? "#F0FDF4" : isNotDone ? "#FEF2F2" : "#FAFAF8" }}>
                         <div className="flex-1">
                           <div className="text-xs text-gray-400 font-mono mb-1">{h.date}</div>
-                          <div style={{ textDecoration: isConfirmed ? "line-through" : "none", color: isConfirmed ? "#999" : "inherit" }}>{text}</div>
+                          <div style={{ textDecoration: isDone ? "line-through" : "none", color: hasStatus ? "#999" : "inherit" }}>
+                            {text}
+                            {isDone && <span className="mr-2 text-xs text-green-600 font-bold">[בוצע]</span>}
+                            {isNotDone && <span className="mr-2 text-xs text-red-500 font-bold">[לא בוצע]</span>}
+                          </div>
                         </div>
-                        {!isConfirmed && (
+                        <div className="flex flex-col gap-1">
+                          {!hasStatus && (
+                            <>
+                              <button
+                                title="סמן כבוצע"
+                                className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-green-50 transition-colors"
+                                style={{ borderColor: "#10B98166", color: "#10B981" }}
+                                onClick={() => {
+                                  const newHistory = project.history.map((entry) =>
+                                    entry === h ? { ...entry, note: `${entry.note} [בוצע]` } : entry
+                                  );
+                                  update({ history: newHistory });
+                                }}
+                              >
+                                ✓ בוצע
+                              </button>
+                              <button
+                                title="סמן כלא בוצע"
+                                className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-red-50 transition-colors"
+                                style={{ borderColor: "#EF444466", color: "#EF4444" }}
+                                onClick={() => {
+                                  const newHistory = project.history.map((entry) =>
+                                    entry === h ? { ...entry, note: `${entry.note} [לא בוצע]` } : entry
+                                  );
+                                  update({ history: newHistory });
+                                }}
+                              >
+                                ✗ לא בוצע
+                              </button>
+                            </>
+                          )}
+                          {hasStatus && (
+                            <button
+                              title="בטל סימון"
+                              className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-gray-100 transition-colors"
+                              style={{ borderColor: "#9CA3AF66", color: "#6B7280" }}
+                              onClick={() => {
+                                const newHistory = project.history.map((entry) =>
+                                  entry === h ? { ...entry, note: entry.note.replace(/\s*\[(בוצע|לא בוצע)\]$/, "") } : entry
+                                );
+                                update({ history: newHistory });
+                              }}
+                            >
+                              ↩ ביטול
+                            </button>
+                          )}
                           <button
-                            title="אישור שההערה נרשמה — לאחר אישור תוסר מפרוטוקול הוועדה"
-                            className="mt-1 h-6 px-2 rounded border text-[10px] font-bold flex flex-col items-center gap-0.5 hover:bg-green-50 transition-colors"
-                            style={{ borderColor: "#10B98166", color: "#10B981" }}
+                            title="מחק הערה"
+                            className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-red-50 transition-colors"
+                            style={{ borderColor: "#EF444433", color: "#EF4444" }}
                             onClick={() => {
-                              const newHistory = project.history.map((entry) =>
-                                entry === h ? { ...entry, note: `${entry.note} [מאושר]` } : entry
-                              );
+                              if (!confirm("למחוק את ההערה?")) return;
+                              const newHistory = project.history.filter((entry) => entry !== h);
                               update({ history: newHistory });
                             }}
                           >
-                            <span>✓ אישור</span>
+                            🗑 מחק
                           </button>
-                        )}
-                        {isConfirmed && (
-                          <button
-                            title="ביטול אישור — ההערה תחזור לפרוטוקול הוועדה"
-                            className="mt-1 h-6 px-2 rounded border text-[10px] font-bold flex flex-col items-center gap-0.5 hover:bg-red-50 transition-colors"
-                            style={{ borderColor: "#EF444466", color: "#EF4444" }}
-                            onClick={() => {
-                              const newHistory = project.history.map((entry) =>
-                                entry === h ? { ...entry, note: entry.note.replace(/\s*\[מאושר\]$/, "") } : entry
-                              );
-                              update({ history: newHistory });
-                            }}
-                          >
-                            <span>✗ בטל אישור</span>
-                            <span className="text-[8px] text-gray-400">החזר לפרוטוקול</span>
-                          </button>
-                        )}
+                        </div>
                       </div>
                     );
                   })}
@@ -553,12 +587,12 @@ const BinuiProjectDetail: React.FC = () => {
                       <div className="mr-4 text-gray-700 whitespace-pre-wrap">{project.note}</div>
                     </div>
                   )}
-                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[מאושר]")).length > 0 && (
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[בוצע]") && !h.note.endsWith("[מאושר]")).length > 0 && (
                     <div className="border-b pb-2">
                       <div className="font-semibold mb-1">ריכוז חוות דעת:</div>
-                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[מאושר]")).map((h, i) => (
+                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[בוצע]") && !h.note.endsWith("[מאושר]")).map((h, i) => (
                         <div key={i} className="mr-4 text-gray-700 mb-1">
-                          <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "")}
+                          <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, "")}
                         </div>
                       ))}
                     </div>
