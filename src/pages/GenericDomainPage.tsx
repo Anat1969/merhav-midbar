@@ -810,7 +810,15 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 const ft = getAttachType(att.data);
                 if (ft === "image") return <img src={att.data} alt={att.name} className="max-w-full max-h-[80vh] object-contain" />;
                 if (ft === "video") return <video src={att.data} controls autoPlay className="max-w-full max-h-[80vh]" />;
-                if (ft === "pdf") return <iframe src={att.data} title={att.name} className="w-full" style={{ height: "80vh" }} />;
+                if (ft === "pdf") return (
+                  <div className="flex flex-col items-center justify-center p-12">
+                    <FileText size={48} className="text-red-400 mb-4" />
+                    <a href={att.data} target="_blank" rel="noopener noreferrer"
+                       className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium">
+                      פתח PDF
+                    </a>
+                  </div>
+                );
                 return (
                   <div className="flex flex-col items-center justify-center p-12 text-center">
                     <FileSpreadsheet size={40} className="text-blue-400" />
