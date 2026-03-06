@@ -33,12 +33,14 @@ const IMAGE_LABELS: Record<string, string> = {
 };
 
 const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void }> = ({ project, onUpload }) => {
-  const [tab, setTab] = useState<"presentation" | "devplan">("presentation");
+  const [tab, setTab] = useState<"presentation" | "devplan" | "minutes">("presentation");
   const presRef = useRef<HTMLInputElement>(null);
   const devRef = useRef<HTMLInputElement>(null);
+  const minRef = useRef<HTMLInputElement>(null);
 
   const presFiles = project.attachments.filter((a) => /\.(pptx?|pdf|key)$/i.test(a.name));
   const devFiles = project.attachments.filter((a) => /תוכנית.פיתוח|dev.?plan/i.test(a.name));
+  const minFiles = project.attachments.filter((a) => /פרוטוקול.ועדה|committee.?minutes/i.test(a.name));
 
   return (
     <div className="bg-card rounded-xl shadow-sm overflow-hidden">
@@ -46,6 +48,7 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
       <div className="flex border-b">
         <TabBtn active={tab === "presentation"} onClick={() => setTab("presentation")}>מצגת</TabBtn>
         <TabBtn active={tab === "devplan"} onClick={() => setTab("devplan")}>תוכנית פיתוח</TabBtn>
+        <TabBtn active={tab === "minutes"} onClick={() => setTab("minutes")}>פרוטוקול ועדה</TabBtn>
       </div>
       <div className="flex flex-col items-center justify-center p-4 gap-2" style={{ minHeight: 100 }}>
         {tab === "presentation" ? (
@@ -69,7 +72,7 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
             )}
             {presFiles.length === 0 && <span className="text-xs text-muted-foreground">אין מצגות — העלה קובץ</span>}
           </>
-        ) : (
+        ) : tab === "devplan" ? (
           <>
             <input ref={devRef} type="file" className="hidden" accept="image/*,application/pdf,.pptx,.docx,.xlsx,.dwg,.dxf" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
             <button
@@ -89,6 +92,27 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
               </div>
             )}
             {devFiles.length === 0 && <span className="text-xs text-muted-foreground">אין תוכניות פיתוח — העלה קובץ</span>}
+          </>
+        ) : (
+          <>
+            <input ref={minRef} type="file" className="hidden" accept=".pdf,.docx,.doc,.xlsx,.pptx" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
+            <button
+              title="העלה פרוטוקול ועדה — PDF, DOCX"
+              className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
+              style={{ background: "#2C6E6A" }}
+              onClick={() => minRef.current?.click()}
+            >
+              📎 העלה פרוטוקול ועדה
+            </button>
+            <span className="text-[10px] text-muted-foreground">העלאת פרוטוקול ועדה (PDF, DOCX)</span>
+            {minFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {minFiles.map((f) => (
+                  <a key={f.id} href={f.data} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline">{f.name}</a>
+                ))}
+              </div>
+            )}
+            {minFiles.length === 0 && <span className="text-xs text-muted-foreground">אין פרוטוקולים — העלה קובץ</span>}
           </>
         )}
       </div>
@@ -122,6 +146,7 @@ const BinuiProjectDetail: React.FC = () => {
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
     architect: { date: "", text: "" },
+    committee: { date: "", text: "" },
   });
 
   const CONSULTANT_PARTIES = [
@@ -524,9 +549,16 @@ const BinuiProjectDetail: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Committee Preparation Forum - checkboxes */}
+                  {/* Committee Preparation Forum - checkboxes + date */}
                   <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
                     <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>פורום הכנה לוועדה</div>
+                    <div className="flex gap-2 items-center">
+                      <label className="text-[10px] text-muted-foreground whitespace-nowrap">תאריך הכנה:</label>
+                      <input type="date" title="תאריך הכנה לוועדה" className="h-7 rounded border border-gray-200 px-2 text-xs"
+                        value={forumInputs.committee?.date || ""}
+                        onChange={(e) => setForumInputs((prev) => ({ ...prev, committee: { ...prev.committee, date: e.target.value } }))}
+                      />
+                    </div>
                     <div className="space-y-2">
                       <label className="flex items-center gap-2 text-sm cursor-pointer">
                         <input type="checkbox" className="h-4 w-4 accent-[#2C6E6A]"
