@@ -25,6 +25,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
   subject: initSubject = "",
   body: initBody = "",
   domainColor = "#2C6E6A",
+  attachment,
 }) => {
   const [to, setTo] = useState("");
   const [cc, setCc] = useState("");
@@ -92,7 +93,7 @@ export const EmailModal: React.FC<EmailModalProps> = ({
     setErrorMsg("");
 
     try {
-      const templateParams = {
+      const templateParams: Record<string, any> = {
         to_email: to,
         cc_email: cc,
         subject,
@@ -101,6 +102,15 @@ export const EmailModal: React.FC<EmailModalProps> = ({
         sent_from: "דשבורד אדריכלית העיר",
         sent_date: new Date().toLocaleDateString("he-IL"),
       };
+
+      // Attach Word file if provided
+      if (attachment) {
+        templateParams.content = {
+          type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+          name: attachment.name,
+          data: attachment.base64,
+        };
+      }
 
       await emailjs.send(
         EMAILJS_CONFIG.SERVICE_ID,
