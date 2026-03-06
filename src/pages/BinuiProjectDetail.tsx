@@ -18,6 +18,7 @@ import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Fi
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
+import { downloadDraftDocx } from "@/lib/generateDraftDocx";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
@@ -763,41 +764,49 @@ const BinuiProjectDetail: React.FC = () => {
                         שמור המלצה
                       </button>
                       <button
-                        title="שליחת טיוטת ההמלצה כמסמך במייל"
+                        title="הורד והפק קובץ Word של טיוטת ההמלצה ושלח במייל"
                         className="h-8 px-4 rounded-lg text-white text-xs font-bold"
                         style={{ background: "#3A7D6F" }}
-                        onClick={() => {
-                          // Build the full recommendation document as email body
-                          const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
+                        onClick={async () => {
+                          const sl = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
+                          const notDone = project.history
+                            .filter((h) => h.note.startsWith("חוות דעת:") && h.note.endsWith("[לא בוצע]"))
+                            .map((h) => ({
+                              date: h.date,
+                              text: h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, ""),
+                            }));
+
+                          try {
+                            await downloadDraftDocx({
+                              projectName: project.name,
+                              category: project.category,
+                              sub: project.sub,
+                              statusLabel: sl,
+                              created: project.created,
+                              details: project.details ?? {},
+                              detailFields: DETAIL_FIELDS,
+                              note: project.note || "",
+                              notDoneComments: notDone,
+                              recommendation: recommendation || "",
+                            });
+                            toast.success("קובץ Word הורד בהצלחה");
+                          } catch (err) {
+                            toast.error("שגיאה ביצירת קובץ Word");
+                          }
+
+                          // Also open email with text body
                           const lines: string[] = [];
                           lines.push(`טיוטת המלצה — ${project.name}`);
                           lines.push(`קטגוריה: ${project.category} › ${project.sub}`);
-                          lines.push(`סטטוס: ${statusLabel}`);
+                          lines.push(`סטטוס: ${sl}`);
                           lines.push(`תאריך יצירה: ${project.created}`);
-                          // Detail sections
-                          Object.entries(DETAIL_FIELDS).forEach(([section, fields]) => {
-                            const vals = project.details?.[section] ?? {};
-                            const filled = fields.filter((f) => vals[f.key]);
-                            if (filled.length) {
-                              lines.push(`\n${section}:`);
-                              filled.forEach((f) => lines.push(`  ${f.label}: ${vals[f.key]}`));
-                            }
-                          });
-                          if (project.note) {
-                            lines.push(`\nתיאור הפרויקט:\n${project.note}`);
-                          }
-                          // Not-done comments
-                          const notDone = project.history.filter((h) => h.note.startsWith("חוות דעת:") && h.note.endsWith("[לא בוצע]"));
+                          if (project.note) lines.push(`\nתיאור הפרויקט:\n${project.note}`);
                           if (notDone.length) {
                             lines.push(`\nריכוז הערות:`);
-                            notDone.forEach((h) => {
-                              lines.push(`  ${h.date} — ${h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, "")}`);
-                            });
+                            notDone.forEach((c) => lines.push(`  ${c.date} — ${c.text}`));
                           }
-                          if (recommendation) {
-                            lines.push(`\nהמלצה סופית:\n${recommendation}`);
-                          }
-                          // Open email modal with the draft document
+                          if (recommendation) lines.push(`\nהמלצה סופית:\n${recommendation}`);
+                          lines.push(`\n📎 קובץ Word מצורף בנפרד`);
                           setDraftEmailBody(lines.join("\n"));
                           setEmailOpen(true);
                         }}
