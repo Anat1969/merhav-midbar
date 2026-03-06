@@ -419,14 +419,16 @@ const BinuiProjectDetail: React.FC = () => {
               <>
                 <div className="mb-3 space-y-2">
                   <div>
+                    <label className="text-xs font-bold mb-1 block" style={{ color: "#2C6E6A" }}>תיאור הפרויקט</label>
                     <textarea
                       title="תיאור הפרויקט"
-                      className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-vertical mb-2"
+                      className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-vertical mb-1"
                       style={{ direction: "rtl", minHeight: 180, background: "#F7F7F5" }}
-                      placeholder=""
+                      placeholder="כתוב תיאור לפרויקט..."
                       value={project.note || ""}
                       onChange={(e) => update({ note: e.target.value })}
                     />
+                    <span className="text-[10px] text-muted-foreground block mb-2">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
                   </div>
                   <div className="flex gap-2 items-end">
                     <textarea
