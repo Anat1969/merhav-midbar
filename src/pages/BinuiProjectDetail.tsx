@@ -106,8 +106,12 @@ const BinuiProjectDetail: React.FC = () => {
 
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  const [activeTab, setActiveTab] = useState<"note" | "history">("note");
+  const [activeTab, setActiveTab] = useState<"history" | "opinion" | "protocol">("history");
   const [historyInput, setHistoryInput] = useState("");
+  const [opinionInput, setOpinionInput] = useState("");
+  const [recommendation, setRecommendation] = useState(
+    (project ? (project as any).recommendation : "") || ""
+  );
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
@@ -163,9 +167,6 @@ const BinuiProjectDetail: React.FC = () => {
     setEditingName(false);
   };
 
-  const saveNote = () => {
-    update({ note: project.note });
-  };
 
   const addHistoryEntry = () => {
     const t = historyInput.trim();
@@ -360,30 +361,12 @@ const BinuiProjectDetail: React.FC = () => {
         {/* Left — note / history */}
         <div className="detail-column bg-card rounded-xl shadow-sm overflow-hidden">
           <div className="flex border-b">
-            <TabBtn active={activeTab === "note"} onClick={() => setActiveTab("note")}>מסמך (חוות דעת)</TabBtn>
             <TabBtn active={activeTab === "history"} onClick={() => setActiveTab("history")}>היסטוריה</TabBtn>
+            <TabBtn active={activeTab === "opinion"} onClick={() => setActiveTab("opinion")}>חוות דעת</TabBtn>
+            <TabBtn active={activeTab === "protocol"} onClick={() => setActiveTab("protocol")}>פרוטוקול ועדה</TabBtn>
           </div>
           <div className="p-4">
-            {activeTab === "note" ? (
-              <>
-                <textarea
-                  title="חוות דעת"
-                  className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none"
-                  style={{ direction: "rtl", minHeight: 200, background: "#FAFAF8" }}
-                  placeholder="כתוב חוות דעת, הערות, עדכונים..."
-                  value={project.note}
-                  onChange={(e) => update({ note: e.target.value })}
-                />
-                <button
-                  title="שמור הערה"
-                  className="mt-2 h-8 px-4 rounded-lg text-white text-xs font-bold"
-                  style={{ background: "#2C6E6A" }}
-                  onClick={saveNote}
-                >
-                  שמור הערה
-                </button>
-              </>
-            ) : (
+            {activeTab === "history" && (
               <>
                 <div className="flex gap-2 mb-3">
                   <input
@@ -411,6 +394,119 @@ const BinuiProjectDetail: React.FC = () => {
                       <span>{h.note}</span>
                     </div>
                   ))}
+                  {project.history.length === 0 && <span className="text-xs text-muted-foreground">אין רשומות היסטוריה</span>}
+                </div>
+              </>
+            )}
+
+            {activeTab === "opinion" && (
+              <>
+                <div className="mb-3 space-y-2">
+                  <div className="flex gap-2 items-end">
+                    <textarea
+                      title="חוות דעת חדשה"
+                      className="flex-1 rounded-lg border border-gray-200 p-3 text-sm resize-none"
+                      style={{ direction: "rtl", minHeight: 80, background: "#FAFAF8" }}
+                      placeholder="כתוב חוות דעת..."
+                      value={opinionInput}
+                      onChange={(e) => setOpinionInput(e.target.value)}
+                    />
+                  </div>
+                  <button
+                    title="הוסף חוות דעת"
+                    className="h-8 px-4 rounded-lg text-white text-xs font-bold"
+                    style={{ background: "#2C6E6A" }}
+                    onClick={() => {
+                      const t = opinionInput.trim();
+                      if (!t) return;
+                      update({
+                        history: [{ date: getHebrewDateNow(), note: `חוות דעת: ${t}` }, ...project.history],
+                      });
+                      setOpinionInput("");
+                    }}
+                  >
+                    הוסף חוות דעת
+                  </button>
+                </div>
+                <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>חוות דעת קודמות</div>
+                <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => (
+                    <div key={i} className="rounded-lg border border-gray-100 p-3 text-sm" style={{ background: "#FAFAF8" }}>
+                      <div className="text-xs text-gray-400 font-mono mb-1">{h.date}</div>
+                      <div>{h.note.replace(/^חוות דעת:\s*/, "")}</div>
+                    </div>
+                  ))}
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:")).length === 0 && (
+                    <span className="text-xs text-muted-foreground">אין חוות דעת קודמות</span>
+                  )}
+                </div>
+              </>
+            )}
+
+            {activeTab === "protocol" && (
+              <>
+                <div className="rounded-lg border border-gray-200 p-4 text-sm space-y-3" style={{ background: "#FAFAF8", direction: "rtl" }}>
+                  <div className="text-center font-bold text-base mb-2" style={{ color: "#2C6E6A" }}>פרוטוקול ועדה — {project.name}</div>
+                  <div className="border-b pb-2">
+                    <span className="font-semibold">קטגוריה:</span> {project.category} › {project.sub}
+                  </div>
+                  <div className="border-b pb-2">
+                    <span className="font-semibold">סטטוס:</span> {STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status}
+                  </div>
+                  <div className="border-b pb-2">
+                    <span className="font-semibold">תאריך יצירה:</span> {project.created}
+                  </div>
+                  {Object.entries(DETAIL_FIELDS).map(([section, fields]) => {
+                    const vals = project.details?.[section] ?? {};
+                    const hasValues = fields.some((f) => vals[f.key]);
+                    if (!hasValues) return null;
+                    return (
+                      <div key={section} className="border-b pb-2">
+                        <div className="font-semibold mb-1">{section}:</div>
+                        {fields.map((f) => vals[f.key] ? (
+                          <div key={f.key} className="mr-4 text-gray-700">{f.label}: {vals[f.key]}</div>
+                        ) : null)}
+                      </div>
+                    );
+                  })}
+                  {project.note && (
+                    <div className="border-b pb-2">
+                      <span className="font-semibold">הערות:</span>
+                      <div className="mr-4 text-gray-700 whitespace-pre-wrap">{project.note}</div>
+                    </div>
+                  )}
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:")).length > 0 && (
+                    <div className="border-b pb-2">
+                      <div className="font-semibold mb-1">ריכוז חוות דעת:</div>
+                      {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => (
+                        <div key={i} className="mr-4 text-gray-700 mb-1">
+                          <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "")}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div className="pt-2">
+                    <div className="font-semibold mb-1">המלצה סופית:</div>
+                    <textarea
+                      title="המלצה סופית"
+                      className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-none"
+                      style={{ minHeight: 80 }}
+                      placeholder="כתוב המלצה סופית..."
+                      value={recommendation}
+                      onChange={(e) => setRecommendation(e.target.value)}
+                    />
+                    <button
+                      title="שמור המלצה"
+                      className="mt-2 h-8 px-4 rounded-lg text-white text-xs font-bold"
+                      style={{ background: "#2C6E6A" }}
+                      onClick={() => {
+                        update({ note: `${project.note}\n\n--- המלצה סופית ---\n${recommendation}` });
+                        toast.success("ההמלצה נשמרה");
+                      }}
+                    >
+                      שמור המלצה
+                    </button>
+                  </div>
                 </div>
               </>
             )}
