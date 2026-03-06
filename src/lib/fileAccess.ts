@@ -40,12 +40,51 @@ export async function resolveAccessibleFileUrl(fileUrl: string): Promise<string>
   return data.signedUrl;
 }
 
+async function fetchBlob(fileUrl: string): Promise<Blob | null> {
+  const target = extractBucketAndPath(fileUrl);
+  if (!target) return null;
+  try {
+    const { data, error } = await supabase.storage
+      .from(target.bucket)
+      .download(target.path);
+    if (error || !data) return null;
+    return data;
+  } catch {
+    return null;
+  }
+}
+
 export async function openFileInNewTab(fileUrl: string): Promise<void> {
+  if (!fileUrl) return;
+  // Try blob approach first (bypasses ad-blockers)
+  const blob = await fetchBlob(fileUrl);
+  if (blob) {
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, "_blank", "noopener,noreferrer");
+    // Revoke after a delay to allow the tab to load
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
+    return;
+  }
+  // Fallback to signed URL
   const resolved = await resolveAccessibleFileUrl(fileUrl);
   window.open(resolved, "_blank", "noopener,noreferrer");
 }
 
 export async function downloadFile(fileUrl: string, fileName?: string): Promise<void> {
+  if (!fileUrl) return;
+  const blob = await fetchBlob(fileUrl);
+  if (blob) {
+    const blobUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = blobUrl;
+    a.download = fileName || "download";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10_000);
+    return;
+  }
+  // Fallback
   const resolved = await resolveAccessibleFileUrl(fileUrl);
   const a = document.createElement("a");
   a.href = resolved;
