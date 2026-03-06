@@ -797,14 +797,9 @@ const BinuiProjectDetail: React.FC = () => {
                           if (recommendation) {
                             lines.push(`\nהמלצה סופית:\n${recommendation}`);
                           }
-                          // Open email modal with the document
+                          // Open email modal with the draft document
+                          setDraftEmailBody(lines.join("\n"));
                           setEmailOpen(true);
-                          // Use a small timeout so the modal state updates first
-                          setTimeout(() => {
-                            const emailBody = lines.join("\n");
-                            // We need to set email props — use a dedicated state
-                            setDraftEmailBody(emailBody);
-                          }, 0);
                         }}
                       >
                         📧 שלח טיוטת המלצה
