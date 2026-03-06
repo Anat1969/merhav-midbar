@@ -375,6 +375,11 @@ const BinuiProjectDetail: React.FC = () => {
             <TabBtn active={activeTab === "opinion"} onClick={() => setActiveTab("opinion")}>חוות דעת</TabBtn>
             <TabBtn active={activeTab === "protocol"} onClick={() => setActiveTab("protocol")}>פרוטוקול ועדה</TabBtn>
           </div>
+          <div className="flex border-t-0 px-1 pb-1" style={{ background: "#F0F9F8" }}>
+            <span className="flex-1 text-center text-[9px] text-muted-foreground">תיעוד כל פעולה שבוצעה</span>
+            <span className="flex-1 text-center text-[9px] text-muted-foreground">ריכוז הערות עם תאריך</span>
+            <span className="flex-1 text-center text-[9px] text-muted-foreground">סיכום מסודר של כל הנתונים</span>
+          </div>
           <div className="p-4">
             {activeTab === "history" && (
               <>
