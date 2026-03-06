@@ -119,7 +119,12 @@ const BinuiProjectDetail: React.FC = () => {
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
+  const [localNote, setLocalNote] = useState(project?.note || "");
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  useEffect(() => {
+    if (project) setLocalNote(project.note || "");
+  }, [project?.id]);
 
   const update = async (patch: Partial<BinuiProject>) => {
     if (!project) return;
