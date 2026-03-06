@@ -463,7 +463,7 @@ const BinuiProjectDetail: React.FC = () => {
                   </button>
                   <span className="text-[10px] text-muted-foreground">כתוב הערה — תישמר עם תאריך ותוצג בריכוז ההערות</span>
                 </div>
-                <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>חוות דעת קודמות</div>
+                <div className="text-xs font-semibold mb-2" style={{ color: "#2C6E6A" }}>הערות קודמות</div>
                 <div className="space-y-2 max-h-[250px] overflow-y-auto">
                   {project.history.filter((h) => h.note.startsWith("חוות דעת:")).map((h, i) => {
                     const isDone = h.note.endsWith("[בוצע]");
