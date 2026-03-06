@@ -106,8 +106,12 @@ const BinuiProjectDetail: React.FC = () => {
 
   const [editingName, setEditingName] = useState(false);
   const [tempName, setTempName] = useState("");
-  const [activeTab, setActiveTab] = useState<"note" | "history">("note");
+  const [activeTab, setActiveTab] = useState<"history" | "opinion" | "protocol">("history");
   const [historyInput, setHistoryInput] = useState("");
+  const [opinionInput, setOpinionInput] = useState("");
+  const [recommendation, setRecommendation] = useState(
+    (project ? (project as any).recommendation : "") || ""
+  );
   const [editingSections, setEditingSections] = useState<Record<string, boolean>>({});
   const [editValues, setEditValues] = useState<Record<string, Record<string, string>>>({});
   const [emailOpen, setEmailOpen] = useState(false);
