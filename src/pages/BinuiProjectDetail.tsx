@@ -122,8 +122,22 @@ const BinuiProjectDetail: React.FC = () => {
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
     architect: { date: "", text: "" },
-    consultant: { date: "", text: "" },
-    committee: { date: "", text: "" },
+  });
+
+  const CONSULTANT_PARTIES = [
+    "תנועה", "תברואה", "ניהול ניקוז", "חשמל", "נטיעות",
+    "איכות סביבה", "נכסים", "חינוך", "רישוי", "תכנון",
+  ] as const;
+
+  const [consultantInputs, setConsultantInputs] = useState<Record<string, { date: string; text: string }>>(
+    Object.fromEntries(CONSULTANT_PARTIES.map((p) => [p, { date: "", text: "" }]))
+  );
+  const [consultantDate, setConsultantDate] = useState("");
+
+  const [committeeChecks, setCommitteeChecks] = useState({
+    printedPlan: false,
+    digitalPlan: false,
+    finalDraft: false,
   });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -442,63 +456,101 @@ const BinuiProjectDetail: React.FC = () => {
                     <span className="text-[10px] text-muted-foreground block mb-2">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
                   </div>
 
-                  {/* Three Forum Frames */}
-                  {([
-                    { key: "architect", label: "פורום אדריכלים", prefix: "פורום אדריכלים" },
-                    { key: "consultant", label: "פורום יועצים", prefix: "פורום יועצים" },
-                    { key: "committee", label: "פורום הכנה לוועדה", prefix: "פורום הכנה לוועדה" },
-                  ] as const).map((forum) => (
-                    <div key={forum.key} className="rounded-lg border p-3 space-y-2" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
-                      <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>{forum.label}</div>
-                      <div className="flex gap-2 items-center">
-                        <label className="text-[10px] text-muted-foreground whitespace-nowrap">תאריך:</label>
-                        <input
-                          type="date"
-                          title={`תאריך ${forum.label}`}
-                          className="h-7 rounded border border-gray-200 px-2 text-xs"
-                          value={forumInputs[forum.key]?.date || ""}
-                          onChange={(e) => setForumInputs((prev) => ({
-                            ...prev,
-                            [forum.key]: { ...prev[forum.key], date: e.target.value },
-                          }))}
-                        />
-                      </div>
-                      <div className="flex gap-2 items-end">
-                        <textarea
-                          title={`הערה ל${forum.label}`}
-                          className="flex-1 rounded-lg border border-gray-200 p-2 text-sm resize-none"
-                          style={{ direction: "rtl", minHeight: 60, background: "#FAFAF8" }}
-                          placeholder={`כתוב הערה ל${forum.label}...`}
-                          value={forumInputs[forum.key]?.text || ""}
-                          onChange={(e) => setForumInputs((prev) => ({
-                            ...prev,
-                            [forum.key]: { ...prev[forum.key], text: e.target.value },
-                          }))}
-                        />
-                        <button
-                          title={`הוסף הערה ל${forum.label}`}
-                          className="h-7 px-3 rounded-lg text-white text-[10px] font-bold"
-                          style={{ background: "#2C6E6A" }}
-                          onClick={() => {
-                            const t = forumInputs[forum.key]?.text?.trim();
-                            if (!t) return;
-                            const dateStr = forumInputs[forum.key]?.date
-                              ? new Date(forumInputs[forum.key].date).toLocaleDateString("he-IL", { year: "numeric", month: "long", day: "numeric" })
-                              : getHebrewDateNow();
-                            update({
-                              history: [{ date: dateStr, note: `חוות דעת: [${forum.prefix}] ${t}` }, ...project.history],
-                            });
-                            setForumInputs((prev) => ({
-                              ...prev,
-                              [forum.key]: { date: "", text: "" },
-                            }));
-                          }}
-                        >
-                          + הוסף
-                        </button>
-                      </div>
+                  {/* Architect Forum */}
+                  <div className="rounded-lg border p-3 space-y-2" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
+                    <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>פורום אדריכלים</div>
+                    <div className="flex gap-2 items-center">
+                      <label className="text-[10px] text-muted-foreground whitespace-nowrap">תאריך:</label>
+                      <input type="date" title="תאריך פורום אדריכלים" className="h-7 rounded border border-gray-200 px-2 text-xs"
+                        value={forumInputs.architect?.date || ""}
+                        onChange={(e) => setForumInputs((prev) => ({ ...prev, architect: { ...prev.architect, date: e.target.value } }))}
+                      />
                     </div>
-                  ))}
+                    <div className="flex gap-2 items-end">
+                      <textarea title="הערה לפורום אדריכלים" className="flex-1 rounded-lg border border-gray-200 p-2 text-sm resize-none"
+                        style={{ direction: "rtl", minHeight: 60, background: "#FAFAF8" }} placeholder="כתוב הערה לפורום אדריכלים..."
+                        value={forumInputs.architect?.text || ""}
+                        onChange={(e) => setForumInputs((prev) => ({ ...prev, architect: { ...prev.architect, text: e.target.value } }))}
+                      />
+                      <button title="הוסף הערה לפורום אדריכלים" className="h-7 px-3 rounded-lg text-white text-[10px] font-bold" style={{ background: "#2C6E6A" }}
+                        onClick={() => {
+                          const t = forumInputs.architect?.text?.trim();
+                          if (!t) return;
+                          const dateStr = forumInputs.architect?.date
+                            ? new Date(forumInputs.architect.date).toLocaleDateString("he-IL", { year: "numeric", month: "long", day: "numeric" })
+                            : getHebrewDateNow();
+                          update({ history: [{ date: dateStr, note: `חוות דעת: [פורום אדריכלים] ${t}` }, ...project.history] });
+                          setForumInputs((prev) => ({ ...prev, architect: { date: "", text: "" } }));
+                        }}
+                      >+ הוסף</button>
+                    </div>
+                  </div>
+
+                  {/* Consultant Forum - per party */}
+                  <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
+                    <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>פורום יועצים</div>
+                    <div className="flex gap-2 items-center">
+                      <label className="text-[10px] text-muted-foreground whitespace-nowrap">תאריך:</label>
+                      <input type="date" title="תאריך פורום יועצים" className="h-7 rounded border border-gray-200 px-2 text-xs"
+                        value={consultantDate}
+                        onChange={(e) => setConsultantDate(e.target.value)}
+                      />
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      {CONSULTANT_PARTIES.map((party) => (
+                        <div key={party} className="flex gap-2 items-end rounded border border-gray-100 p-2" style={{ background: "#FEFEFE" }}>
+                          <span className="text-[11px] font-semibold whitespace-nowrap min-w-[60px]" style={{ color: "#2C6E6A" }}>{party}</span>
+                          <textarea
+                            title={`הערה - ${party}`}
+                            className="flex-1 rounded border border-gray-200 p-1.5 text-xs resize-none"
+                            style={{ direction: "rtl", minHeight: 36, background: "#FAFAF8" }}
+                            placeholder={`הערה עבור ${party}...`}
+                            value={consultantInputs[party]?.text || ""}
+                            onChange={(e) => setConsultantInputs((prev) => ({ ...prev, [party]: { ...prev[party], text: e.target.value } }))}
+                          />
+                          <button title={`הוסף הערה - ${party}`} className="h-6 px-2 rounded text-white text-[10px] font-bold" style={{ background: "#2C6E6A" }}
+                            onClick={() => {
+                              const t = consultantInputs[party]?.text?.trim();
+                              if (!t) return;
+                              const dateStr = consultantDate
+                                ? new Date(consultantDate).toLocaleDateString("he-IL", { year: "numeric", month: "long", day: "numeric" })
+                                : getHebrewDateNow();
+                              update({ history: [{ date: dateStr, note: `חוות דעת: [פורום יועצים - ${party}] ${t}` }, ...project.history] });
+                              setConsultantInputs((prev) => ({ ...prev, [party]: { date: "", text: "" } }));
+                            }}
+                          >+</button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Committee Preparation Forum - checkboxes */}
+                  <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
+                    <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>פורום הכנה לוועדה</div>
+                    <div className="space-y-2">
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" className="h-4 w-4 accent-[#2C6E6A]"
+                          checked={committeeChecks.printedPlan}
+                          onChange={(e) => setCommitteeChecks((prev) => ({ ...prev, printedPlan: e.target.checked }))}
+                        />
+                        <span>התקבלה תוכנית מודפסת</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" className="h-4 w-4 accent-[#2C6E6A]"
+                          checked={committeeChecks.digitalPlan}
+                          onChange={(e) => setCommitteeChecks((prev) => ({ ...prev, digitalPlan: e.target.checked }))}
+                        />
+                        <span>התקבלה תוכנית דיגיטלית</span>
+                      </label>
+                      <label className="flex items-center gap-2 text-sm cursor-pointer">
+                        <input type="checkbox" className="h-4 w-4 accent-[#2C6E6A]"
+                          checked={committeeChecks.finalDraft}
+                          onChange={(e) => setCommitteeChecks((prev) => ({ ...prev, finalDraft: e.target.checked }))}
+                        />
+                        <span>טיוטת המלצה סופית לוועדה</span>
+                      </label>
+                    </div>
+                  </div>
 
                   <div className="flex gap-2 items-end">
                     <textarea
