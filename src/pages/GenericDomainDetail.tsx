@@ -157,8 +157,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       </div>
       <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ minHeight: 360 }}>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
-          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>תיאור קצר</div>
-          <textarea title="תיאור הפרויקט" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="תיאור קצר..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
+          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מטרה</div>
+          <textarea title="מטרה" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col lg:col-span-1">
           <div className="text-lg font-bold mb-2" style={{ color: config.color }}>הנחיות מתכנן</div>
