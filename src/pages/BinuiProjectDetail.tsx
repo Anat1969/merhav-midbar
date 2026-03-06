@@ -277,59 +277,21 @@ const BinuiProjectDetail: React.FC = () => {
 
         <div className="flex-1" />
 
-        {/* Taba status & date next to delete */}
-        <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400">סטטוס:</span>
-            <input
-              title="סטטוס תב״ע"
-              className="h-10 w-28 rounded-lg border border-gray-200 px-2 text-sm"
-              style={{ direction: "rtl" }}
-              value={project.details?.['תב"ע']?.taba_status ?? ""}
-              onChange={(e) =>
-                update({
-                  details: {
-                    ...project.details,
-                    'תב"ע': { ...(project.details?.['תב"ע'] ?? {}), taba_status: e.target.value },
-                  },
-                })
-              }
-            />
-          </div>
-          <div className="flex items-center gap-1.5">
-            <span className="text-xs text-gray-400">תאריך אישור:</span>
-            <input
-              title="תאריך אישור תב״ע"
-              className="h-10 w-28 rounded-lg border border-gray-200 px-2 text-sm"
-              style={{ direction: "rtl" }}
-              value={project.details?.['תב"ע']?.taba_date ?? ""}
-              onChange={(e) =>
-                update({
-                  details: {
-                    ...project.details,
-                    'תב"ע': { ...(project.details?.['תב"ע'] ?? {}), taba_date: e.target.value },
-                  },
-                })
-              }
-            />
-          </div>
-
-          <button
-            title="מחק פרויקט"
-            className="h-10 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-1.5"
-            onClick={async () => {
-              if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
-                try {
-                  await deleteMutation.mutateAsync(project.id);
-                  toast.success("הפרויקט נמחק");
-                  navigate("/binui");
-                } catch {}
-              }
-            }}
-          >
-            🗑️ מחק
-          </button>
-        </div>
+        <button
+          title="מחק פרויקט"
+          className="h-10 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-1.5"
+          onClick={async () => {
+            if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
+              try {
+                await deleteMutation.mutateAsync(project.id);
+                toast.success("הפרויקט נמחק");
+                navigate("/binui");
+              } catch {}
+            }
+          }}
+        >
+          🗑️ מחק
+        </button>
       </div>
 
       {/* Main two-column grid */}
