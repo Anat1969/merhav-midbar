@@ -587,12 +587,12 @@ const BinuiProjectDetail: React.FC = () => {
                       <div className="mr-4 text-gray-700 whitespace-pre-wrap">{project.note}</div>
                     </div>
                   )}
-                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[מאושר]")).length > 0 && (
+                  {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[בוצע]") && !h.note.endsWith("[מאושר]")).length > 0 && (
                     <div className="border-b pb-2">
                       <div className="font-semibold mb-1">ריכוז חוות דעת:</div>
-                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[מאושר]")).map((h, i) => (
+                      {project.history.filter((h) => h.note.startsWith("חוות דעת:") && !h.note.endsWith("[בוצע]") && !h.note.endsWith("[מאושר]")).map((h, i) => (
                         <div key={i} className="mr-4 text-gray-700 mb-1">
-                          <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "")}
+                          <span className="text-xs text-gray-400">{h.date}</span> — {h.note.replace(/^חוות דעת:\s*/, "").replace(/\s*\[לא בוצע\]$/, "")}
                         </div>
                       ))}
                     </div>
