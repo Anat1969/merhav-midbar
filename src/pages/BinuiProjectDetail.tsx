@@ -522,6 +522,12 @@ const BinuiProjectDetail: React.FC = () => {
                   <div className="border-b pb-2">
                     <span className="font-semibold">תאריך יצירה:</span> {project.created}
                   </div>
+                  {project.note && (
+                    <div className="border-b pb-2">
+                      <span className="font-semibold">תיאור הפרויקט:</span>
+                      <div className="mr-4 text-gray-700 whitespace-pre-wrap mt-1">{project.note}</div>
+                    </div>
+                  )}
                   {Object.entries(DETAIL_FIELDS).map(([section, fields]) => {
                     const vals = project.details?.[section] ?? {};
                     const hasValues = fields.some((f) => vals[f.key]);
