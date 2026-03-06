@@ -34,8 +34,6 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
     { key: "date",         label: "יום" },
     { key: "compound",     label: "מתחם" },
     { key: "block_parcel", label: "גוש וחלקה" },
-    { key: "plan_overall", label: "מס' תוכנית כוללת" },
-    { key: "plan_detail",  label: "מס' תוכנית מפורטת" },
   ],
   "מיקום": [
     { key: "quarter", label: "רובע" },
@@ -43,8 +41,10 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
     { key: "block",   label: "גוש" },
     { key: "parcel",  label: "חלקה" },
   ],
-  "תביעה": [
-    { key: "claim_num", label: "מס' תביעה" },
+  "נתוני תכנון": [
+    { key: "plan_overall", label: "מס' תוכנית כוללת" },
+    { key: "plan_detail",  label: "מס' תוכנית מפורטת" },
+    { key: "claim_num",    label: "מס' תביעה" },
   ],
   'תב"ע': [
     { key: "taba_name",   label: 'שם תב"ע' },
