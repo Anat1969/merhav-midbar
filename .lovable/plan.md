@@ -1,54 +1,37 @@
 
-# דשבורד אדריכלית העיר — Implementation Plan
 
-## Overview
-A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
+## Fix: PDF blocked by Chrome
 
-## Pages & Layout
+### Problem
+Chrome blocks cross-origin `<iframe src="https://supabase-storage-url/...pdf">` because the storage domain differs from the app domain.
 
-### Home Page (single page app)
-- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
-- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
-- **Stats bar** — conditionally shown summary of project counts by status
-- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
+### Solution (minimal change)
+Replace all 4 `<iframe src={url}>` PDF renderings with `window.open(url, '_blank')` — i.e., open PDFs in a new browser tab instead of embedding them. This is the simplest fix, zero new files, and works reliably across all browsers.
 
-## Key Components
+### Changes
+In each of these 4 files, replace the `<iframe>` PDF block with a centered "Open PDF" auto-trigger + button:
 
-1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
-2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
-3. **ProjectPanel** — slide-in overlay from left (420px), with:
-   - Colored header with breadcrumb + close
-   - Add project input row
-   - Search/filter input
-   - Scrollable project list (name, date, status dropdown, delete with confirm)
-   - Footer with status counts
-4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
-5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
+1. `src/components/FileDropZone.tsx` (line ~244)
+2. `src/pages/BinuiProjectDetail.tsx` (line ~1055)
+3. `src/pages/BinuiPage.tsx` (line ~757)
+4. `src/pages/GenericDomainPage.tsx` (line ~813)
 
-## Data & State
-- All data in localStorage with key pattern `{domain}__{category}__{sub}`
-- Project shape: id, name, status, created (Hebrew date), note, history
-- No external state library — React useState + localStorage read/write
-- Hardcoded HIERARCHY constant defines the domain tree
+Replace pattern:
+```tsx
+// Before
+if (ft === "pdf") return <iframe src={url} ... />;
 
-## Styling
-- RTL direction globally, Heebo font from Google Fonts
-- Background #F2F1EE, domain-specific color palette
-- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
-- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
-- Print CSS: hide nav, white background, A4-friendly layout
+// After
+if (ft === "pdf") return (
+  <div className="flex flex-col items-center justify-center p-12">
+    <FileText size={48} className="text-red-400 mb-4" />
+    <a href={url} target="_blank" rel="noopener noreferrer"
+       className="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600">
+      פתח PDF
+    </a>
+  </div>
+);
+```
 
-## Files to Create/Modify
-- `index.html` — add Heebo font link
-- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
-- `src/lib/hierarchy.ts` — HIERARCHY constant + types
-- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
-- `src/components/TopNav.tsx` — sticky navigation bar
-- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
-- `src/components/GlobalSearch.tsx` — search input + results dropdown
-- `src/components/StatsBar.tsx` — conditional stats summary
-- `src/components/DomainCard.tsx` — domain card with categories
-- `src/components/SubButton.tsx` — item button with count
-- `src/components/ProjectPanel.tsx` — slide-in project management panel
-- `src/components/EmailModal.tsx` — email compose dialog
-- `src/pages/Index.tsx` — compose all components into the dashboard layout
+This avoids iframe cross-origin issues entirely with a single-line change per file.
+
