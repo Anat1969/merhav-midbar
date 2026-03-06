@@ -417,113 +417,104 @@ const BinuiProjectDetail: React.FC = () => {
         </button>
       </div>
 
-      {/* Detail cards — moved above review process */}
-      {/* פרטים — people in 3 columns */}
-      {(() => {
-        const section = "פרטים";
-        const editing = editingSections[section];
-        const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
-        const PEOPLE = [
-          { title: "אדריכל", prefix: "architect", fields: [
-            { key: "architect", label: "שם" },
-            { key: "architect_phone", label: "נייד" },
-            { key: "architect_email", label: 'דוא"ל' },
-            { key: "architect_address", label: "כתובת" },
-          ]},
-          { title: "מנהל פרויקט", prefix: "manager", fields: [
-            { key: "manager", label: "שם" },
-            { key: "manager_phone", label: "נייד" },
-            { key: "manager_email", label: 'דוא"ל' },
-            { key: "manager_address", label: "כתובת" },
-          ]},
-          { title: "יזם", prefix: "developer", fields: [
-            { key: "developer", label: "שם" },
-            { key: "developer_phone", label: "נייד" },
-            { key: "developer_email", label: 'דוא"ל' },
-            { key: "developer_address", label: "כתובת" },
-          ]},
-        ];
-        return (
-          <div className="mx-4 mt-4 mb-4 detail-card bg-card rounded-xl shadow-sm overflow-hidden">
-            <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: "#FAFAF8" }}>
-              <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>פרטים</span>
-              {editing ? (
-                <div className="flex gap-2">
-                  <button title="שמור" className="text-xs text-white px-2 py-1 rounded" style={{ background: "#2C6E6A" }} onClick={() => saveSection(section)}>שמור</button>
-                  <button title="ביטול" className="text-xs text-gray-500 hover:underline" onClick={() => cancelEdit(section)}>ביטול</button>
-                </div>
-              ) : (
-                <button title="עריכה" className="text-xs hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
-              )}
+      {/* All detail sections in one compact row */}
+      <div className="mx-4 mt-4 mb-4 grid grid-cols-1 lg:grid-cols-[1fr_auto_auto] gap-3">
+        {/* פרטים — 3 people columns */}
+        {(() => {
+          const section = "פרטים";
+          const editing = editingSections[section];
+          const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
+          const PEOPLE = [
+            { title: "אדריכל", fields: [
+              { key: "architect", label: "שם" },
+              { key: "architect_phone", label: "נייד" },
+              { key: "architect_email", label: 'דוא"ל' },
+              { key: "architect_address", label: "כתובת" },
+            ]},
+            { title: "מנהל פרויקט", fields: [
+              { key: "manager", label: "שם" },
+              { key: "manager_phone", label: "נייד" },
+              { key: "manager_email", label: 'דוא"ל' },
+              { key: "manager_address", label: "כתובת" },
+            ]},
+            { title: "יזם", fields: [
+              { key: "developer", label: "שם" },
+              { key: "developer_phone", label: "נייד" },
+              { key: "developer_email", label: 'דוא"ל' },
+              { key: "developer_address", label: "כתובת" },
+            ]},
+          ];
+          return (
+            <div className="detail-card bg-card rounded-xl shadow-sm overflow-hidden">
+              <div className="flex items-center justify-between px-3 py-2 border-b" style={{ background: "#FAFAF8" }}>
+                <span className="text-xs font-semibold" style={{ color: "#2C6E6A" }}>פרטים</span>
+                {editing ? (
+                  <div className="flex gap-2">
+                    <button title="שמור" className="text-[10px] text-white px-2 py-0.5 rounded" style={{ background: "#2C6E6A" }} onClick={() => saveSection(section)}>שמור</button>
+                    <button title="ביטול" className="text-[10px] text-gray-500 hover:underline" onClick={() => cancelEdit(section)}>ביטול</button>
+                  </div>
+                ) : (
+                  <button title="עריכה" className="text-[10px] hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
+                )}
+              </div>
+              <div className="grid grid-cols-3 divide-x divide-x-reverse divide-gray-100">
+                {PEOPLE.map((person) => (
+                  <div key={person.title} className="px-2.5 py-2 space-y-1">
+                    <div className="text-[10px] font-bold" style={{ color: "#2C6E6A" }}>{person.title}</div>
+                    {person.fields.map((f) => (
+                      <div key={f.key} className="flex items-center gap-1 text-[11px]">
+                        <span className="text-gray-400 whitespace-nowrap" style={{ minWidth: 32 }}>{f.label}</span>
+                        {editing ? (
+                          <input title={f.label} className="flex-1 h-5 rounded border border-gray-200 px-1 text-[11px]" style={{ direction: "rtl" }}
+                            value={vals[f.key] ?? ""}
+                            onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), [f.key]: e.target.value } }))}
+                          />
+                        ) : (
+                          <span className="truncate" style={{ color: vals[f.key] ? "#222" : "#ccc" }}>{vals[f.key] || "—"}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+              <div className="px-3 pb-2 flex items-center gap-1.5 text-[11px] border-t border-gray-100 pt-1.5">
+                <span className="text-gray-400">יום</span>
+                {editing ? (
+                  <input title="יום" className="h-5 rounded border border-gray-200 px-1 text-[11px]" style={{ direction: "rtl" }}
+                    value={vals["date"] ?? ""}
+                    onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), date: e.target.value } }))}
+                  />
+                ) : (
+                  <span style={{ color: vals["date"] ? "#222" : "#ccc" }}>{vals["date"] || "—"}</span>
+                )}
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-0 divide-x divide-x-reverse divide-gray-100">
-              {PEOPLE.map((person) => (
-                <div key={person.prefix} className="p-3 space-y-1.5">
-                  <div className="text-xs font-bold mb-2" style={{ color: "#2C6E6A" }}>{person.title}</div>
-                  {person.fields.map((f) => (
-                    <div key={f.key} className="flex items-center gap-1.5 text-xs">
-                      <span className="text-gray-400 whitespace-nowrap" style={{ minWidth: 40 }}>{f.label}</span>
-                      {editing ? (
-                        <input
-                          title={f.label}
-                          className="flex-1 h-6 rounded border border-gray-200 px-1.5 text-xs"
-                          style={{ direction: "rtl" }}
-                          value={vals[f.key] ?? ""}
-                          onChange={(e) =>
-                            setEditValues((v) => ({
-                              ...v,
-                              [section]: { ...(v[section] ?? {}), [f.key]: e.target.value },
-                            }))
-                          }
-                        />
-                      ) : (
-                        <span className="truncate" style={{ color: vals[f.key] ? "#222" : "#ccc" }}>{vals[f.key] || "—"}</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              ))}
-            </div>
-            {/* Date field */}
-            <div className="px-4 pb-3 flex items-center gap-2 text-xs border-t border-gray-100 pt-2">
-              <span className="text-gray-400">יום</span>
-              {editing ? (
-                <input title="יום" className="h-6 rounded border border-gray-200 px-1.5 text-xs" style={{ direction: "rtl" }}
-                  value={vals["date"] ?? ""}
-                  onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), date: e.target.value } }))}
-                />
-              ) : (
-                <span style={{ color: vals["date"] ? "#222" : "#ccc" }}>{vals["date"] || "—"}</span>
-              )}
-            </div>
-          </div>
-        );
-      })()}
+          );
+        })()}
 
-      {/* מיקום + נתוני תב"ע */}
-      <div className="mx-4 mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* מיקום + נתוני תב"ע compact */}
         {Object.entries(DETAIL_FIELDS).filter(([s]) => s !== "פרטים").map(([section, fields]) => {
           const editing = editingSections[section];
           const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
           return (
-            <div key={section} className="detail-card bg-card rounded-xl shadow-sm overflow-hidden">
-              <div className="flex items-center justify-between px-4 py-3 border-b" style={{ background: "#FAFAF8" }}>
-                <span className="text-sm font-semibold" style={{ color: "#2C6E6A" }}>{section}</span>
+            <div key={section} className="detail-card bg-card rounded-xl shadow-sm overflow-hidden min-w-[180px]">
+              <div className="flex items-center justify-between px-3 py-2 border-b" style={{ background: "#FAFAF8" }}>
+                <span className="text-xs font-semibold" style={{ color: "#2C6E6A" }}>{section}</span>
                 {editing ? (
                   <div className="flex gap-2">
-                    <button title="שמור" className="text-xs text-white px-2 py-1 rounded" style={{ background: "#2C6E6A" }} onClick={() => saveSection(section)}>שמור</button>
-                    <button title="ביטול" className="text-xs text-gray-500 hover:underline" onClick={() => cancelEdit(section)}>ביטול</button>
+                    <button title="שמור" className="text-[10px] text-white px-2 py-0.5 rounded" style={{ background: "#2C6E6A" }} onClick={() => saveSection(section)}>שמור</button>
+                    <button title="ביטול" className="text-[10px] text-gray-500 hover:underline" onClick={() => cancelEdit(section)}>ביטול</button>
                   </div>
                 ) : (
-                  <button title="עריכה" className="text-xs hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
+                  <button title="עריכה" className="text-[10px] hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
                 )}
               </div>
-              <div className="p-4 space-y-2">
+              <div className="px-3 py-2 space-y-1.5">
                 {fields.map((f) => (
-                  <div key={f.key} className="flex items-center gap-2 text-sm">
-                    <span className="text-gray-400" style={{ minWidth: 120 }}>{f.label}</span>
+                  <div key={f.key} className="flex items-center gap-1.5 text-[11px]">
+                    <span className="text-gray-400 whitespace-nowrap" style={{ minWidth: 80 }}>{f.label}</span>
                     {editing ? (
-                      <input title={f.label} className="flex-1 h-7 rounded border border-gray-200 px-2 text-sm" style={{ direction: "rtl" }}
+                      <input title={f.label} className="flex-1 h-5 rounded border border-gray-200 px-1 text-[11px]" style={{ direction: "rtl" }}
                         value={vals[f.key] ?? ""}
                         onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), [f.key]: e.target.value } }))}
                       />
@@ -536,32 +527,6 @@ const BinuiProjectDetail: React.FC = () => {
             </div>
           );
         })}
-      </div>
-
-      {/* Summary pills */}
-      <div className="mx-4 mb-4 bg-card rounded-xl shadow-sm p-4">
-        <div className="text-sm font-semibold mb-2" style={{ color: "#2C6E6A" }}>סיכום פרטים</div>
-        <div className="pills-row flex flex-wrap gap-1.5">
-          {DETAIL_FIELDS["פרטים"].map((f) => {
-            const val = project.details?.["פרטים"]?.[f.key];
-            const filled = !!val;
-            return (
-              <button
-                key={f.key}
-                title={f.label}
-                className="h-7 px-3 rounded text-xs border transition-colors cursor-pointer"
-                style={{
-                  background: filled ? "#2C6E6A1F" : "#F5F5F2",
-                  borderColor: filled ? "#2C6E6A59" : "#E0E0D8",
-                  color: filled ? "#2C6E6A" : "#999",
-                }}
-                onClick={() => startEdit("פרטים")}
-              >
-                {filled ? val : f.label}
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Main two-column grid */}
