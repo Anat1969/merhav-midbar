@@ -32,6 +32,67 @@ const IMAGE_LABELS: Record<string, string> = {
   hadmaya: "הדמייה",
 };
 
+const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void }> = ({ project, onUpload }) => {
+  const [tab, setTab] = useState<"presentation" | "devplan">("presentation");
+  const presRef = useRef<HTMLInputElement>(null);
+  const devRef = useRef<HTMLInputElement>(null);
+
+  const presFiles = project.attachments.filter((a) => /\.(pptx?|pdf|key)$/i.test(a.name));
+  const devFiles = project.attachments.filter((a) => /תוכנית.פיתוח|dev.?plan/i.test(a.name));
+
+  return (
+    <div className="bg-card rounded-xl shadow-sm overflow-hidden">
+      <div className="flex border-b">
+        <TabBtn active={tab === "presentation"} onClick={() => setTab("presentation")}>מצגת</TabBtn>
+        <TabBtn active={tab === "devplan"} onClick={() => setTab("devplan")}>תוכנית פיתוח</TabBtn>
+      </div>
+      <div className="flex flex-col items-center justify-center p-4 gap-2" style={{ minHeight: 100 }}>
+        {tab === "presentation" ? (
+          <>
+            <input ref={presRef} type="file" className="hidden" accept=".pptx,.ppt,.pdf,.key" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
+            <button
+              title="העלה מצגת"
+              className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
+              style={{ background: "#2C6E6A" }}
+              onClick={() => presRef.current?.click()}
+            >
+              📎 העלה מצגת
+            </button>
+            {presFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {presFiles.map((f) => (
+                  <a key={f.id} href={f.data} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline">{f.name}</a>
+                ))}
+              </div>
+            )}
+            {presFiles.length === 0 && <span className="text-xs text-muted-foreground">אין מצגות — העלה קובץ</span>}
+          </>
+        ) : (
+          <>
+            <input ref={devRef} type="file" className="hidden" accept="image/*,application/pdf,.pptx,.docx,.xlsx,.dwg,.dxf" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
+            <button
+              title="העלה תוכנית פיתוח"
+              className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
+              style={{ background: "#2C6E6A" }}
+              onClick={() => devRef.current?.click()}
+            >
+              📎 העלה תוכנית פיתוח
+            </button>
+            {devFiles.length > 0 && (
+              <div className="flex flex-wrap gap-2 mt-1">
+                {devFiles.map((f) => (
+                  <a key={f.id} href={f.data} target="_blank" rel="noreferrer" className="text-xs text-blue-600 underline">{f.name}</a>
+                ))}
+              </div>
+            )}
+            {devFiles.length === 0 && <span className="text-xs text-muted-foreground">אין תוכניות פיתוח — העלה קובץ</span>}
+          </>
+        )}
+      </div>
+    </div>
+  );
+};
+
 const BinuiProjectDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -358,21 +419,8 @@ const BinuiProjectDetail: React.FC = () => {
 
         {/* Right — video/pres + images */}
         <div className="detail-column space-y-4">
-          {/* Video / presentation */}
-          <div className="bg-card rounded-xl shadow-sm overflow-hidden">
-            <div className="flex border-b">
-              <TabBtn active>סרטון</TabBtn>
-              <TabBtn active={false} onClick={() => alert("העלאת קבצים תתווסף בגרסה הבאה")}>מצגת</TabBtn>
-            </div>
-            <div
-              className="flex items-center justify-center text-gray-400 text-sm cursor-pointer"
-              style={{ minHeight: 100 }}
-              title="העלאת קבצים בקרוב"
-              onClick={() => alert("העלאת קבצים תתווסף בגרסה הבאה")}
-            >
-              🎬 העלאת סרטון — בקרוב
-            </div>
-          </div>
+          {/* Presentation / Development Plan */}
+          <PresentationDevPlanTabs project={project} onUpload={addAttachment} />
 
           {/* Images */}
           <div className="bg-card rounded-xl shadow-sm p-4">
