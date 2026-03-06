@@ -114,6 +114,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         <select title="שנה סטטוס" className="h-8 rounded-lg border text-xs px-2" style={{ direction: "rtl", color: STATUS_OPTIONS.find((s) => s.value === project.status)?.color, background: STATUS_OPTIONS.find((s) => s.value === project.status)?.bg, borderColor: (STATUS_OPTIONS.find((s) => s.value === project.status)?.color ?? "") + "44" }} value={project.status} onChange={(e) => changeStatus(e.target.value)}>
           {STATUS_OPTIONS.map((s) => (<option key={s.value} value={s.value}>{s.label}</option>))}
         </select>
+        <span className="text-xs text-gray-400">{project.created}</span>
         <button title="שלח חוות דעת במייל" className="h-8 px-3 rounded-lg border border-gray-200 bg-white text-xs hover:bg-gray-50 transition-colors" onClick={() => setEmailOpen(true)}>✉️ שלח חוות דעת</button>
         <button title="מחק פרויקט" className="h-10 w-10 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm flex items-center justify-center" onClick={async () => {
           if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
@@ -122,10 +123,6 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         }}><Trash2 size={18} /></button>
       </div>
       <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 500 }}>
-        <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
-          <div className="text-lg font-extrabold mb-2" style={{ color: config.color }}>פוסט</div>
-          <textarea title="פוסט" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-5 text-xl font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 420, background: "#FAFAF8" }} placeholder="כתוב פוסט, תיאור, הערות..." value={project.description} onChange={(e) => update({ description: e.target.value })} />
-        </div>
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4">
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם הפרויקט</div>
@@ -143,19 +140,23 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           </div>
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם</div>
-            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם לפרויקט..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
+            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
           </div>
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>הייקו</div>
             <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
           </div>
         </div>
+        <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
+          <div className="text-lg font-extrabold mb-2" style={{ color: config.color }}>פוסט</div>
+          <textarea title="פוסט" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-5 text-base font-medium resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 420, background: "#FAFAF8" }} placeholder="כתוב פוסט, תיאור, הערות..." value={project.description} onChange={(e) => update({ description: e.target.value })} />
+        </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-sm font-bold mb-2" style={{ color: config.color }}>תמונה</div>
           <FileDropZone onFile={(f) => handleImage(f)} onDelete={() => update({ image: null })} currentSrc={project.image} label="תמונה" className="flex-1 min-h-[400px] border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 overflow-hidden" />
         </div>
       </div>
-      <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" style={{ minHeight: 360 }}>
+      <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ minHeight: 360 }}>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מטרה</div>
           <textarea title="מטרה" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
@@ -177,26 +178,6 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
                 <span className="text-base">{h.note}</span>
               </div>
             ))}
-          </div>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-5">
-          <div className="text-base font-bold mb-3" style={{ color: config.color }}>מעקב</div>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2 text-base"><span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>סטטוס</span>
-              <select title="סטטוס" className="h-9 rounded-lg border text-sm px-2 flex-1" style={{ direction: "rtl" }} value={project.status} onChange={(e) => changeStatus(e.target.value)}>{STATUS_OPTIONS.map((s) => (<option key={s.value} value={s.value}>{s.label}</option>))}</select>
-            </div>
-            <div className="flex items-center gap-2 text-base"><span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>תאריך</span>
-              <input title="תאריך מעקב" type="date" className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1" value={project.tracking.date} onChange={(e) => update({ tracking: { ...project.tracking, date: e.target.value } })} />
-            </div>
-            <div className="flex items-center gap-2 text-base"><span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>הערה</span>
-              <input title="הערת מעקב" className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1" style={{ direction: "rtl" }} value={project.tracking.note} onChange={(e) => update({ tracking: { ...project.tracking, note: e.target.value } })} />
-            </div>
-            <div className="flex items-center gap-2 text-base"><span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>גורם</span>
-              <input title="גורם אחראי" className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1" style={{ direction: "rtl" }} value={project.tracking.agent} onChange={(e) => update({ tracking: { ...project.tracking, agent: e.target.value } })} />
-            </div>
-            <div className="flex items-center gap-2 text-base"><span className="text-gray-400 font-medium" style={{ minWidth: 55 }}>ביצוע!</span>
-              <input title="יוזם" className="h-9 rounded-lg border border-gray-200 px-3 text-sm flex-1" style={{ direction: "rtl" }} placeholder="ראש העיר / מנכ״ל / מאן דהוא" value={project.initiator} onChange={(e) => update({ initiator: e.target.value })} />
-            </div>
           </div>
         </div>
       </div>
