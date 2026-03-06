@@ -49,8 +49,6 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
   'תב"ע': [
     { key: "taba_name",   label: 'שם תב"ע' },
     { key: "taba_num",    label: 'מספר תב"ע' },
-    { key: "taba_status", label: "סטטוס" },
-    { key: "taba_date",   label: "תאריך אישור" },
   ],
 };
 
