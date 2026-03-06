@@ -122,8 +122,22 @@ const BinuiProjectDetail: React.FC = () => {
   const [localNote, setLocalNote] = useState(project?.note || "");
   const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
     architect: { date: "", text: "" },
-    consultant: { date: "", text: "" },
-    committee: { date: "", text: "" },
+  });
+
+  const CONSULTANT_PARTIES = [
+    "תנועה", "תברואה", "ניהול ניקוז", "חשמל", "נטיעות",
+    "איכות סביבה", "נכסים", "חינוך", "רישוי", "תכנון",
+  ] as const;
+
+  const [consultantInputs, setConsultantInputs] = useState<Record<string, { date: string; text: string }>>(
+    Object.fromEntries(CONSULTANT_PARTIES.map((p) => [p, { date: "", text: "" }]))
+  );
+  const [consultantDate, setConsultantDate] = useState("");
+
+  const [committeeChecks, setCommitteeChecks] = useState({
+    printedPlan: false,
+    digitalPlan: false,
+    finalDraft: false,
   });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
