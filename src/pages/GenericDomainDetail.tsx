@@ -114,11 +114,11 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           {STATUS_OPTIONS.map((s) => (<option key={s.value} value={s.value}>{s.label}</option>))}
         </select>
         <button title="שלח חוות דעת במייל" className="h-8 px-3 rounded-lg border border-gray-200 bg-white text-xs hover:bg-gray-50 transition-colors" onClick={() => setEmailOpen(true)}>✉️ שלח חוות דעת</button>
-        <button title="מחק פרויקט" className="h-10 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex items-center gap-1.5" onClick={async () => {
+        <button title="מחק פרויקט" className="h-10 w-10 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm flex items-center justify-center" onClick={async () => {
           if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
             try { await deleteMutation.mutateAsync(project.id); toast.success("הפרויקט נמחק"); navigate(`/${config.routeBase}`); } catch {}
           }
-        }}>🗑️ מחק</button>
+        }}><Trash2 size={18} /></button>
       </div>
       <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 500 }}>
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">

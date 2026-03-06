@@ -15,7 +15,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
-import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
+import { Camera, X, Search, Paperclip, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft, Trash2 } from "lucide-react";
 import { ALL_DOMAINS } from "@/lib/moveProject";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
@@ -645,10 +645,10 @@ const BinuiPage: React.FC = () => {
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
-                  className="no-print mr-auto h-7 px-3 rounded-md bg-red-50 border border-red-200 text-red-500 hover:bg-red-500 hover:text-white text-xs font-bold transition-colors flex items-center gap-1"
+                  className="no-print mr-auto h-7 w-7 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center"
                   onClick={() => deleteProject(p.id)}
                 >
-                  🗑️ מחק
+                  <Trash2 size={15} />
                 </button>
               </div>
 

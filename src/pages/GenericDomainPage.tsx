@@ -5,7 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
-import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft } from "lucide-react";
+import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft, Trash2 } from "lucide-react";
 import {
   DomainConfig,
   GenericProject,
@@ -677,10 +677,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 <span className="text-[10px] text-gray-400 mr-2">{p.created}</span>
                 <button
                   title="מחק פרויקט"
-                  className="no-print mr-auto h-7 px-3 rounded-md bg-red-50 border border-red-200 text-red-500 hover:bg-red-500 hover:text-white text-xs font-bold transition-colors flex items-center gap-1"
+                  className="no-print mr-auto h-7 w-7 rounded-md text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center"
                   onClick={() => deleteProject(p.id)}
                 >
-                  🗑️ מחק
+                  <Trash2 size={15} />
                 </button>
               </div>
 
