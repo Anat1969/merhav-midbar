@@ -19,7 +19,7 @@ export const StatsBar: React.FC<StatsBarProps> = ({ refreshKey }) => {
 
   return (
     <div className="mx-4 mt-3 rounded-xl bg-white p-4 shadow-sm animate-fade-in" dir="rtl">
-      <div className="flex flex-wrap items-center gap-6 text-sm">
+      <div className="flex flex-wrap items-center gap-6 text-base">
         <div className="font-bold" style={{ color: "#2C6E6A" }}>
           סה״כ: {total} פרויקטים
         </div>

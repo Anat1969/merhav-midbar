@@ -30,7 +30,7 @@ export const SubButton: React.FC<SubButtonProps> = ({
     <button
       title={`פתח ${label}`}
       onClick={onClick}
-      className="group flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2 text-right text-sm transition-all duration-200 hover:-translate-x-0.5"
+      className="group flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2.5 text-right text-base transition-all duration-200 hover:-translate-x-0.5"
       style={{
         borderColor: `${color}30`,
       }}
@@ -47,7 +47,7 @@ export const SubButton: React.FC<SubButtonProps> = ({
       <span className="font-medium text-gray-700">{label}</span>
       {count > 0 && (
         <span
-          className="rounded-full px-2 py-0.5 text-[11px] font-bold text-white"
+          className="rounded-full px-2 py-0.5 text-sm font-bold text-white"
           style={{ backgroundColor: color }}
         >
           {count}

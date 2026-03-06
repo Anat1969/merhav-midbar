@@ -41,15 +41,15 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
         style={{ background: `linear-gradient(135deg, ${def.color}, ${def.color}CC)` }}
       >
         <div className="flex items-center gap-3">
-          <span className="text-2xl">{def.icon}</span>
+          <span className="text-3xl">{def.icon}</span>
           <div>
-            <h2 className="text-lg font-bold">{name}</h2>
-            <p className="text-xs font-light opacity-80">{def.description}</p>
+            <h2 className="text-xl font-bold">{name}</h2>
+            <p className="text-sm font-light opacity-80">{def.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-2">
           {totalCount > 0 && (
-            <span className="rounded-full bg-white/20 px-3 py-1 text-sm font-bold backdrop-blur-sm">{totalCount}</span>
+            <span className="rounded-full bg-white/20 px-3 py-1 text-base font-bold backdrop-blur-sm">{totalCount}</span>
           )}
           <span className="opacity-0 transition-opacity group-hover:opacity-80 text-lg">→</span>
         </div>
@@ -115,9 +115,9 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
   return (
     <div className={gridLayout ? "" : "space-y-2"}>
       <div className="flex items-center gap-2 mb-1">
-        <h3 className="text-xs font-bold text-gray-500 uppercase tracking-wider">{catName}</h3>
+        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">{catName}</h3>
         {catCount > 0 && (
-          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}15`, color }}>{catCount}</span>
+          <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}15`, color }}>{catCount}</span>
         )}
       </div>
       <div className={gridLayout ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
