@@ -14,7 +14,7 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
-import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet } from "lucide-react";
+import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2 } from "lucide-react";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
@@ -401,7 +401,7 @@ const BinuiProjectDetail: React.FC = () => {
 
         <button
           title="מחיקת הפרויקט לצמיתות — פעולה בלתי הפיכה"
-          className="h-12 px-5 rounded-xl bg-red-500 text-white text-sm font-bold hover:bg-red-600 transition-colors shadow-sm flex flex-col items-center justify-center"
+          className="h-10 w-10 rounded-xl bg-red-500 text-white hover:bg-red-600 transition-colors shadow-sm flex items-center justify-center"
           onClick={async () => {
             if (window.confirm(`האם אתה בטוח שברצונך למחוק את "${project.name}"? פעולה זו אינה הפיכה.`)) {
               try {
@@ -412,8 +412,7 @@ const BinuiProjectDetail: React.FC = () => {
             }
           }}
         >
-          <span>🗑️ מחק</span>
-          <span className="text-[9px] font-normal opacity-70">מחיקה לצמיתות</span>
+          <Trash2 size={18} />
         </button>
       </div>
 
