@@ -430,8 +430,9 @@ const BinuiProjectDetail: React.FC = () => {
                       className="w-full rounded-lg border border-gray-200 p-3 text-sm resize-vertical mb-1"
                       style={{ direction: "rtl", minHeight: 180, background: "#F7F7F5" }}
                       placeholder="כתוב תיאור לפרויקט..."
-                      value={project.note || ""}
-                      onChange={(e) => update({ note: e.target.value })}
+                      value={localNote}
+                      onChange={(e) => setLocalNote(e.target.value)}
+                      onBlur={() => update({ note: localNote })}
                     />
                     <span className="text-[10px] text-muted-foreground block mb-2">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
                   </div>
