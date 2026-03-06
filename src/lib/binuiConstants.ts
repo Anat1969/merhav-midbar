@@ -29,9 +29,19 @@ export const STATUS_OPTIONS = [
 
 export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
   "פרטים": [
-    { key: "architect",    label: "אדריכל" },
-    { key: "manager",      label: "מנהל פרויקט" },
-    { key: "date",         label: "יום" },
+    { key: "architect",       label: "אדריכל" },
+    { key: "architect_phone", label: "נייד אדריכל" },
+    { key: "architect_email", label: 'דוא"ל אדריכל' },
+    { key: "architect_address", label: "כתובת דואר אדריכל" },
+    { key: "manager",        label: "מנהל פרויקט" },
+    { key: "manager_phone",  label: "נייד מנהל פרויקט" },
+    { key: "manager_email",  label: 'דוא"ל מנהל פרויקט' },
+    { key: "manager_address", label: "כתובת דואר מנהל" },
+    { key: "developer",      label: "יזם" },
+    { key: "developer_phone", label: "נייד יזם" },
+    { key: "developer_email", label: 'דוא"ל יזם' },
+    { key: "developer_address", label: "כתובת דואר יזם" },
+    { key: "date",            label: "יום" },
   ],
   "מיקום": [
     { key: "quarter", label: "רובע" },
