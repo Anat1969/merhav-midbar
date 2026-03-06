@@ -1,0 +1,1 @@
+UPDATE binui_projects SET note = E'\nמדובר בבקשה לתכנון מבני הציבור שברובע המיוחד' WHERE id = 3;
