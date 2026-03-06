@@ -56,18 +56,38 @@ async function fetchBlob(fileUrl: string): Promise<Blob | null> {
 
 export async function openFileInNewTab(fileUrl: string): Promise<void> {
   if (!fileUrl) return;
+
+  // Open immediately in the user gesture to avoid popup blocking
+  const popup = window.open("", "_blank");
+  if (popup) {
+    try {
+      popup.opener = null;
+    } catch {
+      // ignore
+    }
+  }
+
   // Try blob approach first (bypasses ad-blockers)
   const blob = await fetchBlob(fileUrl);
   if (blob) {
     const blobUrl = URL.createObjectURL(blob);
-    window.open(blobUrl, "_blank", "noopener,noreferrer");
+    if (popup) {
+      popup.location.href = blobUrl;
+    } else {
+      window.open(blobUrl, "_blank", "noopener,noreferrer");
+    }
     // Revoke after a delay to allow the tab to load
     setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000);
     return;
   }
+
   // Fallback to signed URL
   const resolved = await resolveAccessibleFileUrl(fileUrl);
-  window.open(resolved, "_blank", "noopener,noreferrer");
+  if (popup) {
+    popup.location.href = resolved;
+  } else {
+    window.open(resolved, "_blank", "noopener,noreferrer");
+  }
 }
 
 export async function downloadFile(fileUrl: string, fileName?: string): Promise<void> {
