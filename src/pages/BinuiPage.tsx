@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
@@ -37,17 +37,20 @@ const IMAGE_LABELS: Record<string, string> = {
 
 const BinuiPage: React.FC = () => {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const qc = useQueryClient();
   const { data: projects = [], isLoading } = useBinuiProjects();
   const saveMutation = useSaveBinuiProject();
   const deleteMutation = useDeleteBinuiProject();
+
+  const urlFilter = searchParams.get("filter");
 
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
   const [newCat, setNewCat] = useState(Object.keys(BINUI_CATEGORIES)[0]);
   const [newSub, setNewSub] = useState(BINUI_CATEGORIES[Object.keys(BINUI_CATEGORIES)[0]].subs[0]);
   const [filterCat, setFilterCat] = useState<string | null>(null);
-  const [filterSub, setFilterSub] = useState<string | null>(null);
+  const [filterSub, setFilterSub] = useState<string | null>(urlFilter);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
