@@ -120,6 +120,11 @@ const BinuiProjectDetail: React.FC = () => {
   const [emailOpen, setEmailOpen] = useState(false);
   const [viewerData, setViewerData] = useState<{ attachments: BinuiAttachment[]; index: number } | null>(null);
   const [localNote, setLocalNote] = useState(project?.note || "");
+  const [forumInputs, setForumInputs] = useState<Record<string, { date: string; text: string }>>({
+    architect: { date: "", text: "" },
+    consultant: { date: "", text: "" },
+    committee: { date: "", text: "" },
+  });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
