@@ -5,6 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
+import { Trash2 } from "lucide-react";
 import {
   DomainConfig,
   GenericProject,
