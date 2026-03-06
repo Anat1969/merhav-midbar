@@ -41,7 +41,7 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
     { key: "block",   label: "גוש" },
     { key: "parcel",  label: "חלקה" },
   ],
-  "נתוני תכנון": [
+  'נתוני תב"ע': [
     { key: "plan_overall", label: "מס' תוכנית כוללת" },
     { key: "plan_detail",  label: "מס' תוכנית מפורטת" },
     { key: "claim_num",    label: "מס' תביעה" },
