@@ -749,6 +749,44 @@ const BinuiProjectDetail: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Extracted Consultant Notes from Plan Instructions */}
+                  {Object.keys(project.consultant_notes || {}).length > 0 && (
+                    <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
+                      <div className="text-xs font-bold" style={{ color: "#B45309" }}>📄 דרישות מהוראות תוכנית (נמשך אוטומטית)</div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {CONSULTANT_PARTIES.map((party) => {
+                          const cn = (project.consultant_notes || {})[party];
+                          if (!cn?.quote) return null;
+                          return (
+                            <div key={party} className="rounded border border-amber-200 p-2.5 space-y-1.5" style={{ background: "#FEFDF8" }}>
+                              <div className="text-[11px] font-bold" style={{ color: "#92400E" }}>{party}</div>
+                              <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[200px] overflow-y-auto" style={{ background: "#FFF", borderRadius: 6, padding: 8, border: "1px solid #F3E8D0" }}>
+                                {cn.quote}
+                              </div>
+                              <div className="flex gap-2 items-end">
+                                <textarea
+                                  title={`הערות - ${party}`}
+                                  className="flex-1 rounded border border-gray-200 p-1.5 text-xs resize-none"
+                                  style={{ direction: "rtl", minHeight: 36, background: "#FAFAF8" }}
+                                  placeholder={`הוסף הערה ל${party}...`}
+                                  value={cn.comment || ""}
+                                  onChange={(e) => {
+                                    const newNotes = { ...(project.consultant_notes || {}) };
+                                    newNotes[party] = { ...newNotes[party], comment: e.target.value };
+                                    update({ consultant_notes: newNotes });
+                                  }}
+                                  onBlur={() => {
+                                    // Save is already handled onChange via update
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
                   {/* Committee Preparation Forum - checkboxes + date */}
                   <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>
                     <div className="text-xs font-bold" style={{ color: "#2C6E6A" }}>פורום הכנה לוועדה</div>
