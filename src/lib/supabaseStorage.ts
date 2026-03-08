@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BinuiProject } from "./binuiConstants";
-import { GenericProject, DomainConfig, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG, APPS_CONFIG } from "./domainConstants";
+import { GenericProject, DomainConfig, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG, APPS_CONFIG, AGENTS_CONFIG } from "./domainConstants";
 
 // ─── Domain key mapping ───
 const DOMAIN_KEY_MAP: Record<string, string> = {
@@ -8,6 +8,7 @@ const DOMAIN_KEY_MAP: Record<string, string> = {
   [MEYADIM_CONFIG.storageKey]: "meyadim",
   [PEULOT_CONFIG.storageKey]: "peulot",
   [APPS_CONFIG.storageKey]: "apps",
+  [AGENTS_CONFIG.storageKey]: "agents",
 };
 
 const DOMAIN_NAME_TO_KEY: Record<string, string> = {
@@ -15,6 +16,7 @@ const DOMAIN_NAME_TO_KEY: Record<string, string> = {
   "מיידעים": "meyadim",
   "פעולות": "peulot",
   "אפליקציות": "apps",
+  "סוכנים": "agents",
 };
 
 function getDomainKey(storageKeyOrName: string): string {
