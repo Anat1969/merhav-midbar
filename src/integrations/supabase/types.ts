@@ -78,6 +78,7 @@ export type Database = {
           sub: string
           task: string
           tracking: Json
+          view_link: string
         }
         Insert: {
           category: string
@@ -100,6 +101,7 @@ export type Database = {
           sub: string
           task?: string
           tracking?: Json
+          view_link?: string
         }
         Update: {
           category?: string
@@ -122,6 +124,7 @@ export type Database = {
           sub?: string
           task?: string
           tracking?: Json
+          view_link?: string
         }
         Relationships: []
       }

@@ -1,0 +1,1 @@
+ALTER TABLE public.generic_projects ADD COLUMN view_link text NOT NULL DEFAULT ''::text;
