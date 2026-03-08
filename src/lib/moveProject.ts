@@ -1,5 +1,5 @@
 import { BinuiProject, BINUI_CATEGORIES, loadBinuiProjects, saveBinuiProjects, getHebrewDateNow } from "./binuiConstants";
-import { GenericProject, DomainConfig, loadGenericProjects, saveGenericProjects, getSubsForCategory, getAllCategoryNames, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG } from "./domainConstants";
+import { GenericProject, DomainConfig, loadGenericProjects, saveGenericProjects, getSubsForCategory, getAllCategoryNames, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG, APPS_CONFIG } from "./domainConstants";
 
 export interface DomainInfo {
   name: string;
@@ -13,12 +13,14 @@ export const ALL_DOMAINS: DomainInfo[] = [
   { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
   { name: "מיידעים", icon: "📋", color: "#4A6741", route: "/meyadim" },
   { name: "פעולות", icon: "⚡", color: "#5A5A7A", route: "/peulot" },
+  { name: "אפליקציות", icon: "💻", color: "#2E5F7A", route: "/apps" },
 ];
 
 function getConfigForDomain(domainName: string): DomainConfig | null {
   if (domainName === "פיתוח") return PITUA_CONFIG;
   if (domainName === "מיידעים") return MEYADIM_CONFIG;
   if (domainName === "פעולות") return PEULOT_CONFIG;
+  if (domainName === "אפליקציות") return APPS_CONFIG;
   return null;
 }
 
