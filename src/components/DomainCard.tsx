@@ -11,6 +11,10 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "מיידעים": "/meyadim",
   "פעולות": "/peulot",
   "אפליקציות": "/apps",
+};
+
+// Categories with their own dedicated route
+const CATEGORY_ROUTES: Record<string, string> = {
   "סוכנים": "/agents",
 };
 
@@ -130,7 +134,16 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
             category={catName}
             sub={sub}
             color={color}
-            onClick={() => hasDedicatedPage ? navigate(`${route}?filter=${encodeURIComponent(sub)}`) : onOpenPanel(domainName, catName, sub)}
+            onClick={() => {
+              const catRoute = CATEGORY_ROUTES[sub];
+              if (catRoute) {
+                navigate(catRoute);
+              } else if (hasDedicatedPage) {
+                navigate(`${route}?filter=${encodeURIComponent(sub)}`);
+              } else {
+                onOpenPanel(domainName, catName, sub);
+              }
+            }}
             refreshKey={refreshKey}
           />
         ))}
