@@ -19,7 +19,7 @@ import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Fi
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
-import { generateDraftDocx, downloadDraftDocx } from "@/lib/generateDraftDocx";
+import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
@@ -753,7 +753,23 @@ const BinuiProjectDetail: React.FC = () => {
                   {Object.keys(project.consultant_notes || {}).length > 0 && (
                     <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
                       <div className="flex items-center justify-between">
-                        <div className="text-xs font-bold" style={{ color: "#B45309" }}>📄 דרישות מהוראות תוכנית (נמשך אוטומטית)</div>
+                        <div className="flex items-center gap-2">
+                          <div className="text-xs font-bold" style={{ color: "#B45309" }}>📄 דרישות מהוראות תוכנית (נמשך אוטומטית)</div>
+                          <button
+                            className="flex items-center gap-1 text-[10px] px-2 py-1 rounded border hover:opacity-80"
+                            style={{ borderColor: "#B4530966", color: "#B45309", background: "#FEF3C7" }}
+                            onClick={() => {
+                              downloadConsultantRequirementsDocx({
+                                projectName: project.name,
+                                consultantNotes: project.consultant_notes || {},
+                                parties: CONSULTANT_PARTIES,
+                              });
+                              toast.success("קובץ דרישות יועצים הורד בהצלחה");
+                            }}
+                          >
+                            <Download className="w-3 h-3" /> ייצוא Word
+                          </button>
+                        </div>
                         {(() => {
                           const notes = project.consultant_notes || {};
                           const total = CONSULTANT_PARTIES.filter(p => notes[p]?.quote).length;
