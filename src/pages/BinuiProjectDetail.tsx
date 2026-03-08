@@ -14,11 +14,12 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
-import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2 } from "lucide-react";
+import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2, BookOpen, Loader2 } from "lucide-react";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { generateDraftDocx, downloadDraftDocx } from "@/lib/generateDraftDocx";
+import { supabase } from "@/integrations/supabase/client";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
@@ -167,6 +168,8 @@ const BinuiProjectDetail: React.FC = () => {
     digitalPlan: false,
     finalDraft: false,
   });
+  const [parsingPlan, setParsingPlan] = useState(false);
+  const planFileRef = useRef<HTMLInputElement>(null);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
@@ -263,6 +266,75 @@ const BinuiProjectDetail: React.FC = () => {
       qc.invalidateQueries({ queryKey: ["binui-projects"] });
     } catch (err: any) {
       toast.error(err.message || "שגיאה במחיקת קובץ");
+    }
+  };
+
+  const handlePlanInstructions = async (file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
+      return;
+    }
+    setParsingPlan(true);
+    try {
+      // 1. Upload the file as attachment
+      const url = await uploadProjectFile(file, "binui", project.id);
+      await saveAttachmentAsync("binui", project.id, `הוראות_תוכנית_${file.name}`, url);
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+
+      // 2. Send to AI for parsing
+      toast.info("מנתח את הוראות התוכנית...");
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("parse-plan-instructions", {
+        body: { fileUrl: url, fileName: file.name },
+      });
+
+      if (fnError) throw fnError;
+      if (!fnData?.success || !fnData?.data) throw new Error("Failed to parse");
+
+      const parsed = fnData.data;
+
+      // 3. Apply extracted data to project fields
+      const newDetails = { ...(project.details || {}) };
+      if (parsed.details) {
+        for (const [section, fields] of Object.entries(parsed.details)) {
+          const existing = newDetails[section] || {};
+          const newFields = fields as Record<string, string>;
+          // Only fill empty fields
+          for (const [key, val] of Object.entries(newFields)) {
+            if (val && !existing[key]) {
+              existing[key] = val;
+            }
+          }
+          newDetails[section] = existing;
+        }
+      }
+
+      // Build history entries for consultant notes
+      const newHistory = [...project.history];
+      if (parsed.consultantNotes) {
+        const dateStr = getHebrewDateNow();
+        for (const [party, note] of Object.entries(parsed.consultantNotes)) {
+          if (note && typeof note === "string") {
+            newHistory.unshift({
+              date: dateStr,
+              note: `חוות דעת: [פורום יועצים - ${party}] ${note} (מתוך הוראות תוכנית)`,
+            });
+          }
+        }
+      }
+
+      // Apply project description and name
+      const patchObj: Partial<BinuiProject> = { details: newDetails, history: newHistory };
+      if (parsed.projectDescription && !project.note) {
+        patchObj.note = parsed.projectDescription;
+      }
+
+      await update(patchObj);
+      toast.success("הוראות התוכנית נותחו בהצלחה ושדות הפרויקט עודכנו!");
+    } catch (err: any) {
+      console.error("Plan parsing error:", err);
+      toast.error(err.message || "שגיאה בניתוח הוראות התוכנית");
+    } finally {
+      setParsingPlan(false);
     }
   };
 
@@ -985,6 +1057,43 @@ const BinuiProjectDetail: React.FC = () => {
                 <span className="rounded-full text-[10px] text-white px-1.5 leading-4" style={{ background: "#2C6E6A" }}>{project.attachments.length}</span>
               )}
             </div>
+
+            {/* Plan Instructions special upload */}
+            <div className="mb-3 rounded-lg border-2 border-dashed p-3 flex items-center gap-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
+              <BookOpen size={20} style={{ color: "#F59E0B" }} />
+              <div className="flex-1">
+                <div className="text-xs font-bold" style={{ color: "#B45309" }}>הוראות תוכנית</div>
+                <div className="text-[10px] text-amber-700">העלה מסמך הוראות תוכנית — המערכת תנתח ותמלא שדות רלוונטיים אוטומטית</div>
+              </div>
+              <input
+                ref={planFileRef}
+                type="file"
+                className="hidden"
+                accept="application/pdf,image/*,.docx,.doc"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handlePlanInstructions(f);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                title="העלה הוראות תוכנית לניתוח אוטומטי"
+                disabled={parsingPlan}
+                className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all disabled:opacity-50 flex items-center gap-2"
+                style={{ background: "#F59E0B" }}
+                onClick={() => planFileRef.current?.click()}
+              >
+                {parsingPlan ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    מנתח...
+                  </>
+                ) : (
+                  <>📄 העלה הוראות תוכנית</>
+                )}
+              </button>
+            </div>
+
             <div className="flex items-start gap-2">
               <FileDropZone
                 onFile={(f) => addAttachment(f)}
