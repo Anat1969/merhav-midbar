@@ -22,7 +22,7 @@ import { ALL_DOMAINS } from "@/lib/moveProject";
 import { useGenericProjects, useSaveGenericProject, useDeleteGenericProject } from "@/hooks/use-generic-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
-import { openFileInNewTab, downloadFile } from "@/lib/fileAccess";
+import { openFileInNewTab, downloadFile, openExternalLink } from "@/lib/fileAccess";
 import { EmptyState } from "@/components/EmptyState";
 
 const DOMAIN_ICONS: Record<string, string> = {
