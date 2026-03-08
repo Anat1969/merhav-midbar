@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2, BookOpen, Loader2 } from "lucide-react";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
+import { resolveAccessibleFileUrl } from "@/lib/fileAccess";
+import { downloadFile as dlFile } from "@/lib/fileAccess";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx, generateConsultantRequirementsBlob } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
@@ -1380,6 +1382,52 @@ function TabBtn({ children, active, onClick }: { children: React.ReactNode; acti
     >
       {children}
     </button>
+  );
+}
+
+/** Inline PDF preview – resolves a signed URL and embeds in iframe */
+function PdfPreview({ url }: { url: string }) {
+  const [src, setSrc] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    resolveAccessibleFileUrl(url).then((resolved) => {
+      if (!cancelled) { setSrc(resolved); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center p-12">
+      <Loader2 size={32} className="animate-spin text-muted-foreground" />
+      <span className="text-xs text-muted-foreground mt-2">טוען תצוגה מקדימה…</span>
+    </div>
+  );
+
+  return (
+    <iframe
+      src={src || url}
+      title="PDF preview"
+      className="w-full border-0"
+      style={{ height: "calc(90vh - 48px)", minHeight: 400 }}
+    />
+  );
+}
+
+/** Preview for non-image/video/pdf documents – offer download */
+function DocPreview({ url, name }: { url: string; name: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center p-12 text-center">
+      <FileSpreadsheet size={40} className="text-blue-400" />
+      <span className="text-sm text-muted-foreground mt-3">{name}</span>
+      <button
+        className="mt-4 h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90"
+        onClick={() => dlFile(url, name)}
+      >
+        הורד קובץ
+      </button>
+    </div>
   );
 }
 
