@@ -37,7 +37,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const route = DOMAIN_ROUTES[name] ?? "/";
   const hasDedicatedPage = DOMAINS_WITH_PAGES.has(name);
   const hasSubItems = Object.values(def.categories).some((c) => c.items.length > 0);
-
+  const hideCategoryTitles = !hasSubItems;
   return (
     <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
       <Link
@@ -77,6 +77,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                   onOpenPanel={onOpenPanel}
                   refreshKey={refreshKey}
                   navigate={navigate}
+                  hideTitle={hideCategoryTitles}
                 />
               );
             })}
@@ -98,6 +99,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                   refreshKey={refreshKey}
                   navigate={navigate}
                   gridLayout
+                  hideTitle={hideCategoryTitles}
                 />
               );
             })}
@@ -108,9 +110,9 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   );
 };
 
-function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate, gridLayout }: {
+function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate, gridLayout, hideTitle }: {
   domainName: string; catName: string; subs: string[]; color: string; route: string; hasDedicatedPage: boolean;
-  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any; gridLayout?: boolean;
+  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any; gridLayout?: boolean; hideTitle?: boolean;
 }) {
   const { data: catCount = 0 } = useQuery({
     queryKey: ["category-count", domainName, catName, refreshKey],
@@ -119,12 +121,14 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
 
   return (
     <div className={gridLayout ? "" : "space-y-2"}>
-      <div className="flex items-center gap-2 mb-1">
-        <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">{catName}</h3>
-        {catCount > 0 && (
-          <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}15`, color }}>{catCount}</span>
-        )}
-      </div>
+      {!hideTitle && (
+        <div className="flex items-center gap-2 mb-1">
+          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">{catName}</h3>
+          {catCount > 0 && (
+            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}15`, color }}>{catCount}</span>
+          )}
+        </div>
+      )}
       <div className={gridLayout ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
         {subs.map((sub) => (
           <SubButton
