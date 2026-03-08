@@ -752,15 +752,79 @@ const BinuiProjectDetail: React.FC = () => {
                   {/* Extracted Consultant Notes from Plan Instructions */}
                   {Object.keys(project.consultant_notes || {}).length > 0 && (
                     <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
-                      <div className="text-xs font-bold" style={{ color: "#B45309" }}>📄 דרישות מהוראות תוכנית (נמשך אוטומטית)</div>
+                      <div className="flex items-center justify-between">
+                        <div className="text-xs font-bold" style={{ color: "#B45309" }}>📄 דרישות מהוראות תוכנית (נמשך אוטומטית)</div>
+                        {(() => {
+                          const notes = project.consultant_notes || {};
+                          const total = CONSULTANT_PARTIES.filter(p => notes[p]?.quote).length;
+                          const done = CONSULTANT_PARTIES.filter(p => notes[p]?.status === "done").length;
+                          const notDone = CONSULTANT_PARTIES.filter(p => notes[p]?.status === "not_done").length;
+                          const pending = total - done - notDone;
+                          return total > 0 ? (
+                            <div className="flex gap-2 text-[10px]">
+                              {done > 0 && <span className="px-1.5 py-0.5 rounded" style={{ background: "#DCFCE7", color: "#166534" }}>✓ {done} בוצע</span>}
+                              {notDone > 0 && <span className="px-1.5 py-0.5 rounded" style={{ background: "#FEE2E2", color: "#991B1B" }}>✗ {notDone} לא בוצע</span>}
+                              {pending > 0 && <span className="px-1.5 py-0.5 rounded" style={{ background: "#FEF3C7", color: "#92400E" }}>⏳ {pending} ממתין</span>}
+                            </div>
+                          ) : null;
+                        })()}
+                      </div>
                       <div className="grid grid-cols-1 gap-3">
                         {CONSULTANT_PARTIES.map((party) => {
                           const cn = (project.consultant_notes || {})[party];
                           if (!cn?.quote) return null;
+                          const status = cn.status || "pending";
+                          const statusBg = status === "done" ? "#F0FDF4" : status === "not_done" ? "#FEF2F2" : "#FEFDF8";
+                          const statusBorder = status === "done" ? "#BBF7D0" : status === "not_done" ? "#FECACA" : "#FDE68A";
                           return (
-                            <div key={party} className="rounded border border-amber-200 p-2.5 space-y-1.5" style={{ background: "#FEFDF8" }}>
-                              <div className="text-[11px] font-bold" style={{ color: "#92400E" }}>{party}</div>
-                              <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[200px] overflow-y-auto" style={{ background: "#FFF", borderRadius: 6, padding: 8, border: "1px solid #F3E8D0" }}>
+                            <div key={party} className="rounded border p-2.5 space-y-1.5" style={{ background: statusBg, borderColor: statusBorder }}>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[11px] font-bold" style={{ color: "#92400E" }}>{party}</span>
+                                  {status === "done" && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "#DCFCE7", color: "#166534" }}>✓ בוצע</span>}
+                                  {status === "not_done" && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{ background: "#FEE2E2", color: "#991B1B" }}>✗ לא בוצע</span>}
+                                  {status === "pending" && <span className="text-[10px] px-1.5 py-0.5 rounded" style={{ background: "#FEF3C7", color: "#92400E" }}>ממתין</span>}
+                                </div>
+                                <div className="flex gap-1">
+                                  {status !== "done" && (
+                                    <button
+                                      title="סמן כבוצע"
+                                      className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-green-50 transition-colors"
+                                      style={{ borderColor: "#10B98166", color: "#10B981" }}
+                                      onClick={() => {
+                                        const newNotes = { ...(project.consultant_notes || {}) };
+                                        newNotes[party] = { ...newNotes[party], status: "done" };
+                                        update({ consultant_notes: newNotes });
+                                      }}
+                                    >✓ בוצע</button>
+                                  )}
+                                  {status !== "not_done" && (
+                                    <button
+                                      title="סמן כלא בוצע"
+                                      className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-red-50 transition-colors"
+                                      style={{ borderColor: "#EF444466", color: "#EF4444" }}
+                                      onClick={() => {
+                                        const newNotes = { ...(project.consultant_notes || {}) };
+                                        newNotes[party] = { ...newNotes[party], status: "not_done" };
+                                        update({ consultant_notes: newNotes });
+                                      }}
+                                    >✗ לא בוצע</button>
+                                  )}
+                                  {status !== "pending" && (
+                                    <button
+                                      title="אפס סטטוס"
+                                      className="h-6 px-2 rounded border text-[10px] font-bold hover:bg-gray-100 transition-colors"
+                                      style={{ borderColor: "#9CA3AF66", color: "#6B7280" }}
+                                      onClick={() => {
+                                        const newNotes = { ...(project.consultant_notes || {}) };
+                                        newNotes[party] = { ...newNotes[party], status: "pending" };
+                                        update({ consultant_notes: newNotes });
+                                      }}
+                                    >↩ ביטול</button>
+                                  )}
+                                </div>
+                              </div>
+                              <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[200px] overflow-y-auto" style={{ background: "#FFF", borderRadius: 6, padding: 8, border: "1px solid #F3E8D0", textDecoration: status === "done" ? "line-through" : "none", opacity: status === "done" ? 0.7 : 1 }}>
                                 {cn.quote}
                               </div>
                               <div className="flex gap-2 items-end">
@@ -774,9 +838,6 @@ const BinuiProjectDetail: React.FC = () => {
                                     const newNotes = { ...(project.consultant_notes || {}) };
                                     newNotes[party] = { ...newNotes[party], comment: e.target.value };
                                     update({ consultant_notes: newNotes });
-                                  }}
-                                  onBlur={() => {
-                                    // Save is already handled onChange via update
                                   }}
                                 />
                               </div>
