@@ -1,0 +1,1 @@
+UPDATE generic_projects SET domain = 'peulot' WHERE id = 30 AND domain = 'פעולות'
