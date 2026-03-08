@@ -138,6 +138,19 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
               <h1 className="text-xl font-extrabold cursor-pointer hover:underline leading-tight" style={{ color: config.color }} title="לחץ לעריכת שם" onClick={() => { setEditingName(true); setTempName(project.name); }}>{project.name}</h1>
             )}
           </div>
+          {config.hasLink && (
+            <div>
+              <div className="text-sm font-bold mb-1" style={{ color: config.color }}>🔗 קישור</div>
+              <div className="flex gap-2 items-center">
+                <input title="קישור" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: config.color + "0A" }} placeholder="https://..." value={project.link || ""} onChange={(e) => update({ link: e.target.value })} />
+                {project.link && (
+                  <a href={project.link} target="_blank" rel="noopener noreferrer" title="פתח קישור" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
+                    פתח ↗
+                  </a>
+                )}
+              </div>
+            </div>
+          )}
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם</div>
             <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />

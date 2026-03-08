@@ -29,6 +29,7 @@ export interface GenericProject {
   initiator: string;
   image: string | null;
   attachments: Attachment[];
+  link: string;
 }
 
 export interface DomainConfig {
@@ -38,6 +39,7 @@ export interface DomainConfig {
   routeBase: string;
   categories: Record<string, string[]>;
   extraFields: "poetic" | "task";
+  hasLink?: boolean;
 }
 
 export const STATUS_OPTIONS = [
@@ -82,6 +84,18 @@ export const PEULOT_CONFIG: DomainConfig = {
     "משימות (מנהלים)": [],
   },
   extraFields: "task",
+};
+
+export const APPS_CONFIG: DomainConfig = {
+  storageKey: "apps_projects",
+  color: "#2E5F7A",
+  domainName: "אפליקציות",
+  routeBase: "apps",
+  categories: {
+    "אפליקציות": [],
+  },
+  extraFields: "task",
+  hasLink: true,
 };
 
 export function loadGenericProjects(key: string): GenericProject[] {

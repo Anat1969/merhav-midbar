@@ -59,6 +59,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
+  const [newLink, setNewLink] = useState("");
   const [newCat, setNewCat] = useState(firstCat);
   const [newSub, setNewSub] = useState(firstSubs[0]);
   const [filterCat, setFilterCat] = useState<string | null>(null);
@@ -84,6 +85,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const addProject = async () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
+    if (config.hasLink && !newLink.trim()) {
+      toast.error("יש להזין קישור לאפליקציה");
+      return;
+    }
     const fullName = `${namePrefix}${trimmed}`;
     const now = getHebrewDateNow();
     const p: GenericProject = {
@@ -105,10 +110,12 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       initiator: "",
       image: null,
       attachments: [],
+      link: newLink.trim(),
     };
     try {
       await saveMutation.mutateAsync(p);
       setNewName("");
+      setNewLink("");
     } catch {}
   };
 
@@ -403,6 +410,20 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 />
               </div>
             </div>
+            {config.hasLink && (
+              <div className="flex flex-col gap-1 min-w-[180px]">
+                <label className="text-sm text-gray-400 font-medium">🔗 קישור</label>
+                <input
+                  title="קישור לאפליקציה"
+                  className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+                  style={{ direction: "ltr" }}
+                  placeholder="https://..."
+                  value={newLink}
+                  onChange={(e) => setNewLink(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addProject()}
+                />
+              </div>
+            )}
             <button
               title="הוסף פרויקט"
               onClick={addProject}
@@ -412,7 +433,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               + הוספה
             </button>
           </div>
-          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ולחץ הוספה</p>
+          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם{config.hasLink ? " וקישור" : ""} ולחץ הוספה</p>
         </div>
       </div>
 
@@ -630,6 +651,22 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                     onCancel={() => setEditingField(null)}
                   />
                 </>
+              )}
+
+              {/* Link field for apps */}
+              {config.hasLink && p.link && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-400 font-medium">🔗</span>
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline truncate"
+                    style={{ direction: "ltr" }}
+                  >
+                    {p.link}
+                  </a>
+                </div>
               )}
 
               {/* Row 4: actions */}

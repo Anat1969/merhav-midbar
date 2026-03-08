@@ -1,18 +1,20 @@
 import { supabase } from "@/integrations/supabase/client";
 import { BinuiProject } from "./binuiConstants";
-import { GenericProject, DomainConfig, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG } from "./domainConstants";
+import { GenericProject, DomainConfig, PITUA_CONFIG, MEYADIM_CONFIG, PEULOT_CONFIG, APPS_CONFIG } from "./domainConstants";
 
 // ─── Domain key mapping ───
 const DOMAIN_KEY_MAP: Record<string, string> = {
   [PITUA_CONFIG.storageKey]: "pitua",
   [MEYADIM_CONFIG.storageKey]: "meyadim",
   [PEULOT_CONFIG.storageKey]: "peulot",
+  [APPS_CONFIG.storageKey]: "apps",
 };
 
 const DOMAIN_NAME_TO_KEY: Record<string, string> = {
   "פיתוח": "pitua",
   "מיידעים": "meyadim",
   "פעולות": "peulot",
+  "אפליקציות": "apps",
 };
 
 function getDomainKey(storageKeyOrName: string): string {
@@ -166,6 +168,7 @@ export async function loadGenericProjectsAsync(storageKeyOrDomain: string): Prom
     tracking: p.tracking || { date: "", note: "", agent: "" },
     initiator: p.initiator || "",
     image: p.image,
+    link: p.link || "",
     attachments: (attachMap.get(p.id) || []).map((a) => ({
       id: a.id,
       name: a.name,
@@ -194,6 +197,7 @@ export async function saveGenericProjectAsync(storageKeyOrDomain: string, projec
     tracking: project.tracking,
     initiator: project.initiator,
     image: project.image,
+    link: project.link || "",
   };
 
   if (project.id && project.id > 0) {

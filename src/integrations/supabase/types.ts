@@ -69,6 +69,7 @@ export type Database = {
           id: number
           image: string | null
           initiator: string
+          link: string
           name: string
           note: string
           poem: string
@@ -90,6 +91,7 @@ export type Database = {
           id?: never
           image?: string | null
           initiator?: string
+          link?: string
           name: string
           note?: string
           poem?: string
@@ -111,6 +113,7 @@ export type Database = {
           id?: never
           image?: string | null
           initiator?: string
+          link?: string
           name?: string
           note?: string
           poem?: string
