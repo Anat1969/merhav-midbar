@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { X, Plus, ExternalLink } from "lucide-react";
+import { openExternalLink } from "@/lib/fileAccess";
 
 interface SavedLink {
   id: number;
