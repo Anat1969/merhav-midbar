@@ -60,6 +60,14 @@ function getIconForApp(name: string): LucideIcon {
   return Globe;
 }
 
+function getDisplayName(name: string): string {
+  const idx = name.indexOf("-");
+  if (idx >= 0) return name.substring(idx + 1).trim();
+  const idx2 = name.indexOf("–");
+  if (idx2 >= 0) return name.substring(idx2 + 1).trim();
+  return name;
+}
+
 interface AppIconsBarProps {
   refreshKey: number;
   color: string;
@@ -77,13 +85,14 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
     <div className="flex flex-wrap gap-2.5 px-4 pb-4 pt-1">
       {apps.map((app) => {
         const Icon = getIconForApp(app.name);
+        const displayName = getDisplayName(app.name);
         return (
           <a
             key={app.id}
             href={app.link}
             target="_blank"
             rel="noopener noreferrer"
-            title={`פתח ${app.name}`}
+            title={`פתח ${displayName}`}
             className="group flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 transition-all duration-200 hover:scale-105 hover:shadow-lg"
             style={{
               background: `linear-gradient(145deg, ${color}18, ${color}08)`,
@@ -102,7 +111,7 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
               className="text-[11px] font-bold leading-tight text-center max-w-[72px] truncate"
               style={{ color }}
             >
-              {app.name}
+              {displayName}
             </span>
           </a>
         );
