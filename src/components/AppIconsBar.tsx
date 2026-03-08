@@ -8,7 +8,6 @@ import {
   Palette, PenTool, Camera, Headphones, Monitor, Smartphone,
   BarChart3, Cpu, Bot, Sparkles, Workflow, type LucideIcon,
 } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 const NAME_ICON_MAP: Record<string, LucideIcon> = {
   chat: MessageSquare,
@@ -75,33 +74,39 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
   if (apps.length === 0) return null;
 
   return (
-    <TooltipProvider delayDuration={200}>
-      <div className="flex flex-wrap gap-2 px-4 pb-3">
-        {apps.map((app) => {
-          const Icon = getIconForApp(app.name);
-          return (
-            <Tooltip key={app.id}>
-              <TooltipTrigger asChild>
-                <a
-                  href={app.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 hover:scale-110 hover:shadow-md"
-                  style={{
-                    background: `${color}15`,
-                    color,
-                  }}
-                >
-                  <Icon size={18} />
-                </a>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="text-xs font-medium">
-                {app.name}
-              </TooltipContent>
-            </Tooltip>
-          );
-        })}
-      </div>
-    </TooltipProvider>
+    <div className="flex flex-wrap gap-2.5 px-4 pb-4 pt-1">
+      {apps.map((app) => {
+        const Icon = getIconForApp(app.name);
+        return (
+          <a
+            key={app.id}
+            href={app.link}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`פתח ${app.name}`}
+            className="group flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+            style={{
+              background: `linear-gradient(145deg, ${color}18, ${color}08)`,
+              border: `1px solid ${color}20`,
+            }}
+          >
+            <div
+              className="flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 group-hover:shadow-md"
+              style={{
+                background: `linear-gradient(135deg, ${color}, ${color}CC)`,
+              }}
+            >
+              <Icon size={20} className="text-white" />
+            </div>
+            <span
+              className="text-[11px] font-bold leading-tight text-center max-w-[72px] truncate"
+              style={{ color }}
+            >
+              {app.name}
+            </span>
+          </a>
+        );
+      })}
+    </div>
   );
 };
