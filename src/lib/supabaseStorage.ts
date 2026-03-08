@@ -15,6 +15,7 @@ const DOMAIN_NAME_TO_KEY: Record<string, string> = {
   "פיתוח": "pitua",
   "מיידעים": "meyadim",
   "פעולות": "peulot",
+  "כלי AI": "apps",
   "אפליקציות": "apps",
   "סוכנים": "agents",
 };

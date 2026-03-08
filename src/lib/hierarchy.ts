@@ -66,13 +66,13 @@ export const HIERARCHY: Record<string, DomainDef> = {
       "משימות (מנהלים)": { items: [] },
     },
   },
-  "אפליקציות": {
+  "כלי AI": {
     icon: "💻",
     color: "#2E5F7A",
     description: "כלים ופלטפורמות דיגיטליות",
     categories: {
-      "אפליקציות": { items: [] },
       "סוכנים": { items: [] },
+      "אפליקציות": { items: [] },
     },
   },
 };
