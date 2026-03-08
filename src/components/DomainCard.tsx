@@ -61,6 +61,10 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
         </div>
       </Link>
 
+      {name === "כלי AI" && (
+        <AppIconsBar refreshKey={refreshKey} color={def.color} />
+      )}
+
       <div className="p-4">
         {hasSubItems ? (
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Object.keys(def.categories).length}, 1fr)` }}>
