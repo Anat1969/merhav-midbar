@@ -144,3 +144,86 @@ export async function downloadDraftDocx(params: DraftDocxParams): Promise<Blob> 
   saveAs(blob, `טיוטת_המלצה_${params.projectName.replace(/\s+/g, "_")}.docx`);
   return blob;
 }
+
+/* ── Consultant Requirements Export ── */
+
+interface ConsultantRequirementsDocxParams {
+  projectName: string;
+  consultantNotes: Record<string, { quote: string; comment: string; status?: "pending" | "done" | "not_done" }>;
+  parties: readonly string[];
+}
+
+export async function downloadConsultantRequirementsDocx(params: ConsultantRequirementsDocxParams): Promise<void> {
+  const { projectName, consultantNotes, parties } = params;
+  const children: Paragraph[] = [];
+
+  children.push(
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      heading: HeadingLevel.HEADING_1,
+      children: [new TextRun({ text: `ריכוז דרישות יועצים — ${projectName}`, bold: true, size: 32, font: "Arial" })],
+    })
+  );
+  children.push(
+    new Paragraph({
+      alignment: AlignmentType.RIGHT,
+      children: [new TextRun({ text: `תאריך הפקה: ${new Date().toLocaleDateString("he-IL")}`, size: 22, font: "Arial" })],
+    })
+  );
+  children.push(new Paragraph({ children: [] }));
+
+  const statusLabel: Record<string, string> = { done: "בוצע ✓", not_done: "לא בוצע ✗", pending: "ממתין" };
+
+  for (const party of parties) {
+    const cn = consultantNotes[party];
+    if (!cn?.quote) continue;
+    const st = cn.status || "pending";
+
+    children.push(
+      new Paragraph({
+        alignment: AlignmentType.RIGHT,
+        heading: HeadingLevel.HEADING_2,
+        spacing: { before: 240 },
+        children: [
+          new TextRun({ text: `${party}  —  `, bold: true, size: 26, font: "Arial" }),
+          new TextRun({
+            text: statusLabel[st],
+            bold: true,
+            size: 22,
+            font: "Arial",
+            color: st === "done" ? "10B981" : st === "not_done" ? "EF4444" : "F59E0B",
+          }),
+        ],
+      })
+    );
+
+    cn.quote.split("\n").forEach((line) =>
+      children.push(
+        new Paragraph({
+          alignment: AlignmentType.RIGHT,
+          children: [new TextRun({ text: line, size: 22, font: "Arial" })],
+        })
+      )
+    );
+
+    if (cn.comment) {
+      children.push(
+        new Paragraph({
+          alignment: AlignmentType.RIGHT,
+          spacing: { before: 80 },
+          children: [
+            new TextRun({ text: "הערה: ", bold: true, size: 22, font: "Arial", color: "B45309" }),
+            new TextRun({ text: cn.comment, size: 22, font: "Arial" }),
+          ],
+        })
+      );
+    }
+  }
+
+  const doc = new Document({
+    sections: [{ properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } } }, children }],
+  });
+
+  const blob = await Packer.toBlob(doc);
+  saveAs(blob, `דרישות_יועצים_${projectName.replace(/\s+/g, "_")}.docx`);
+}
