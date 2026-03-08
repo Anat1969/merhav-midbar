@@ -1226,18 +1226,18 @@ const BinuiProjectDetail: React.FC = () => {
         <div className="detail-column space-y-4">
           {/* Presentation / Development Plan */}
           <PresentationDevPlanTabs project={project} onUpload={addAttachment} onMinutesUpload={async (file: File) => {
-            await addAttachment(file);
-            // Also rename with prefix for filtering
-            const url = await uploadProjectFile(file, "binui", project.id);
-            await saveAttachmentAsync("binui", project.id, `פרוטוקול ועדה - ${file.name}`, url);
-            qc.invalidateQueries({ queryKey: ["binui-projects"] });
-            // Mark status as done
-            const label = STATUS_OPTIONS.find((s) => s.value === "done")?.label ?? "בוצע";
-            await update({
-              status: "done",
-              history: [{ date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה. סטטוס שונה ל: ${label}` }, ...project.history],
-            });
-            toast.success("פרוטוקול ועדה הועלה והסטטוס עודכן לבוצע");
+            if (file.size > MAX_FILE_SIZE_BYTES) { toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB."); return; }
+            try {
+              const url = await uploadProjectFile(file, "binui", project.id);
+              await saveAttachmentAsync("binui", project.id, `פרוטוקול ועדה - ${file.name}`, url);
+              qc.invalidateQueries({ queryKey: ["binui-projects"] });
+              const label = STATUS_OPTIONS.find((s) => s.value === "done")?.label ?? "בוצע";
+              await update({
+                status: "done",
+                history: [{ date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה. סטטוס שונה ל: ${label}` }, ...project.history],
+              });
+              toast.success("פרוטוקול ועדה הועלה והסטטוס עודכן לבוצע");
+            } catch (err: any) { toast.error(err.message || "שגיאה בהעלאת קובץ"); }
           }} />
 
           {/* Images */}
