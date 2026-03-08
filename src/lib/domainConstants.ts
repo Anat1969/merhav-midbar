@@ -30,6 +30,7 @@ export interface GenericProject {
   image: string | null;
   attachments: Attachment[];
   link: string;
+  viewLink: string;
 }
 
 export interface DomainConfig {
@@ -114,7 +115,7 @@ export function loadGenericProjects(key: string): GenericProject[] {
   try {
     const raw = localStorage.getItem(key);
     const list: GenericProject[] = raw ? JSON.parse(raw) : [];
-    return list.map((p) => ({ ...p, attachments: p.attachments || [], document: p.document || "", poem: p.poem || "" }));
+    return list.map((p) => ({ ...p, attachments: p.attachments || [], document: p.document || "", poem: p.poem || "", viewLink: p.viewLink || "" }));
   } catch {
     return [];
   }
