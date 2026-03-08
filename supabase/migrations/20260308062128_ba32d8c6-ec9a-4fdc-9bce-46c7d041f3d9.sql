@@ -1,0 +1,1 @@
+ALTER TABLE public.generic_projects ADD COLUMN IF NOT EXISTS link text NOT NULL DEFAULT '';
