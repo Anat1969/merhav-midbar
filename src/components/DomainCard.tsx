@@ -16,6 +16,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
 
 // Categories with their own dedicated route
 const CATEGORY_ROUTES: Record<string, string> = {
+  "כלי AI": "/apps",
   "סוכנים": "/agents",
   "אפליקציות": "/apps",
 };
