@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
@@ -18,6 +18,8 @@ import { toast } from "sonner";
 import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2, BookOpen, Loader2 } from "lucide-react";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
+import { resolveAccessibleFileUrl } from "@/lib/fileAccess";
+import { downloadFile as dlFile } from "@/lib/fileAccess";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx, generateConsultantRequirementsBlob } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
@@ -1339,24 +1341,8 @@ const BinuiProjectDetail: React.FC = () => {
                 const ft = getAttachType(att.data);
                 if (ft === "image") return <img src={att.data} alt={att.name} className="max-w-full max-h-[80vh] object-contain" />;
                 if (ft === "video") return <video src={att.data} controls autoPlay className="max-w-full max-h-[80vh]" />;
-                if (ft === "pdf") return (
-                  <div className="flex flex-col items-center justify-center p-12">
-                    <FileText size={48} className="text-red-400 mb-4" />
-                    <a href={att.data} target="_blank" rel="noopener noreferrer"
-                       className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium">
-                      פתח PDF
-                    </a>
-                  </div>
-                );
-                return (
-                  <div className="flex flex-col items-center justify-center p-12 text-center">
-                    <FileSpreadsheet size={40} className="text-blue-400" />
-                    <span className="text-sm text-gray-500 mt-3">סוג קובץ זה אינו נתמך לצפייה ישירה</span>
-                    <button className="mt-4 h-8 px-4 rounded-lg text-white text-xs font-bold" style={{ background: "#3B82F6" }} onClick={() => {
-                      const a = document.createElement("a"); a.href = att.data; a.download = att.name; a.click();
-                    }}>הורד קובץ</button>
-                  </div>
-                );
+                if (ft === "pdf") return <PdfPreview url={att.data} />;
+                return <DocPreview url={att.data} name={att.name} />;
               })()}
             </div>
           </div>
@@ -1396,6 +1382,52 @@ function TabBtn({ children, active, onClick }: { children: React.ReactNode; acti
     >
       {children}
     </button>
+  );
+}
+
+/** Inline PDF preview – resolves a signed URL and embeds in iframe */
+function PdfPreview({ url }: { url: string }) {
+  const [src, setSrc] = React.useState<string | null>(null);
+  const [loading, setLoading] = React.useState(true);
+  React.useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    resolveAccessibleFileUrl(url).then((resolved) => {
+      if (!cancelled) { setSrc(resolved); setLoading(false); }
+    });
+    return () => { cancelled = true; };
+  }, [url]);
+
+  if (loading) return (
+    <div className="flex flex-col items-center justify-center p-12">
+      <Loader2 size={32} className="animate-spin text-muted-foreground" />
+      <span className="text-xs text-muted-foreground mt-2">טוען תצוגה מקדימה…</span>
+    </div>
+  );
+
+  return (
+    <iframe
+      src={src || url}
+      title="PDF preview"
+      className="w-full border-0"
+      style={{ height: "calc(90vh - 48px)", minHeight: 400 }}
+    />
+  );
+}
+
+/** Preview for non-image/video/pdf documents – offer download */
+function DocPreview({ url, name }: { url: string; name: string }) {
+  return (
+    <div className="flex flex-col items-center justify-center p-12 text-center">
+      <FileSpreadsheet size={40} className="text-blue-400" />
+      <span className="text-sm text-muted-foreground mt-3">{name}</span>
+      <button
+        className="mt-4 h-8 px-4 rounded-lg bg-primary text-primary-foreground text-xs font-bold hover:bg-primary/90"
+        onClick={() => dlFile(url, name)}
+      >
+        הורד קובץ
+      </button>
+    </div>
   );
 }
 
