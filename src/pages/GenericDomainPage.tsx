@@ -609,6 +609,16 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 >
                   פתח ←
                 </button>
+                {config.hasLink && p.link && (
+                  <button
+                    title="צפה בקישור"
+                    className="h-7 px-4 rounded-md text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1"
+                    style={{ background: config.color + "15", color: config.color, border: `1px solid ${config.color}44` }}
+                    onClick={() => openExternalLink(p.link)}
+                  >
+                    🔗 צפה
+                  </button>
+                )}
                 <button
                   title="חוות דעת"
                   className="h-7 px-3 rounded-md border text-xs font-medium hover:brightness-110 transition-all"
