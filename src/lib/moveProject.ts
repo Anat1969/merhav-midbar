@@ -59,6 +59,7 @@ export function moveBinuiToGeneric(
     initiator: "",
     image: project.images?.tashrit || project.images?.tza || project.images?.hadmaya || null,
     attachments: project.attachments?.map(a => ({ id: a.id, name: a.name, data: a.data })) || [],
+    link: "",
   };
 
   // Remove from binui

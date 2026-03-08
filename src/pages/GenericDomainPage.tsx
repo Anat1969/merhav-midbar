@@ -105,6 +105,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       initiator: "",
       image: null,
       attachments: [],
+      link: "",
     };
     try {
       await saveMutation.mutateAsync(p);

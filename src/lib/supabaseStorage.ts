@@ -166,6 +166,7 @@ export async function loadGenericProjectsAsync(storageKeyOrDomain: string): Prom
     tracking: p.tracking || { date: "", note: "", agent: "" },
     initiator: p.initiator || "",
     image: p.image,
+    link: p.link || "",
     attachments: (attachMap.get(p.id) || []).map((a) => ({
       id: a.id,
       name: a.name,
@@ -194,6 +195,7 @@ export async function saveGenericProjectAsync(storageKeyOrDomain: string, projec
     tracking: project.tracking,
     initiator: project.initiator,
     image: project.image,
+    link: project.link || "",
   };
 
   if (project.id && project.id > 0) {
