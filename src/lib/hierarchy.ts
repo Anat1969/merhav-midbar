@@ -72,13 +72,6 @@ export const HIERARCHY: Record<string, DomainDef> = {
     description: "כלים ופלטפורמות דיגיטליות",
     categories: {
       "אפליקציות": { items: [] },
-    },
-  },
-  "סוכנים": {
-    icon: "🤖",
-    color: "#2E5F7A",
-    description: "סוכני AI ואוטומציה",
-    categories: {
       "סוכנים": { items: [] },
     },
   },
