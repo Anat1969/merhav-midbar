@@ -1057,6 +1057,43 @@ const BinuiProjectDetail: React.FC = () => {
                 <span className="rounded-full text-[10px] text-white px-1.5 leading-4" style={{ background: "#2C6E6A" }}>{project.attachments.length}</span>
               )}
             </div>
+
+            {/* Plan Instructions special upload */}
+            <div className="mb-3 rounded-lg border-2 border-dashed p-3 flex items-center gap-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
+              <BookOpen size={20} style={{ color: "#F59E0B" }} />
+              <div className="flex-1">
+                <div className="text-xs font-bold" style={{ color: "#B45309" }}>הוראות תוכנית</div>
+                <div className="text-[10px] text-amber-700">העלה מסמך הוראות תוכנית — המערכת תנתח ותמלא שדות רלוונטיים אוטומטית</div>
+              </div>
+              <input
+                ref={planFileRef}
+                type="file"
+                className="hidden"
+                accept="application/pdf,image/*,.docx,.doc"
+                onChange={(e) => {
+                  const f = e.target.files?.[0];
+                  if (f) handlePlanInstructions(f);
+                  e.target.value = "";
+                }}
+              />
+              <button
+                title="העלה הוראות תוכנית לניתוח אוטומטי"
+                disabled={parsingPlan}
+                className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all disabled:opacity-50 flex items-center gap-2"
+                style={{ background: "#F59E0B" }}
+                onClick={() => planFileRef.current?.click()}
+              >
+                {parsingPlan ? (
+                  <>
+                    <Loader2 size={14} className="animate-spin" />
+                    מנתח...
+                  </>
+                ) : (
+                  <>📄 העלה הוראות תוכנית</>
+                )}
+              </button>
+            </div>
+
             <div className="flex items-start gap-2">
               <FileDropZone
                 onFile={(f) => addAttachment(f)}
