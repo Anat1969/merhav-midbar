@@ -60,6 +60,14 @@ function getIconForApp(name: string): LucideIcon {
   return Globe;
 }
 
+function getDisplayName(name: string): string {
+  const idx = name.indexOf("-");
+  if (idx >= 0) return name.substring(idx + 1).trim();
+  const idx2 = name.indexOf("–");
+  if (idx2 >= 0) return name.substring(idx2 + 1).trim();
+  return name;
+}
+
 interface AppIconsBarProps {
   refreshKey: number;
   color: string;
