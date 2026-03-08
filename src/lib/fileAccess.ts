@@ -118,12 +118,17 @@ export async function downloadFile(fileUrl: string, fileName?: string): Promise<
  */
 export function openExternalLink(url: string): void {
   if (!url) return;
-  const popup = window.open("", "_blank");
-  if (popup) {
-    try { popup.opener = null; } catch {}
-    popup.location.href = url;
-  } else {
-    // Fallback if window.open itself is blocked
-    window.location.href = url;
-  }
+
+  // Must run directly in user gesture handlers (onClick)
+  const popup = window.open(url, "_blank", "noopener,noreferrer");
+  if (popup) return;
+
+  // Fallback for strict blockers
+  const a = document.createElement("a");
+  a.href = url;
+  a.target = "_blank";
+  a.rel = "noopener noreferrer";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
