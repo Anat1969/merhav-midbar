@@ -92,7 +92,7 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
             href={app.link}
             target="_blank"
             rel="noopener noreferrer"
-            title={`פתח ${app.name}`}
+            title={`פתח ${displayName}`}
             className="group flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 transition-all duration-200 hover:scale-105 hover:shadow-lg"
             style={{
               background: `linear-gradient(145deg, ${color}18, ${color}08)`,
@@ -111,7 +111,7 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
               className="text-[11px] font-bold leading-tight text-center max-w-[72px] truncate"
               style={{ color }}
             >
-              {app.name}
+              {displayName}
             </span>
           </a>
         );
