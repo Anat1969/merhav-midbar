@@ -382,100 +382,26 @@ const BinuiPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Panel 3: Filters + Summary */}
-      <div className="no-print mx-4 mt-3 rounded-xl bg-card shadow-sm border border-border/50 p-5">
-        <div className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">🔽 סינון היררכי</div>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          {/* Right side: Hierarchy filters */}
-          <div className="flex flex-col gap-3 flex-1">
-            {/* Level 0: Domains */}
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-400 w-16 shrink-0">דומיין:</span>
-              {[
-                { name: "מבנים", icon: "🏛", color: "#2C6E6A", route: "/binui" },
-                { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
-                { name: "מיידעים", icon: "📋", color: "#4A6741", route: "/meyadim" },
-                { name: "פעולות", icon: "⚡", color: "#5A5A7A", route: "/peulot" },
-              ].map((d) => (
-                <FilterPill
-                  key={d.name}
-                  active={d.name === "מבנים"}
-                  color={d.color}
-                  onClick={() => d.name !== "מבנים" && navigate(d.route)}
-                >
-                  {d.icon} {d.name}
-                </FilterPill>
-              ))}
-            </div>
-            {/* Level 1: Categories */}
-            <div className="flex items-center gap-2 pr-16">
-              <span className="text-sm font-bold text-gray-400 w-16 shrink-0">קטגוריה:</span>
-              <FilterPill active={!filterCat} onClick={() => { setFilterCat(null); setFilterSub(null); }}>
-                הכל
-              </FilterPill>
-              {Object.entries(BINUI_CATEGORIES).map(([cat, def]) => (
-                <FilterPill
-                  key={cat}
-                  active={filterCat === cat}
-                  color={def.color}
-                  onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); }}
-                >
-                  {cat}
-                </FilterPill>
-              ))}
-            </div>
-            {/* Level 2: Sub-categories */}
-            {activeSubs.length > 0 && (
-              <div className="flex items-center gap-2 pr-32">
-                <span className="text-sm font-bold text-gray-400 w-16 shrink-0">נושא:</span>
-                <FilterPill active={!filterSub} onClick={() => setFilterSub(null)}
-                  color={BINUI_CATEGORIES[filterCat!]?.color}>
-                  הכל
-                </FilterPill>
-                {activeSubs.map((s) => (
-                  <FilterPill
-                    key={s}
-                    active={filterSub === s}
-                    color={BINUI_CATEGORIES[filterCat!]?.color}
-                    onClick={() => setFilterSub(s === filterSub ? null : s)}
-                  >
-                    {s}
-                  </FilterPill>
-                ))}
-              </div>
-            )}
-          </div>
-
-          {/* Left side: Status + counter */}
-          <div className="flex flex-col gap-3 items-end">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-400 shrink-0">סטטוס:</span>
-              <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} variant="status">
-                הכל
-              </FilterPill>
-              {STATUS_OPTIONS.map((s) => (
-                <FilterPill
-                  key={s.value}
-                  active={filterStatus === s.value}
-                  color={s.color}
-                  variant="status"
-                  onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
-                >
-                  {s.label} ({statusCounts[s.value] ?? 0})
-                </FilterPill>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-sm font-semibold px-4 py-2 rounded-full"
-                style={{ background: "#E6F2F0", color: "#2C6E6A" }}
-              >
-                מציג {filtered.length} מתוך {projects.length}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <HierarchyFilter
+        activeDomain="מבנים"
+        domainColor="#2C6E6A"
+        categories={Object.entries(BINUI_CATEGORIES).map(([cat, def]) => ({
+          name: cat, color: def.color, count: projects.filter((p) => p.category === cat).length,
+        }))}
+        filterCat={filterCat}
+        onFilterCat={(cat) => { setFilterCat(cat); setFilterSub(null); }}
+        subs={activeSubs.map((s) => ({
+          name: s, count: projects.filter((p) => p.sub === s).length,
+        }))}
+        filterSub={filterSub}
+        onFilterSub={setFilterSub}
+        statusOptions={STATUS_OPTIONS}
+        statusCounts={statusCounts}
+        filterStatus={filterStatus}
+        onFilterStatus={setFilterStatus}
+        totalCount={projects.length}
+        filteredCount={filtered.length}
+      />
 
       {/* Project cards */}
       <div className="px-4 pb-12 space-y-3">

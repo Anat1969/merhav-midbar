@@ -437,100 +437,29 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
         </div>
       </div>
 
-      {/* Panel 3: Filters + Summary */}
-      <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-card shadow-sm border border-border/50 p-5">
-        <div className="text-base font-bold text-gray-700 mb-4 flex items-center gap-2">🔽 סינון היררכי</div>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div className="flex flex-col gap-3 flex-1">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-400 w-16 shrink-0">דומיין:</span>
-              {[
-                { name: "מבנים", icon: "🏛", color: "#2C6E6A", route: "/binui" },
-                { name: "פיתוח", icon: "🌿", color: "#3A7D6F", route: "/pitua" },
-                { name: "מיידעים", icon: "📋", color: "#4A6741", route: "/meyadim" },
-                { name: "פעולות", icon: "⚡", color: "#5A5A7A", route: "/peulot" },
-              ].map((d) => (
-                <FilterPill
-                  key={d.name}
-                  active={d.name === config.domainName}
-                  color={d.color}
-                  onClick={() => d.name !== config.domainName && navigate(d.route)}
-                >
-                  {d.icon} {d.name}
-                </FilterPill>
-              ))}
-            </div>
-            <div className="flex items-center gap-2 pr-16">
-              <span className="text-sm font-bold text-gray-400 w-16 shrink-0">קטגוריה:</span>
-              <FilterPill active={!filterCat && !filterSub} onClick={() => { setFilterCat(null); setFilterSub(null); setSearchParams({}); }} color={config.color}>
-                הכל
-              </FilterPill>
-              {catNames.map((cat) => {
-                const catCount = projects.filter((p) => p.category === cat).length;
-                return (
-                  <FilterPill
-                    key={cat}
-                    active={filterCat === cat}
-                    color={config.color}
-                    onClick={() => { setFilterCat(cat === filterCat ? null : cat); setFilterSub(null); setSearchParams({}); }}
-                  >
-                    {cat} {catCount > 0 ? `(${catCount})` : ""}
-                  </FilterPill>
-                );
-              })}
-            </div>
-            {filterCat && config.categories[filterCat]?.length > 0 && (
-              <div className="flex items-center gap-2 pr-32">
-                <span className="text-sm font-bold text-gray-400 w-16 shrink-0">נושא:</span>
-                <FilterPill active={!filterSub} onClick={() => { setFilterSub(null); setSearchParams({}); }} color={config.color}>
-                  הכל
-                </FilterPill>
-                {getSubsForCategory(config, filterCat).map((s) => {
-                  const subCount = projects.filter((p) => p.category === filterCat && p.sub === s).length;
-                  return (
-                    <FilterPill
-                      key={s}
-                      active={filterSub === s}
-                      color={config.color}
-                      onClick={() => { setFilterSub(s === filterSub ? null : s); setSearchParams({}); }}
-                    >
-                      {s} {subCount > 0 ? `(${subCount})` : ""}
-                    </FilterPill>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-
-          <div className="flex flex-col gap-3 items-end">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-bold text-gray-400 shrink-0">סטטוס:</span>
-              <FilterPill active={!filterStatus} onClick={() => setFilterStatus(null)} variant="status">
-                הכל
-              </FilterPill>
-              {STATUS_OPTIONS.map((s) => (
-                <FilterPill
-                  key={s.value}
-                  active={filterStatus === s.value}
-                  color={s.color}
-                  variant="status"
-                  onClick={() => setFilterStatus(s.value === filterStatus ? null : s.value)}
-                >
-                  {s.label} ({statusCounts[s.value] ?? 0})
-                </FilterPill>
-              ))}
-            </div>
-            <div className="flex items-center gap-2">
-              <span
-                className="text-sm font-semibold px-4 py-2 rounded-full"
-                style={{ background: config.color + "1A", color: config.color }}
-              >
-                מציג {filtered.length} מתוך {projects.length}
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+      <HierarchyFilter
+        activeDomain={config.domainName}
+        domainColor={config.color}
+        categories={catNames.map((cat) => ({
+          name: cat, count: projects.filter((p) => p.category === cat).length,
+        }))}
+        filterCat={filterCat}
+        onFilterCat={(cat) => { setFilterCat(cat); setFilterSub(null); setSearchParams({}); }}
+        subs={filterCat && config.categories[filterCat]?.length > 0
+          ? getSubsForCategory(config, filterCat).map((s) => ({
+              name: s, count: projects.filter((p) => p.category === filterCat && p.sub === s).length,
+            }))
+          : []
+        }
+        filterSub={filterSub}
+        onFilterSub={(sub) => { setFilterSub(sub); setSearchParams({}); }}
+        statusOptions={STATUS_OPTIONS}
+        statusCounts={statusCounts}
+        filterStatus={filterStatus}
+        onFilterStatus={setFilterStatus}
+        totalCount={projects.length}
+        filteredCount={filtered.length}
+      />
 
       {/* Project cards */}
       <div className="px-4 pb-12 space-y-3">
