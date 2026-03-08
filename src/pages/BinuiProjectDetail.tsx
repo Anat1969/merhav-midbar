@@ -19,7 +19,7 @@ import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Fi
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
-import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx } from "@/lib/generateDraftDocx";
+import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx, generateConsultantRequirementsBlob } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
