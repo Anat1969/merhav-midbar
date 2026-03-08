@@ -119,6 +119,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       await saveMutation.mutateAsync(p);
       setNewName("");
       setNewLink("");
+      setNewViewLink("");
     } catch {}
   };
 
