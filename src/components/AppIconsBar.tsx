@@ -1,6 +1,6 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
-import { loadAppsWithLinksAsync } from "@/lib/supabaseStorage";
+import { loadProjectsWithLinksAsync } from "@/lib/supabaseStorage";
 import {
   Globe, MessageSquare, Brain, Code, FileText, Image, Music,
   Video, Mail, Calendar, Map, Calculator, ShoppingCart, Database,
@@ -52,7 +52,7 @@ const NAME_ICON_MAP: Record<string, LucideIcon> = {
   workflow: Workflow,
 };
 
-function getIconForApp(name: string): LucideIcon {
+export function getIconForApp(name: string): LucideIcon {
   const lower = name.toLowerCase();
   for (const [keyword, icon] of Object.entries(NAME_ICON_MAP)) {
     if (lower.includes(keyword)) return icon;
@@ -60,7 +60,7 @@ function getIconForApp(name: string): LucideIcon {
   return Globe;
 }
 
-function getDisplayName(name: string): string {
+export function getDisplayName(name: string): string {
   const idx = name.indexOf("-");
   if (idx >= 0) return name.substring(idx + 1).trim();
   const idx2 = name.indexOf("–");
@@ -68,22 +68,32 @@ function getDisplayName(name: string): string {
   return name;
 }
 
-interface AppIconsBarProps {
-  refreshKey: number;
+// Domain key mapping for sub names
+const SUB_DOMAIN_MAP: Record<string, string> = {
+  "אפליקציות": "apps",
+  "סוכנים": "agents",
+};
+
+interface SubIconsRowProps {
+  sub: string;
   color: string;
+  refreshKey: number;
 }
 
-export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) => {
-  const { data: apps = [] } = useQuery({
-    queryKey: ["apps-with-links", refreshKey],
-    queryFn: loadAppsWithLinksAsync,
+export const SubIconsRow: React.FC<SubIconsRowProps> = ({ sub, color, refreshKey }) => {
+  const domainKey = SUB_DOMAIN_MAP[sub];
+  
+  const { data: projects = [] } = useQuery({
+    queryKey: ["sub-icons", domainKey, refreshKey],
+    queryFn: () => loadProjectsWithLinksAsync(domainKey!),
+    enabled: !!domainKey,
   });
 
-  if (apps.length === 0) return null;
+  if (!domainKey || projects.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap gap-2.5 px-4 pb-4 pt-1">
-      {apps.map((app) => {
+    <div className="flex flex-wrap gap-2 mt-2">
+      {projects.map((app) => {
         const Icon = getIconForApp(app.name);
         const displayName = getDisplayName(app.name);
         return (
@@ -93,22 +103,22 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
             target="_blank"
             rel="noopener noreferrer"
             title={`פתח ${displayName}`}
-            className="group flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+            className="group flex flex-col items-center gap-1 rounded-xl px-2.5 py-2 transition-all duration-200 hover:scale-105 hover:shadow-lg"
             style={{
               background: `linear-gradient(145deg, ${color}18, ${color}08)`,
               border: `1px solid ${color}20`,
             }}
           >
             <div
-              className="flex items-center justify-center w-10 h-10 rounded-lg transition-all duration-200 group-hover:shadow-md"
+              className="flex items-center justify-center w-9 h-9 rounded-lg transition-all duration-200 group-hover:shadow-md"
               style={{
                 background: `linear-gradient(135deg, ${color}, ${color}CC)`,
               }}
             >
-              <Icon size={20} className="text-white" />
+              <Icon size={18} className="text-white" />
             </div>
             <span
-              className="text-[11px] font-bold leading-tight text-center max-w-[72px] truncate"
+              className="text-[10px] font-bold leading-tight text-center max-w-[64px] truncate"
               style={{ color }}
             >
               {displayName}
