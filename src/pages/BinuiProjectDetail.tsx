@@ -10,6 +10,7 @@ import {
   DETAIL_FIELDS,
   BinuiProject,
   BinuiAttachment,
+  ConsultantNote,
   getHebrewDateNow,
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
