@@ -1,5 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -25,6 +26,31 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
+
+    // Download the file
+    const fileResponse = await fetch(fileUrl);
+    if (!fileResponse.ok) throw new Error(`Failed to download file: ${fileResponse.status}`);
+    const fileBuffer = await fileResponse.arrayBuffer();
+    const bytes = new Uint8Array(fileBuffer);
+    
+    if (bytes.length === 0) {
+      return new Response(JSON.stringify({ error: "הקובץ ריק" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Use Deno's built-in base64 encoder (handles large files safely)
+    const base64 = base64Encode(bytes);
+
+    // Determine mime type
+    const ext = (fileName || fileUrl).split("?")[0].toLowerCase();
+    let mimeType = "application/pdf";
+    if (ext.endsWith(".png")) mimeType = "image/png";
+    else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
+    else if (ext.endsWith(".webp")) mimeType = "image/webp";
+
+    console.log(`Processing file: ${fileName || "unknown"}, size: ${bytes.length}, mime: ${mimeType}`);
 
     const systemPrompt = `You are an expert at extracting structured information from Israeli urban planning documents (הוראות תוכנית / plan instructions).
 
@@ -76,59 +102,25 @@ Extract ALL relevant information and return a JSON object with the following str
 
 Return ONLY valid JSON. Do not include fields with empty values. Extract as much information as possible from the document.`;
 
-    // Determine mime type from filename/url
-    const ext = (fileName || fileUrl).toLowerCase();
-    let mimeType = "application/pdf";
-    if (ext.endsWith(".png")) mimeType = "image/png";
-    else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
-    else if (ext.endsWith(".webp")) mimeType = "image/webp";
+    // Use Gemini-native format for PDFs via the OpenAI-compatible gateway
+    const dataUrl = `data:${mimeType};base64,${base64}`;
 
     const messages: any[] = [
       { role: "system", content: systemPrompt },
+      {
+        role: "user",
+        content: [
+          {
+            type: "image_url",
+            image_url: { url: dataUrl },
+          },
+          {
+            type: "text",
+            text: "נתח את המסמך הזה וחלץ את כל המידע הרלוונטי לפרויקט בינוי. החזר JSON בלבד.",
+          },
+        ],
+      },
     ];
-
-    if (mimeType.startsWith("image/")) {
-      // For images, download and send as base64 inline (works well with vision)
-      const fileResponse = await fetch(fileUrl);
-      if (!fileResponse.ok) throw new Error("Failed to download file");
-      const fileBuffer = await fileResponse.arrayBuffer();
-      const bytes = new Uint8Array(fileBuffer);
-      let binary = "";
-      for (let i = 0; i < bytes.length; i++) {
-        binary += String.fromCharCode(bytes[i]);
-      }
-      const base64 = btoa(binary);
-
-      messages.push({
-        role: "user",
-        content: [
-          {
-            type: "image_url",
-            image_url: { url: `data:${mimeType};base64,${base64}` },
-          },
-          {
-            type: "text",
-            text: "נתח את המסמך הזה וחלץ את כל המידע הרלוונטי לפרויקט בינוי. החזר JSON בלבד.",
-          },
-        ],
-      });
-    } else {
-      // For PDFs and other documents: pass the public URL directly
-      // Gemini supports URLs for document understanding
-      messages.push({
-        role: "user",
-        content: [
-          {
-            type: "image_url",
-            image_url: { url: fileUrl },
-          },
-          {
-            type: "text",
-            text: "נתח את המסמך הזה וחלץ את כל המידע הרלוונטי לפרויקט בינוי. החזר JSON בלבד.",
-          },
-        ],
-      });
-    }
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -137,7 +129,7 @@ Return ONLY valid JSON. Do not include fields with empty values. Extract as much
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-pro",
         messages,
         temperature: 0.1,
       }),
