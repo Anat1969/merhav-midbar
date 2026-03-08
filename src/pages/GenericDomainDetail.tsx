@@ -141,12 +141,25 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           </div>
           {config.hasLink && (
             <div>
-              <div className="text-sm font-bold mb-1" style={{ color: config.color }}>🔗 קישור</div>
+              <div className="text-sm font-bold mb-1" style={{ color: config.color }}>🔗 קישור עבודה</div>
               <div className="flex gap-2 items-center">
-                <input title="קישור" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: config.color + "0A" }} placeholder="https://..." value={project.link || ""} onChange={(e) => update({ link: e.target.value })} />
+                <input title="קישור עבודה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: config.color + "0A" }} placeholder="https://..." value={project.link || ""} onChange={(e) => update({ link: e.target.value })} />
                 {project.link && (
-                  <button onClick={() => openExternalLink(project.link)} title="פתח קישור" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
-                    פתח ↗
+                  <button onClick={() => openExternalLink(project.link)} title="פתח קישור עבודה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
+                    עבודה ↗
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
+          {config.hasLink && (
+            <div>
+              <div className="text-sm font-bold mb-1" style={{ color: "#10B981" }}>👁 קישור תצוגה</div>
+              <div className="flex gap-2 items-center">
+                <input title="קישור תצוגה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: "#10B9810A" }} placeholder="https://..." value={project.viewLink || ""} onChange={(e) => update({ viewLink: e.target.value })} />
+                {project.viewLink && (
+                  <button onClick={() => openExternalLink(project.viewLink)} title="פתח קישור תצוגה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: "#10B981" }}>
+                    תצוגה ↗
                   </button>
                 )}
               </div>
