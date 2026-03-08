@@ -7,7 +7,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MAX_PARSE_FILE_BYTES = 8 * 1024 * 1024; // 8MB safety for edge compute
+const MAX_PARSE_FILE_BYTES = 20 * 1024 * 1024; // 20MB
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -18,15 +18,7 @@ function jsonResponse(body: Record<string, unknown>, status = 200) {
 
 function isPdf(bytes: Uint8Array) {
   if (bytes.length < 5) return false;
-  // %PDF-
   return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2d;
-}
-
-function estimatePdfPages(bytes: Uint8Array) {
-  // Fast heuristic: count '/Type /Page' markers
-  const txt = new TextDecoder("latin1").decode(bytes);
-  const matches = txt.match(/\/Type\s*\/Page\b/g);
-  return matches?.length ?? 0;
 }
 
 serve(async (req) => {
@@ -49,7 +41,7 @@ serve(async (req) => {
     const bytes = new Uint8Array(await fileResponse.arrayBuffer());
     if (bytes.length === 0) return jsonResponse({ success: false, error: "הקובץ ריק" });
     if (bytes.length > MAX_PARSE_FILE_BYTES) {
-      return jsonResponse({ success: false, error: "הקובץ גדול מדי לניתוח אוטומטי (מקסימום 8MB)." });
+      return jsonResponse({ success: false, error: "הקובץ גדול מדי לניתוח אוטומטי (מקסימום 20MB)." });
     }
 
     const ext = (fileName || fileUrl).split("?")[0].toLowerCase();
@@ -59,21 +51,11 @@ serve(async (req) => {
     else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
     else if (ext.endsWith(".webp")) mimeType = "image/webp";
 
-    if (isPdfExt) {
-      if (!isPdf(bytes)) {
-        return jsonResponse({
-          success: false,
-          error: "הקובץ שהועלה אינו PDF תקין. נראה שזה קובץ שגיאה/חסימה במקום מסמך אמיתי.",
-        }, 400);
-      }
-
-      const pages = estimatePdfPages(bytes);
-      if (pages === 0) {
-        return jsonResponse({
-          success: false,
-          error: "ה-PDF לא מכיל עמודים קריאים ל-AI. נסה לשמור מחדש את המסמך או להעלות קובץ PDF אחר.",
-        }, 400);
-      }
+    if (isPdfExt && !isPdf(bytes)) {
+      return jsonResponse({
+        success: false,
+        error: "הקובץ שהועלה אינו PDF תקין. נראה שזה קובץ שגיאה/חסימה במקום מסמך אמיתי.",
+      }, 400);
     }
 
     const base64 = base64Encode(bytes);
@@ -81,17 +63,46 @@ serve(async (req) => {
 
     const systemPrompt = `You are an expert at extracting structured information from Israeli urban planning documents (הוראות תוכנית / plan instructions).
 
-Return ONLY valid JSON with this shape, omitting empty fields:
+You MUST return ONLY valid JSON (no markdown, no backticks) with this exact shape:
+
 {
   "details": {
     "פרטים": {"architect":"","architect_phone":"","architect_email":"","architect_address":"","manager":"","manager_phone":"","manager_email":"","manager_address":"","developer":"","developer_phone":"","developer_email":"","developer_address":"","date":""},
     "מיקום": {"quarter":"","street":"","block":"","parcel":""},
     "נתוני תב\\"ע": {"plan_overall":"","plan_detail":""}
   },
-  "consultantNotes": {"תנועה":"","תברואה":"","ניהול ניקוז":"","חשמל":"","נטיעות":"","איכות סביבה":"","נכסים":"","חינוך":"","רישוי":"","תכנון":""},
+  "consultantNotes": {
+    "תנועה": {"quote":"","comment":""},
+    "תברואה": {"quote":"","comment":""},
+    "ניהול ניקוז": {"quote":"","comment":""},
+    "חשמל": {"quote":"","comment":""},
+    "נטיעות": {"quote":"","comment":""},
+    "איכות סביבה": {"quote":"","comment":""},
+    "נכסים": {"quote":"","comment":""},
+    "חינוך": {"quote":"","comment":""},
+    "רישוי": {"quote":"","comment":""},
+    "תכנון": {"quote":"","comment":""}
+  },
   "projectDescription": "",
   "projectName": ""
-}`;
+}
+
+CRITICAL INSTRUCTIONS for consultantNotes:
+- For EACH consultant topic, find ALL relevant clauses, requirements, and conditions from the plan document.
+- The "quote" field must contain the EXACT TEXT quoted from the document — full paragraphs, not summaries.
+- Include section numbers, sub-sections, and specific quantitative requirements (numbers, areas, percentages).
+- For תנועה (Traffic): parking ratios, EV charging, bicycle parking, traffic studies, road widths, access points.
+- For תברואה (Sanitation): water supply lines, sewage connections, pipe diameters, connection points.
+- For ניהול ניקוז (Drainage): runoff management, retention, infiltration, drainage plans.
+- For חשמל (Electricity): transformer stations, electrical infrastructure, connection capacity.
+- For נטיעות (Planting): tree preservation, new planting requirements, landscape plans, green areas.
+- For איכות סביבה (Environment): noise, air quality, waste, green building standards, sustainability.
+- For נכסים (Properties): unit counts, area calculations, FAR, building rights, unit mix.
+- For חינוך (Education): school requirements, kindergartens, educational facilities.
+- For רישוי (Licensing): building permits, height restrictions, flight paths, special permits.
+- For תכנון (Planning): zoning, land use, building lines, setbacks, construction stages.
+- Leave "comment" empty — it's for user notes.
+- If a topic has no relevant content in the document, set quote to empty string.`;
 
     const aiResponse = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -100,14 +111,14 @@ Return ONLY valid JSON with this shape, omitting empty fields:
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-pro",
         messages: [
           { role: "system", content: systemPrompt },
           {
             role: "user",
             content: [
               { type: "image_url", image_url: { url: dataUrl } },
-              { type: "text", text: "נתח את המסמך והחזר JSON בלבד." },
+              { type: "text", text: "נתח את המסמך לעומק. עבור כל נושא יועץ, צטט את כל הסעיפים הרלוונטיים מילה במילה מתוך המסמך. החזר JSON בלבד." },
             ],
           },
         ],

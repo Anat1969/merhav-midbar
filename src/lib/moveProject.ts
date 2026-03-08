@@ -104,6 +104,7 @@ export function moveGenericToBinui(
     details: { "פרטים": {}, "מיקום": {}, 'תב"ע': {} },
     images: { tashrit: project.image, tza: null, hadmaya: null },
     attachments: project.attachments?.map(a => ({ id: a.id, name: a.name, data: a.data })) || [],
+    consultant_notes: {},
   };
 
   // Remove from source

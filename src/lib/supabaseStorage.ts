@@ -68,6 +68,7 @@ export async function loadBinuiProjectsAsync(): Promise<BinuiProject[]> {
     history: p.history || [],
     details: p.details || {},
     images: p.images || { tashrit: null, tza: null, hadmaya: null },
+    consultant_notes: p.consultant_notes || {},
     attachments: (attachMap.get(p.id) || []).map((a) => ({
       id: a.id,
       name: a.name,
@@ -87,6 +88,7 @@ export async function saveBinuiProjectAsync(project: BinuiProject): Promise<Binu
     history: project.history,
     details: project.details,
     images: project.images,
+    consultant_notes: project.consultant_notes || {},
   };
 
   if (project.id && project.id > 0) {

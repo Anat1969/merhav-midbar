@@ -10,6 +10,7 @@ import {
   DETAIL_FIELDS,
   BinuiProject,
   BinuiAttachment,
+  ConsultantNote,
   getHebrewDateNow,
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
@@ -298,7 +299,6 @@ const BinuiProjectDetail: React.FC = () => {
         for (const [section, fields] of Object.entries(parsed.details)) {
           const existing = newDetails[section] || {};
           const newFields = fields as Record<string, string>;
-          // Only fill empty fields
           for (const [key, val] of Object.entries(newFields)) {
             if (val && !existing[key]) {
               existing[key] = val;
@@ -308,22 +308,36 @@ const BinuiProjectDetail: React.FC = () => {
         }
       }
 
-      // Build history entries for consultant notes
+      // Build consultant_notes from parsed data
+      const newConsultantNotes: Record<string, ConsultantNote> = { ...(project.consultant_notes || {}) };
+      if (parsed.consultantNotes) {
+        for (const [party, data] of Object.entries(parsed.consultantNotes)) {
+          const noteData = data as { quote?: string; comment?: string } | string;
+          if (typeof noteData === "string") {
+            if (noteData) newConsultantNotes[party] = { quote: noteData, comment: newConsultantNotes[party]?.comment || "" };
+          } else if (noteData?.quote) {
+            newConsultantNotes[party] = { quote: noteData.quote, comment: newConsultantNotes[party]?.comment || "" };
+          }
+        }
+      }
+
+      // Also add history entries for consultant notes
       const newHistory = [...project.history];
       if (parsed.consultantNotes) {
         const dateStr = getHebrewDateNow();
-        for (const [party, note] of Object.entries(parsed.consultantNotes)) {
-          if (note && typeof note === "string") {
+        for (const [party, data] of Object.entries(parsed.consultantNotes)) {
+          const noteData = data as { quote?: string } | string;
+          const quote = typeof noteData === "string" ? noteData : noteData?.quote;
+          if (quote) {
             newHistory.unshift({
               date: dateStr,
-              note: `חוות דעת: [פורום יועצים - ${party}] ${note} (מתוך הוראות תוכנית)`,
+              note: `חוות דעת: [פורום יועצים - ${party}] ${quote.substring(0, 200)}... (מתוך הוראות תוכנית)`,
             });
           }
         }
       }
 
-      // Apply project description and name
-      const patchObj: Partial<BinuiProject> = { details: newDetails, history: newHistory };
+      const patchObj: Partial<BinuiProject> = { details: newDetails, history: newHistory, consultant_notes: newConsultantNotes };
       if (parsed.projectDescription && !project.note) {
         patchObj.note = parsed.projectDescription;
       }
@@ -734,6 +748,44 @@ const BinuiProjectDetail: React.FC = () => {
                       ))}
                     </div>
                   </div>
+
+                  {/* Extracted Consultant Notes from Plan Instructions */}
+                  {Object.keys(project.consultant_notes || {}).length > 0 && (
+                    <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
+                      <div className="text-xs font-bold" style={{ color: "#B45309" }}>📄 דרישות מהוראות תוכנית (נמשך אוטומטית)</div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {CONSULTANT_PARTIES.map((party) => {
+                          const cn = (project.consultant_notes || {})[party];
+                          if (!cn?.quote) return null;
+                          return (
+                            <div key={party} className="rounded border border-amber-200 p-2.5 space-y-1.5" style={{ background: "#FEFDF8" }}>
+                              <div className="text-[11px] font-bold" style={{ color: "#92400E" }}>{party}</div>
+                              <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[200px] overflow-y-auto" style={{ background: "#FFF", borderRadius: 6, padding: 8, border: "1px solid #F3E8D0" }}>
+                                {cn.quote}
+                              </div>
+                              <div className="flex gap-2 items-end">
+                                <textarea
+                                  title={`הערות - ${party}`}
+                                  className="flex-1 rounded border border-gray-200 p-1.5 text-xs resize-none"
+                                  style={{ direction: "rtl", minHeight: 36, background: "#FAFAF8" }}
+                                  placeholder={`הוסף הערה ל${party}...`}
+                                  value={cn.comment || ""}
+                                  onChange={(e) => {
+                                    const newNotes = { ...(project.consultant_notes || {}) };
+                                    newNotes[party] = { ...newNotes[party], comment: e.target.value };
+                                    update({ consultant_notes: newNotes });
+                                  }}
+                                  onBlur={() => {
+                                    // Save is already handled onChange via update
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Committee Preparation Forum - checkboxes + date */}
                   <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#2C6E6A33", background: "#F7FBFA" }}>

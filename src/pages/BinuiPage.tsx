@@ -86,6 +86,7 @@ const BinuiPage: React.FC = () => {
       details: { "פרטים": {}, "מיקום": {}, 'תב"ע': {} },
       images: { tashrit: null, tza: null, hadmaya: null },
       attachments: [],
+      consultant_notes: {},
     };
     try {
       await saveMutation.mutateAsync(p);

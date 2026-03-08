@@ -17,6 +17,7 @@ export type Database = {
       binui_projects: {
         Row: {
           category: string
+          consultant_notes: Json
           created: string
           created_at: string
           details: Json
@@ -30,6 +31,7 @@ export type Database = {
         }
         Insert: {
           category: string
+          consultant_notes?: Json
           created: string
           created_at?: string
           details?: Json
@@ -43,6 +45,7 @@ export type Database = {
         }
         Update: {
           category?: string
+          consultant_notes?: Json
           created?: string
           created_at?: string
           details?: Json
