@@ -829,6 +829,18 @@ const BinuiProjectDetail: React.FC = () => {
                           >{label}</button>
                         ))}
                       </div>
+                      {consultantFilter !== "all" && (() => {
+                        const notes = project.consultant_notes || {};
+                        const total = CONSULTANT_PARTIES.filter(p => notes[p]?.quote).length;
+                        const shown = CONSULTANT_PARTIES.filter(p => {
+                          const cn = notes[p];
+                          if (!cn?.quote) return false;
+                          return (cn.status || "pending") === consultantFilter;
+                        }).length;
+                        return total > 0 ? (
+                          <div className="text-[10px] text-muted-foreground">מציג {shown} מתוך {total} דרישות</div>
+                        ) : null;
+                      })()}
                       <div className="grid grid-cols-1 gap-3">
                         {CONSULTANT_PARTIES.map((party) => {
                           const cn = (project.consultant_notes || {})[party];
