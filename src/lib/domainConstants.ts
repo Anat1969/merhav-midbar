@@ -94,6 +94,8 @@ export const APPS_CONFIG: DomainConfig = {
   routeBase: "apps",
   categories: {
     "כלי AI": [],
+    "אפליקציות": [],
+    "סוכנים": [],
   },
   extraFields: "task",
   hasLink: true,
@@ -105,6 +107,8 @@ export const AGENTS_CONFIG: DomainConfig = {
   domainName: "סוכנים",
   routeBase: "agents",
   categories: {
+    "כלי AI": [],
+    "אפליקציות": [],
     "סוכנים": [],
   },
   extraFields: "task",
