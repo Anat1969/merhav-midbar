@@ -145,9 +145,9 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
               <div className="flex gap-2 items-center">
                 <input title="קישור" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: config.color + "0A" }} placeholder="https://..." value={project.link || ""} onChange={(e) => update({ link: e.target.value })} />
                 {project.link && (
-                  <a href={project.link} target="_blank" rel="noopener noreferrer" title="פתח קישור" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
+                  <button onClick={() => openExternalLink(project.link)} title="פתח קישור" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
                     פתח ↗
-                  </a>
+                  </button>
                 )}
               </div>
             </div>
