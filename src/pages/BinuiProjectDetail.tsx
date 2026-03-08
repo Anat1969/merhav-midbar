@@ -299,7 +299,6 @@ const BinuiProjectDetail: React.FC = () => {
         for (const [section, fields] of Object.entries(parsed.details)) {
           const existing = newDetails[section] || {};
           const newFields = fields as Record<string, string>;
-          // Only fill empty fields
           for (const [key, val] of Object.entries(newFields)) {
             if (val && !existing[key]) {
               existing[key] = val;
@@ -309,22 +308,36 @@ const BinuiProjectDetail: React.FC = () => {
         }
       }
 
-      // Build history entries for consultant notes
+      // Build consultant_notes from parsed data
+      const newConsultantNotes: Record<string, ConsultantNote> = { ...(project.consultant_notes || {}) };
+      if (parsed.consultantNotes) {
+        for (const [party, data] of Object.entries(parsed.consultantNotes)) {
+          const noteData = data as { quote?: string; comment?: string } | string;
+          if (typeof noteData === "string") {
+            if (noteData) newConsultantNotes[party] = { quote: noteData, comment: newConsultantNotes[party]?.comment || "" };
+          } else if (noteData?.quote) {
+            newConsultantNotes[party] = { quote: noteData.quote, comment: newConsultantNotes[party]?.comment || "" };
+          }
+        }
+      }
+
+      // Also add history entries for consultant notes
       const newHistory = [...project.history];
       if (parsed.consultantNotes) {
         const dateStr = getHebrewDateNow();
-        for (const [party, note] of Object.entries(parsed.consultantNotes)) {
-          if (note && typeof note === "string") {
+        for (const [party, data] of Object.entries(parsed.consultantNotes)) {
+          const noteData = data as { quote?: string } | string;
+          const quote = typeof noteData === "string" ? noteData : noteData?.quote;
+          if (quote) {
             newHistory.unshift({
               date: dateStr,
-              note: `חוות דעת: [פורום יועצים - ${party}] ${note} (מתוך הוראות תוכנית)`,
+              note: `חוות דעת: [פורום יועצים - ${party}] ${quote.substring(0, 200)}... (מתוך הוראות תוכנית)`,
             });
           }
         }
       }
 
-      // Apply project description and name
-      const patchObj: Partial<BinuiProject> = { details: newDetails, history: newHistory };
+      const patchObj: Partial<BinuiProject> = { details: newDetails, history: newHistory, consultant_notes: newConsultantNotes };
       if (parsed.projectDescription && !project.note) {
         patchObj.note = parsed.projectDescription;
       }
