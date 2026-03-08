@@ -3,7 +3,7 @@ import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
 serve(async (req) => {
@@ -25,20 +25,6 @@ serve(async (req) => {
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY not configured");
     }
-
-    // Download the file and convert to base64
-    const fileResponse = await fetch(fileUrl);
-    if (!fileResponse.ok) throw new Error("Failed to download file");
-    
-    const fileBuffer = await fileResponse.arrayBuffer();
-    const base64 = btoa(String.fromCharCode(...new Uint8Array(fileBuffer)));
-    
-    // Determine mime type
-    const ext = (fileName || fileUrl).toLowerCase();
-    let mimeType = "application/pdf";
-    if (ext.endsWith(".png")) mimeType = "image/png";
-    else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
-    else if (ext.endsWith(".webp")) mimeType = "image/webp";
 
     const systemPrompt = `You are an expert at extracting structured information from Israeli urban planning documents (הוראות תוכנית / plan instructions).
 
@@ -90,12 +76,29 @@ Extract ALL relevant information and return a JSON object with the following str
 
 Return ONLY valid JSON. Do not include fields with empty values. Extract as much information as possible from the document.`;
 
+    // Determine mime type from filename/url
+    const ext = (fileName || fileUrl).toLowerCase();
+    let mimeType = "application/pdf";
+    if (ext.endsWith(".png")) mimeType = "image/png";
+    else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
+    else if (ext.endsWith(".webp")) mimeType = "image/webp";
+
     const messages: any[] = [
       { role: "system", content: systemPrompt },
     ];
 
-    // Use vision for images/PDFs
-    if (mimeType.startsWith("image/") || mimeType === "application/pdf") {
+    if (mimeType.startsWith("image/")) {
+      // For images, download and send as base64 inline (works well with vision)
+      const fileResponse = await fetch(fileUrl);
+      if (!fileResponse.ok) throw new Error("Failed to download file");
+      const fileBuffer = await fileResponse.arrayBuffer();
+      const bytes = new Uint8Array(fileBuffer);
+      let binary = "";
+      for (let i = 0; i < bytes.length; i++) {
+        binary += String.fromCharCode(bytes[i]);
+      }
+      const base64 = btoa(binary);
+
       messages.push({
         role: "user",
         content: [
@@ -110,11 +113,20 @@ Return ONLY valid JSON. Do not include fields with empty values. Extract as much
         ],
       });
     } else {
-      // For text-like files, decode as text
-      const textContent = new TextDecoder().decode(new Uint8Array(fileBuffer));
+      // For PDFs and other documents: pass the public URL directly
+      // Gemini supports URLs for document understanding
       messages.push({
         role: "user",
-        content: `נתח את המסמך הבא וחלץ את כל המידע הרלוונטי לפרויקט בינוי. החזר JSON בלבד.\n\n${textContent}`,
+        content: [
+          {
+            type: "image_url",
+            image_url: { url: fileUrl },
+          },
+          {
+            type: "text",
+            text: "נתח את המסמך הזה וחלץ את כל המידע הרלוונטי לפרויקט בינוי. החזר JSON בלבד.",
+          },
+        ],
       });
     }
 
@@ -133,6 +145,20 @@ Return ONLY valid JSON. Do not include fields with empty values. Extract as much
 
     if (!aiResponse.ok) {
       const errText = await aiResponse.text();
+      console.error("AI API error:", aiResponse.status, errText);
+      
+      if (aiResponse.status === 429) {
+        return new Response(JSON.stringify({ error: "יותר מדי בקשות, נסה שוב מאוחר יותר" }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (aiResponse.status === 402) {
+        return new Response(JSON.stringify({ error: "נדרשת הוספת קרדיטים" }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error(`AI API error: ${aiResponse.status} - ${errText}`);
     }
 
