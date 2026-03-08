@@ -30,6 +30,7 @@ export interface GenericProject {
   image: string | null;
   attachments: Attachment[];
   link: string;
+  viewLink: string;
 }
 
 export interface DomainConfig {
