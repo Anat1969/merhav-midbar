@@ -600,19 +600,21 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </>
               )}
 
-              {/* Link field for apps */}
-              {config.hasLink && p.link && (
-                <div className="flex items-center gap-2 text-sm">
-                  <span className="text-gray-400 font-medium">🔗</span>
-                  <a
-                    href={p.link}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:underline truncate"
-                    style={{ direction: "ltr" }}
-                  >
-                    {p.link}
-                  </a>
+              {/* Link fields for apps */}
+              {config.hasLink && (p.link || p.viewLink) && (
+                <div className="flex items-center gap-4 text-sm flex-wrap">
+                  {p.link && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-400 font-medium">🔗 עבודה:</span>
+                      <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate max-w-[200px]" style={{ direction: "ltr" }}>{p.link}</a>
+                    </div>
+                  )}
+                  {p.viewLink && (
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-gray-400 font-medium">👁 תצוגה:</span>
+                      <a href={p.viewLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline truncate max-w-[200px]" style={{ direction: "ltr" }}>{p.viewLink}</a>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -628,12 +630,22 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </button>
                 {config.hasLink && p.link && (
                   <button
-                    title="צפה בקישור"
-                    className="h-7 px-4 rounded-md text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1"
+                    title="קישור עבודה"
+                    className="h-7 px-3 rounded-md text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1"
                     style={{ background: config.color + "15", color: config.color, border: `1px solid ${config.color}44` }}
                     onClick={() => openExternalLink(p.link)}
                   >
-                    🔗 צפה
+                    🔗 עבודה
+                  </button>
+                )}
+                {config.hasLink && p.viewLink && (
+                  <button
+                    title="קישור תצוגה"
+                    className="h-7 px-3 rounded-md text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1"
+                    style={{ background: "#10B98115", color: "#10B981", border: "1px solid #10B98144" }}
+                    onClick={() => openExternalLink(p.viewLink)}
+                  >
+                    👁 תצוגה
                   </button>
                 )}
                 <button
