@@ -18,8 +18,7 @@ import { toast } from "sonner";
 import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2, BookOpen, Loader2 } from "lucide-react";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
-import { resolveAccessibleFileUrl } from "@/lib/fileAccess";
-import { downloadFile as dlFile } from "@/lib/fileAccess";
+import { resolveAccessibleFileUrl, openFileInNewTab, downloadFile as dlFile } from "@/lib/fileAccess";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx, generateConsultantRequirementsBlob } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
@@ -1385,18 +1384,51 @@ function TabBtn({ children, active, onClick }: { children: React.ReactNode; acti
   );
 }
 
-/** Inline PDF preview – resolves a signed URL and embeds in iframe */
+/** Inline PDF preview – downloads blob and embeds in iframe */
 function PdfPreview({ url }: { url: string }) {
-  const [src, setSrc] = React.useState<string | null>(null);
+  const [blobUrl, setBlobUrl] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(false);
+
   React.useEffect(() => {
     let cancelled = false;
     setLoading(true);
-    resolveAccessibleFileUrl(url).then((resolved) => {
-      if (!cancelled) { setSrc(resolved); setLoading(false); }
-    });
-    return () => { cancelled = true; };
+    setError(false);
+
+    // Extract bucket/path and download as blob to avoid Chrome blocking
+    const STORAGE_RE = /\/storage\/v1\/object\/(?:public|sign)\/([^/]+)\/(.+)$/;
+    const match = url.match(STORAGE_RE);
+
+    if (match) {
+      const bucket = decodeURIComponent(match[1]);
+      const path = decodeURIComponent(match[2]);
+      import("@/integrations/supabase/client").then(({ supabase }) => {
+        supabase.storage.from(bucket).download(path).then(({ data, error: dlErr }) => {
+          if (cancelled) return;
+          if (dlErr || !data) { setError(true); setLoading(false); return; }
+          const bu = URL.createObjectURL(data);
+          setBlobUrl(bu);
+          setLoading(false);
+        });
+      });
+    } else {
+      // Non-storage URL, use directly
+      setBlobUrl(url);
+      setLoading(false);
+    }
+
+    return () => {
+      cancelled = true;
+      // Cleanup blob URL on unmount
+    };
   }, [url]);
+
+  // Cleanup blob URL on unmount
+  React.useEffect(() => {
+    return () => {
+      if (blobUrl && blobUrl.startsWith("blob:")) URL.revokeObjectURL(blobUrl);
+    };
+  }, [blobUrl]);
 
   if (loading) return (
     <div className="flex flex-col items-center justify-center p-12">
@@ -1405,9 +1437,21 @@ function PdfPreview({ url }: { url: string }) {
     </div>
   );
 
+  if (error || !blobUrl) return (
+    <div className="flex flex-col items-center justify-center p-12">
+      <FileText size={48} className="text-red-400 mb-4" />
+      <button
+        className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium"
+        onClick={() => void openFileInNewTab(url)}
+      >
+        פתח PDF בלשונית חדשה
+      </button>
+    </div>
+  );
+
   return (
     <iframe
-      src={src || url}
+      src={blobUrl}
       title="PDF preview"
       className="w-full border-0"
       style={{ height: "calc(90vh - 48px)", minHeight: 400 }}
