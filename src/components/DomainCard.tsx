@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DomainDef } from "@/lib/hierarchy";
 import { countDomainProjectsAsync, countCategoryProjectsAsync } from "@/lib/supabaseStorage";
 import { SubButton } from "./SubButton";
-import { AppIconsBar } from "./AppIconsBar";
+import { SubIconsRow } from "./AppIconsBar";
 
 const DOMAIN_ROUTES: Record<string, string> = {
   "מבנים": "/binui",
@@ -21,6 +21,9 @@ const CATEGORY_ROUTES: Record<string, string> = {
 };
 
 const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "כלי AI"]);
+
+// Subs that should show icon rows
+const SUBS_WITH_ICONS = new Set(["אפליקציות", "סוכנים"]);
 
 interface DomainCardProps {
   name: string;
@@ -40,6 +43,8 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const hasDedicatedPage = DOMAINS_WITH_PAGES.has(name);
   const hasSubItems = Object.values(def.categories).some((c) => c.items.length > 0);
   const hideCategoryTitles = !hasSubItems;
+  const isAITools = name === "כלי AI";
+
   return (
     <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
       <Link
@@ -62,12 +67,19 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
         </div>
       </Link>
 
-      {name === "כלי AI" && (
-        <AppIconsBar refreshKey={refreshKey} color={def.color} />
-      )}
-
       <div className="p-4">
-        {hasSubItems ? (
+        {isAITools ? (
+          <AIToolsLayout
+            domainName={name}
+            def={def}
+            color={def.color}
+            route={route}
+            hasDedicatedPage={hasDedicatedPage}
+            onOpenPanel={onOpenPanel}
+            refreshKey={refreshKey}
+            navigate={navigate}
+          />
+        ) : hasSubItems ? (
           <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Object.keys(def.categories).length}, 1fr)` }}>
             {Object.entries(def.categories).map(([catName, catDef]) => {
               const subs = catDef.items.length > 0 ? catDef.items : [catName];
@@ -115,6 +127,45 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
     </div>
   );
 };
+
+function AIToolsLayout({ domainName, def, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate }: {
+  domainName: string; def: DomainDef; color: string; route: string; hasDedicatedPage: boolean;
+  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any;
+}) {
+  const categories = def.categories;
+  const subs = Object.values(categories).flatMap((c) => c.items.length > 0 ? c.items : []);
+  const catName = Object.keys(categories)[0];
+
+  return (
+    <div className="space-y-4">
+      {subs.map((sub) => (
+        <div key={sub}>
+          <SubButton
+            label={sub}
+            domain={domainName}
+            category={catName}
+            sub={sub}
+            color={color}
+            onClick={() => {
+              const catRoute = CATEGORY_ROUTES[sub];
+              if (catRoute) {
+                navigate(catRoute);
+              } else if (hasDedicatedPage) {
+                navigate(`${route}?filter=${encodeURIComponent(sub)}`);
+              } else {
+                onOpenPanel(domainName, catName, sub);
+              }
+            }}
+            refreshKey={refreshKey}
+          />
+          {SUBS_WITH_ICONS.has(sub) && (
+            <SubIconsRow sub={sub} color={color} refreshKey={refreshKey} />
+          )}
+        </div>
+      ))}
+    </div>
+  );
+}
 
 function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate, gridLayout, hideTitle }: {
   domainName: string; catName: string; subs: string[]; color: string; route: string; hasDedicatedPage: boolean;
