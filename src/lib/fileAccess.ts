@@ -111,3 +111,19 @@ export async function downloadFile(fileUrl: string, fileName?: string): Promise<
   if (fileName) a.download = fileName;
   a.click();
 }
+
+/**
+ * Opens an external URL in a new tab using the synchronous window.open trick
+ * to bypass ad-blockers and popup blockers.
+ */
+export function openExternalLink(url: string): void {
+  if (!url) return;
+  const popup = window.open("", "_blank");
+  if (popup) {
+    try { popup.opener = null; } catch {}
+    popup.location.href = url;
+  } else {
+    // Fallback if window.open itself is blocked
+    window.location.href = url;
+  }
+}
