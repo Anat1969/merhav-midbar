@@ -85,6 +85,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const addProject = async () => {
     const trimmed = newName.trim();
     if (!trimmed) return;
+    if (config.hasLink && !newLink.trim()) {
+      toast.error("יש להזין קישור לאפליקציה");
+      return;
+    }
     const fullName = `${namePrefix}${trimmed}`;
     const now = getHebrewDateNow();
     const p: GenericProject = {
@@ -106,11 +110,12 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       initiator: "",
       image: null,
       attachments: [],
-      link: "",
+      link: newLink.trim(),
     };
     try {
       await saveMutation.mutateAsync(p);
       setNewName("");
+      setNewLink("");
     } catch {}
   };
 
