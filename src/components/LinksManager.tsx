@@ -83,10 +83,10 @@ export const LinksManager: React.FC<Props> = ({ isOpen, onClose }) => {
           {links.length === 0 && <p className="text-xs text-muted-foreground text-center py-4">אין קישורים שמורים</p>}
           {links.map((l) => (
             <div key={l.id} className="flex items-center gap-2 rounded border px-2 py-1.5 text-sm hover:bg-muted/50 transition-colors">
-              <a href={l.url} target="_blank" rel="noopener noreferrer" className="flex-1 flex items-center gap-1.5 text-primary hover:underline truncate">
+              <button onClick={() => openExternalLink(l.url)} className="flex-1 flex items-center gap-1.5 text-primary hover:underline truncate text-right" title={`פתח ${l.name}`}>
                 <ExternalLink className="h-3.5 w-3.5 shrink-0" />
                 <span className="truncate font-medium">{l.name}</span>
-              </a>
+              </button>
               <span className="text-[10px] text-muted-foreground truncate max-w-[120px]" dir="ltr">{l.url}</span>
               <button onClick={() => removeLink(l.id)} className="text-muted-foreground hover:text-destructive transition-colors">
                 <X className="h-3.5 w-3.5" />
