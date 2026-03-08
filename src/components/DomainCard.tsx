@@ -17,6 +17,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
 // Categories with their own dedicated route
 const CATEGORY_ROUTES: Record<string, string> = {
   "סוכנים": "/agents",
+  "אפליקציות": "/apps",
 };
 
 const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "כלי AI"]);
