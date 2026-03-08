@@ -13,6 +13,8 @@ import MeyadimPage from "./pages/MeyadimPage";
 import MeyadimDetail from "./pages/MeyadimDetail";
 import PeulotPage from "./pages/PeulotPage";
 import PeulotDetail from "./pages/PeulotDetail";
+import AppsPage from "./pages/AppsPage";
+import AppsDetail from "./pages/AppsDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +35,8 @@ const App = () => (
           <Route path="/meyadim/:id" element={<MeyadimDetail />} />
           <Route path="/peulot" element={<PeulotPage />} />
           <Route path="/peulot/:id" element={<PeulotDetail />} />
+          <Route path="/apps" element={<AppsPage />} />
+          <Route path="/apps/:id" element={<AppsDetail />} />
           <Route path="/:slug" element={<DomainPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
