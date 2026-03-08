@@ -1,6 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { loadProjectsWithLinksAsync } from "@/lib/supabaseStorage";
+import { openExternalLink } from "@/lib/fileAccess";
 import {
   Globe, MessageSquare, Brain, Code, FileText, Image, Music,
   Video, Mail, Calendar, Map, Calculator, ShoppingCart, Database,
