@@ -84,7 +84,7 @@ export const AppIconsBar: React.FC<AppIconsBarProps> = ({ refreshKey, color }) =
   return (
     <div className="flex flex-wrap gap-2.5 px-4 pb-4 pt-1">
       {apps.map((app) => {
-        const Icon = getIconForApp(app.name);
+        const displayName = getDisplayName(app.name);
         return (
           <a
             key={app.id}
