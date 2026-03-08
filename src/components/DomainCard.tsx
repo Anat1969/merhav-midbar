@@ -77,6 +77,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                   onOpenPanel={onOpenPanel}
                   refreshKey={refreshKey}
                   navigate={navigate}
+                  hideTitle={hideCategoryTitles}
                 />
               );
             })}
@@ -98,6 +99,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
                   refreshKey={refreshKey}
                   navigate={navigate}
                   gridLayout
+                  hideTitle={hideCategoryTitles}
                 />
               );
             })}
