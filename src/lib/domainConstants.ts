@@ -92,7 +92,7 @@ export const APPS_CONFIG: DomainConfig = {
   domainName: "אפליקציות",
   routeBase: "apps",
   categories: {
-    "אפליקציות": [],
+    "כלי AI": [],
   },
   extraFields: "task",
   hasLink: true,
