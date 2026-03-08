@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useEffect } from "react";
+import React, { useState, useRef, useMemo, useEffect, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
@@ -1339,24 +1339,8 @@ const BinuiProjectDetail: React.FC = () => {
                 const ft = getAttachType(att.data);
                 if (ft === "image") return <img src={att.data} alt={att.name} className="max-w-full max-h-[80vh] object-contain" />;
                 if (ft === "video") return <video src={att.data} controls autoPlay className="max-w-full max-h-[80vh]" />;
-                if (ft === "pdf") return (
-                  <div className="flex flex-col items-center justify-center p-12">
-                    <FileText size={48} className="text-red-400 mb-4" />
-                    <a href={att.data} target="_blank" rel="noopener noreferrer"
-                       className="px-6 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 font-medium">
-                      פתח PDF
-                    </a>
-                  </div>
-                );
-                return (
-                  <div className="flex flex-col items-center justify-center p-12 text-center">
-                    <FileSpreadsheet size={40} className="text-blue-400" />
-                    <span className="text-sm text-gray-500 mt-3">סוג קובץ זה אינו נתמך לצפייה ישירה</span>
-                    <button className="mt-4 h-8 px-4 rounded-lg text-white text-xs font-bold" style={{ background: "#3B82F6" }} onClick={() => {
-                      const a = document.createElement("a"); a.href = att.data; a.download = att.name; a.click();
-                    }}>הורד קובץ</button>
-                  </div>
-                );
+                if (ft === "pdf") return <PdfPreview url={att.data} />;
+                return <DocPreview url={att.data} name={att.name} />;
               })()}
             </div>
           </div>
