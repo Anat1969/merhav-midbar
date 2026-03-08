@@ -50,8 +50,8 @@ export const DETAIL_FIELDS: Record<string, { key: string; label: string }[]> = {
     { key: "parcel",  label: "חלקה" },
   ],
   'נתוני תב"ע': [
-    { key: "plan_overall", label: "מס' תוכנית כוללת" },
-    { key: "plan_detail",  label: "מס' תוכנית מפורטת" },
+    { key: "plan_overall", label: "מס' תוכנית" },
+    { key: "plan_detail",  label: "מספר תוכנית בינוי" },
   ],
 };
 

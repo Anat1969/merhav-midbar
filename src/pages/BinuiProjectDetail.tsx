@@ -36,7 +36,7 @@ const IMAGE_LABELS: Record<string, string> = {
   hadmaya: "הדמייה",
 };
 
-const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void }> = ({ project, onUpload }) => {
+const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void; onMinutesUpload: (file: File) => void }> = ({ project, onUpload, onMinutesUpload }) => {
   const [tab, setTab] = useState<"presentation" | "devplan" | "minutes">("presentation");
   const presRef = useRef<HTMLInputElement>(null);
   const devRef = useRef<HTMLInputElement>(null);
@@ -45,6 +45,7 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
   const presFiles = project.attachments.filter((a) => /\.(pptx?|pdf|key)$/i.test(a.name));
   const devFiles = project.attachments.filter((a) => /תוכנית.פיתוח|dev.?plan/i.test(a.name));
   const minFiles = project.attachments.filter((a) => /פרוטוקול.ועדה|committee.?minutes/i.test(a.name));
+  const hasMinutes = minFiles.length > 0;
 
   return (
     <div className="bg-card rounded-xl shadow-sm overflow-hidden">
@@ -52,7 +53,11 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
       <div className="flex border-b">
         <TabBtn active={tab === "presentation"} onClick={() => setTab("presentation")}>מצגת</TabBtn>
         <TabBtn active={tab === "devplan"} onClick={() => setTab("devplan")}>תוכנית פיתוח</TabBtn>
-        <TabBtn active={tab === "minutes"} onClick={() => setTab("minutes")}>פרוטוקול ועדה</TabBtn>
+        <TabBtn active={tab === "minutes"} onClick={() => setTab("minutes")}>
+          <span className={hasMinutes ? "text-green-600 font-bold" : ""}>
+            {hasMinutes ? "✅ " : ""}פרוטוקול ועדה
+          </span>
+        </TabBtn>
       </div>
       <div className="flex flex-col items-center justify-center p-4 gap-2" style={{ minHeight: 100 }}>
         {tab === "presentation" ? (
@@ -99,14 +104,14 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
           </>
         ) : (
           <>
-            <input ref={minRef} type="file" className="hidden" accept=".pdf,.docx,.doc,.xlsx,.pptx" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
+            <input ref={minRef} type="file" className="hidden" accept=".pdf,.docx,.doc,.xlsx,.pptx" onChange={(e) => { const f = e.target.files?.[0]; if (f) onMinutesUpload(f); }} />
             <button
               title="העלה פרוטוקול ועדה — PDF, DOCX"
               className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
-              style={{ background: "#2C6E6A" }}
+              style={{ background: hasMinutes ? "#10B981" : "#2C6E6A" }}
               onClick={() => minRef.current?.click()}
             >
-              📎 העלה פרוטוקול ועדה
+              {hasMinutes ? "✅" : "📎"} העלה פרוטוקול ועדה
             </button>
             <span className="text-[10px] text-muted-foreground">העלאת פרוטוקול ועדה (PDF, DOCX)</span>
             {minFiles.length > 0 && (
