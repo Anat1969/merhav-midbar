@@ -36,7 +36,7 @@ const IMAGE_LABELS: Record<string, string> = {
   hadmaya: "הדמייה",
 };
 
-const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void }> = ({ project, onUpload }) => {
+const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void; onMinutesUpload: (file: File) => void }> = ({ project, onUpload, onMinutesUpload }) => {
   const [tab, setTab] = useState<"presentation" | "devplan" | "minutes">("presentation");
   const presRef = useRef<HTMLInputElement>(null);
   const devRef = useRef<HTMLInputElement>(null);
@@ -45,6 +45,7 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
   const presFiles = project.attachments.filter((a) => /\.(pptx?|pdf|key)$/i.test(a.name));
   const devFiles = project.attachments.filter((a) => /תוכנית.פיתוח|dev.?plan/i.test(a.name));
   const minFiles = project.attachments.filter((a) => /פרוטוקול.ועדה|committee.?minutes/i.test(a.name));
+  const hasMinutes = minFiles.length > 0;
 
   return (
     <div className="bg-card rounded-xl shadow-sm overflow-hidden">
@@ -52,7 +53,11 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
       <div className="flex border-b">
         <TabBtn active={tab === "presentation"} onClick={() => setTab("presentation")}>מצגת</TabBtn>
         <TabBtn active={tab === "devplan"} onClick={() => setTab("devplan")}>תוכנית פיתוח</TabBtn>
-        <TabBtn active={tab === "minutes"} onClick={() => setTab("minutes")}>פרוטוקול ועדה</TabBtn>
+        <TabBtn active={tab === "minutes"} onClick={() => setTab("minutes")}>
+          <span className={hasMinutes ? "text-green-600 font-bold" : ""}>
+            {hasMinutes ? "✅ " : ""}פרוטוקול ועדה
+          </span>
+        </TabBtn>
       </div>
       <div className="flex flex-col items-center justify-center p-4 gap-2" style={{ minHeight: 100 }}>
         {tab === "presentation" ? (
@@ -99,14 +104,14 @@ const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file
           </>
         ) : (
           <>
-            <input ref={minRef} type="file" className="hidden" accept=".pdf,.docx,.doc,.xlsx,.pptx" onChange={(e) => { const f = e.target.files?.[0]; if (f) onUpload(f); }} />
+            <input ref={minRef} type="file" className="hidden" accept=".pdf,.docx,.doc,.xlsx,.pptx" onChange={(e) => { const f = e.target.files?.[0]; if (f) onMinutesUpload(f); }} />
             <button
               title="העלה פרוטוקול ועדה — PDF, DOCX"
               className="h-9 px-4 rounded-lg text-white text-xs font-bold hover:brightness-110 transition-all"
-              style={{ background: "#2C6E6A" }}
+              style={{ background: hasMinutes ? "#10B981" : "#2C6E6A" }}
               onClick={() => minRef.current?.click()}
             >
-              📎 העלה פרוטוקול ועדה
+              {hasMinutes ? "✅" : "📎"} העלה פרוטוקול ועדה
             </button>
             <span className="text-[10px] text-muted-foreground">העלאת פרוטוקול ועדה (PDF, DOCX)</span>
             {minFiles.length > 0 && (
@@ -583,6 +588,8 @@ const BinuiProjectDetail: React.FC = () => {
         {Object.entries(DETAIL_FIELDS).filter(([s]) => s !== "פרטים").map(([section, fields]) => {
           const editing = editingSections[section];
           const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
+          const isTaba = section === 'נתוני תב"ע';
+          const planDetailVal = isTaba ? (vals["plan_detail"] || "") : "";
           return (
             <div key={section} className="detail-card bg-card rounded-xl shadow-sm overflow-hidden min-w-[180px]">
               <div className="flex items-center justify-between px-3 py-2 border-b" style={{ background: "#FAFAF8" }}>
@@ -596,6 +603,15 @@ const BinuiProjectDetail: React.FC = () => {
                   <button title="עריכה" className="text-[10px] hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
                 )}
               </div>
+              {/* Show plan_detail (תוכנית בינוי) very large */}
+              {isTaba && planDetailVal && !editing && (
+                <div className="px-3 pt-3 pb-1 text-center">
+                  <div className="text-3xl font-black" style={{ color: "#2C6E6A", letterSpacing: "0.05em" }}>
+                    {planDetailVal}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">מספר תוכנית בינוי</div>
+                </div>
+              )}
               <div className="px-3 py-2 space-y-1.5">
                 {fields.map((f) => (
                   <div key={f.key} className="flex items-center gap-1.5 text-[11px]">
@@ -1209,7 +1225,20 @@ const BinuiProjectDetail: React.FC = () => {
         {/* Right — video/pres + images */}
         <div className="detail-column space-y-4">
           {/* Presentation / Development Plan */}
-          <PresentationDevPlanTabs project={project} onUpload={addAttachment} />
+          <PresentationDevPlanTabs project={project} onUpload={addAttachment} onMinutesUpload={async (file: File) => {
+            if (file.size > MAX_FILE_SIZE_BYTES) { toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB."); return; }
+            try {
+              const url = await uploadProjectFile(file, "binui", project.id);
+              await saveAttachmentAsync("binui", project.id, `פרוטוקול ועדה - ${file.name}`, url);
+              qc.invalidateQueries({ queryKey: ["binui-projects"] });
+              const label = STATUS_OPTIONS.find((s) => s.value === "done")?.label ?? "בוצע";
+              await update({
+                status: "done",
+                history: [{ date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה. סטטוס שונה ל: ${label}` }, ...project.history],
+              });
+              toast.success("פרוטוקול ועדה הועלה והסטטוס עודכן לבוצע");
+            } catch (err: any) { toast.error(err.message || "שגיאה בהעלאת קובץ"); }
+          }} />
 
           {/* Images */}
           <div className="bg-card rounded-xl shadow-sm p-4">
