@@ -19,7 +19,7 @@ import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Fi
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
-import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx } from "@/lib/generateDraftDocx";
+import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx, generateConsultantRequirementsBlob } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
@@ -769,6 +769,34 @@ const BinuiProjectDetail: React.FC = () => {
                             }}
                           >
                             <Download className="w-3 h-3" /> ייצוא Word
+                          </button>
+                          <button
+                            className="flex items-center gap-1 text-[10px] px-2 py-1 rounded border hover:opacity-80"
+                            style={{ borderColor: "#2C6E6A66", color: "#2C6E6A", background: "#E0F2F1" }}
+                            onClick={async () => {
+                              try {
+                                const blob = await generateConsultantRequirementsBlob({
+                                  projectName: project.name,
+                                  consultantNotes: project.consultant_notes || {},
+                                  parties: CONSULTANT_PARTIES,
+                                });
+                                const reader = new FileReader();
+                                reader.onloadend = () => {
+                                  const base64 = (reader.result as string).split(",")[1];
+                                  setDraftAttachment({
+                                    name: `דרישות_יועצים_${project.name.replace(/\s+/g, "_")}.docx`,
+                                    base64,
+                                  });
+                                  setDraftEmailBody(`ריכוז דרישות יועצים — ${project.name}\n\nמצורף קובץ ריכוז דרישות היועצים מהוראות התוכנית.`);
+                                  setEmailOpen(true);
+                                };
+                                reader.readAsDataURL(blob);
+                              } catch {
+                                toast.error("שגיאה ביצירת הקובץ");
+                              }
+                            }}
+                          >
+                            ✉️ שלח באימייל
                           </button>
                         </div>
                         {(() => {

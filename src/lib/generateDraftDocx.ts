@@ -153,7 +153,7 @@ interface ConsultantRequirementsDocxParams {
   parties: readonly string[];
 }
 
-export async function downloadConsultantRequirementsDocx(params: ConsultantRequirementsDocxParams): Promise<void> {
+export async function generateConsultantRequirementsBlob(params: ConsultantRequirementsDocxParams): Promise<Blob> {
   const { projectName, consultantNotes, parties } = params;
   const children: Paragraph[] = [];
 
@@ -224,6 +224,11 @@ export async function downloadConsultantRequirementsDocx(params: ConsultantRequi
     sections: [{ properties: { page: { margin: { top: 720, right: 720, bottom: 720, left: 720 } } }, children }],
   });
 
-  const blob = await Packer.toBlob(doc);
-  saveAs(blob, `דרישות_יועצים_${projectName.replace(/\s+/g, "_")}.docx`);
+  return Packer.toBlob(doc);
+}
+
+export async function downloadConsultantRequirementsDocx(params: ConsultantRequirementsDocxParams): Promise<Blob> {
+  const blob = await generateConsultantRequirementsBlob(params);
+  saveAs(blob, `דרישות_יועצים_${params.projectName.replace(/\s+/g, "_")}.docx`);
+  return blob;
 }
