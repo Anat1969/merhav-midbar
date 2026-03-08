@@ -807,7 +807,6 @@ const BinuiProjectDetail: React.FC = () => {
                           if (!cn?.quote) return null;
                           const status = cn.status || "pending";
                           if (consultantFilter !== "all" && status !== consultantFilter) return null;
-                          const status = cn.status || "pending";
                           const statusBg = status === "done" ? "#F0FDF4" : status === "not_done" ? "#FEF2F2" : "#FEFDF8";
                           const statusBorder = status === "done" ? "#BBF7D0" : status === "not_done" ? "#FECACA" : "#FDE68A";
                           return (
