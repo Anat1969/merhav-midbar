@@ -2,6 +2,7 @@ import React, { useState, useRef, useMemo, useCallback } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
+import { HierarchyFilter } from "@/components/HierarchyFilter";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
