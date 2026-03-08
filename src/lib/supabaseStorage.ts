@@ -313,6 +313,30 @@ export async function countCategoryProjectsAsync(domainName: string, category: s
   return 0;
 }
 
+export async function loadProjectsBySubAsync(domainName: string, category: string, sub: string): Promise<{ id: number; name: string; status: string }[]> {
+  if (domainName === "מבנים") {
+    const { data } = await supabase
+      .from("binui_projects")
+      .select("id, name, status")
+      .eq("category", category)
+      .eq("sub", sub)
+      .order("created_at", { ascending: false });
+    return data || [];
+  }
+  const key = DOMAIN_NAME_TO_KEY[domainName];
+  if (key) {
+    const { data } = await supabase
+      .from("generic_projects")
+      .select("id, name, status")
+      .eq("domain", key)
+      .eq("category", category)
+      .eq("sub", sub)
+      .order("created_at", { ascending: false });
+    return data || [];
+  }
+  return [];
+}
+
 export async function countSubProjectsAsync(domainName: string, category: string, sub: string): Promise<number> {
   if (domainName === "מבנים") {
     const { count } = await supabase
