@@ -13,7 +13,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "אפליקציות": "/apps",
 };
 
-const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות"]);
+const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "אפליקציות"]);
 
 interface DomainCardProps {
   name: string;

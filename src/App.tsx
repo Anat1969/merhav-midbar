@@ -15,6 +15,8 @@ import PeulotPage from "./pages/PeulotPage";
 import PeulotDetail from "./pages/PeulotDetail";
 import AppsPage from "./pages/AppsPage";
 import AppsDetail from "./pages/AppsDetail";
+import AgentsPage from "./pages/AgentsPage";
+import AgentsDetail from "./pages/AgentsDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +39,8 @@ const App = () => (
           <Route path="/peulot/:id" element={<PeulotDetail />} />
           <Route path="/apps" element={<AppsPage />} />
           <Route path="/apps/:id" element={<AppsDetail />} />
+          <Route path="/agents" element={<AgentsPage />} />
+          <Route path="/agents/:id" element={<AgentsDetail />} />
           <Route path="/:slug" element={<DomainPage />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

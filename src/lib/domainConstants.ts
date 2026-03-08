@@ -98,6 +98,18 @@ export const APPS_CONFIG: DomainConfig = {
   hasLink: true,
 };
 
+export const AGENTS_CONFIG: DomainConfig = {
+  storageKey: "agents_projects",
+  color: "#2E5F7A",
+  domainName: "סוכנים",
+  routeBase: "agents",
+  categories: {
+    "סוכנים": [],
+  },
+  extraFields: "task",
+  hasLink: true,
+};
+
 export function loadGenericProjects(key: string): GenericProject[] {
   try {
     const raw = localStorage.getItem(key);
