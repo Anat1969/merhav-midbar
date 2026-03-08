@@ -653,6 +653,22 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </>
               )}
 
+              {/* Link field for apps */}
+              {config.hasLink && p.link && (
+                <div className="flex items-center gap-2 text-sm">
+                  <span className="text-gray-400 font-medium">🔗</span>
+                  <a
+                    href={p.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:underline truncate"
+                    style={{ direction: "ltr" }}
+                  >
+                    {p.link}
+                  </a>
+                </div>
+              )}
+
               {/* Row 4: actions */}
               <div className="flex items-center gap-2 mt-auto">
                 <button
