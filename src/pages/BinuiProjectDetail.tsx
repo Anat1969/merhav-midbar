@@ -786,10 +786,27 @@ const BinuiProjectDetail: React.FC = () => {
                           ) : null;
                         })()}
                       </div>
+                      {/* Filter buttons */}
+                      <div className="flex gap-1 text-[10px]">
+                        {([["all", "הכל", "#6B7280", "#F3F4F6"], ["not_done", "לא בוצע", "#991B1B", "#FEE2E2"], ["pending", "ממתין", "#92400E", "#FEF3C7"], ["done", "בוצע", "#166534", "#DCFCE7"]] as const).map(([val, label, color, bg]) => (
+                          <button
+                            key={val}
+                            className="px-2 py-0.5 rounded border font-bold transition-all"
+                            style={{
+                              borderColor: consultantFilter === val ? color : "#D1D5DB",
+                              color: consultantFilter === val ? "#FFF" : color,
+                              background: consultantFilter === val ? color : bg,
+                            }}
+                            onClick={() => setConsultantFilter(val)}
+                          >{label}</button>
+                        ))}
+                      </div>
                       <div className="grid grid-cols-1 gap-3">
                         {CONSULTANT_PARTIES.map((party) => {
                           const cn = (project.consultant_notes || {})[party];
                           if (!cn?.quote) return null;
+                          const status = cn.status || "pending";
+                          if (consultantFilter !== "all" && status !== consultantFilter) return null;
                           const status = cn.status || "pending";
                           const statusBg = status === "done" ? "#F0FDF4" : status === "not_done" ? "#FEF2F2" : "#FEFDF8";
                           const statusBorder = status === "done" ? "#BBF7D0" : status === "not_done" ? "#FECACA" : "#FDE68A";
