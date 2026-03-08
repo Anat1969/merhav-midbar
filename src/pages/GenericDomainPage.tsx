@@ -410,6 +410,20 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 />
               </div>
             </div>
+            {config.hasLink && (
+              <div className="flex flex-col gap-1 min-w-[180px]">
+                <label className="text-sm text-gray-400 font-medium">🔗 קישור</label>
+                <input
+                  title="קישור לאפליקציה"
+                  className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+                  style={{ direction: "ltr" }}
+                  placeholder="https://..."
+                  value={newLink}
+                  onChange={(e) => setNewLink(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && addProject()}
+                />
+              </div>
+            )}
             <button
               title="הוסף פרויקט"
               onClick={addProject}
@@ -419,7 +433,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               + הוספה
             </button>
           </div>
-          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם ולחץ הוספה</p>
+          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם{config.hasLink ? " וקישור" : ""} ולחץ הוספה</p>
         </div>
       </div>
 
