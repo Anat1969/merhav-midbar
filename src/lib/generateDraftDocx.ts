@@ -150,7 +150,7 @@ export async function downloadDraftDocx(params: DraftDocxParams): Promise<Blob> 
 interface ConsultantRequirementsDocxParams {
   projectName: string;
   consultantNotes: Record<string, { quote: string; comment: string; status?: "pending" | "done" | "not_done" }>;
-  parties: string[];
+  parties: readonly string[];
 }
 
 export async function downloadConsultantRequirementsDocx(params: ConsultantRequirementsDocxParams): Promise<void> {
