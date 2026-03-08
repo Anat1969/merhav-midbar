@@ -588,6 +588,8 @@ const BinuiProjectDetail: React.FC = () => {
         {Object.entries(DETAIL_FIELDS).filter(([s]) => s !== "פרטים").map(([section, fields]) => {
           const editing = editingSections[section];
           const vals = editing ? editValues[section] ?? {} : project.details?.[section] ?? {};
+          const isTaba = section === 'נתוני תב"ע';
+          const planDetailVal = isTaba ? (vals["plan_detail"] || "") : "";
           return (
             <div key={section} className="detail-card bg-card rounded-xl shadow-sm overflow-hidden min-w-[180px]">
               <div className="flex items-center justify-between px-3 py-2 border-b" style={{ background: "#FAFAF8" }}>
@@ -601,6 +603,15 @@ const BinuiProjectDetail: React.FC = () => {
                   <button title="עריכה" className="text-[10px] hover:underline" style={{ color: "#2C6E6A" }} onClick={() => startEdit(section)}>עריכה</button>
                 )}
               </div>
+              {/* Show plan_detail (תוכנית בינוי) very large */}
+              {isTaba && planDetailVal && !editing && (
+                <div className="px-3 pt-3 pb-1 text-center">
+                  <div className="text-3xl font-black" style={{ color: "#2C6E6A", letterSpacing: "0.05em" }}>
+                    {planDetailVal}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground">מספר תוכנית בינוי</div>
+                </div>
+              )}
               <div className="px-3 py-2 space-y-1.5">
                 {fields.map((f) => (
                   <div key={f.key} className="flex items-center gap-1.5 text-[11px]">
@@ -1214,7 +1225,20 @@ const BinuiProjectDetail: React.FC = () => {
         {/* Right — video/pres + images */}
         <div className="detail-column space-y-4">
           {/* Presentation / Development Plan */}
-          <PresentationDevPlanTabs project={project} onUpload={addAttachment} />
+          <PresentationDevPlanTabs project={project} onUpload={addAttachment} onMinutesUpload={async (file: File) => {
+            await addAttachment(file);
+            // Also rename with prefix for filtering
+            const url = await uploadProjectFile(file, "binui", project.id);
+            await saveAttachmentAsync("binui", project.id, `פרוטוקול ועדה - ${file.name}`, url);
+            qc.invalidateQueries({ queryKey: ["binui-projects"] });
+            // Mark status as done
+            const label = STATUS_OPTIONS.find((s) => s.value === "done")?.label ?? "בוצע";
+            await update({
+              status: "done",
+              history: [{ date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה. סטטוס שונה ל: ${label}` }, ...project.history],
+            });
+            toast.success("פרוטוקול ועדה הועלה והסטטוס עודכן לבוצע");
+          }} />
 
           {/* Images */}
           <div className="bg-card rounded-xl shadow-sm p-4">
