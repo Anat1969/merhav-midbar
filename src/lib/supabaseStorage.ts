@@ -359,14 +359,17 @@ export async function countSubProjectsAsync(domainName: string, category: string
   return 0;
 }
 
-export async function loadAppsWithLinksAsync(): Promise<{ id: number; name: string; link: string; status: string }[]> {
+export async function loadProjectsWithLinksAsync(domain: string): Promise<{ id: number; name: string; link: string; status: string }[]> {
   const { data } = await supabase
     .from("generic_projects")
     .select("id, name, link, status")
-    .eq("domain", "apps")
+    .eq("domain", domain)
     .order("created_at", { ascending: false });
   return (data || []).filter((p) => p.link);
 }
+
+// Backwards compat alias
+export const loadAppsWithLinksAsync = () => loadProjectsWithLinksAsync("apps");
 
 export interface SearchResult {
   domain: string;
