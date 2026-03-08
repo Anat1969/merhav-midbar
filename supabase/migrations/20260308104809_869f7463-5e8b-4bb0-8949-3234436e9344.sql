@@ -1,0 +1,1 @@
+UPDATE public.generic_projects SET category = 'כלי AI', sub = 'אפליקציות' WHERE domain = 'apps' AND category = 'אפליקציות';
