@@ -98,13 +98,14 @@ export const SubIconsRow: React.FC<SubIconsRowProps> = ({ sub, color, refreshKey
         const Icon = getIconForApp(app.name);
         const displayName = getDisplayName(app.name);
         return (
-          <a
+          <button
             key={app.id}
-            href={app.link}
-            target="_blank"
-            rel="noopener noreferrer"
+            onClick={(e) => {
+              e.preventDefault();
+              openExternalLink(app.link);
+            }}
             title={`פתח ${displayName}`}
-            className="group flex flex-col items-center gap-1 rounded-xl px-2.5 py-2 transition-all duration-200 hover:scale-105 hover:shadow-lg"
+            className="group flex flex-col items-center gap-1 rounded-xl px-2.5 py-2 transition-all duration-200 hover:scale-105 hover:shadow-lg cursor-pointer"
             style={{
               background: `linear-gradient(145deg, ${color}18, ${color}08)`,
               border: `1px solid ${color}20`,
@@ -124,7 +125,7 @@ export const SubIconsRow: React.FC<SubIconsRowProps> = ({ sub, color, refreshKey
             >
               {displayName}
             </span>
-          </a>
+          </button>
         );
       })}
     </div>
