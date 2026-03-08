@@ -36,20 +36,20 @@ serve(async (req) => {
 
   try {
     const { fileUrl, fileName } = await req.json();
-    if (!fileUrl) return jsonResponse({ success: false, error: "Missing fileUrl" }, 400);
+    if (!fileUrl) return jsonResponse({ success: false, error: "Missing fileUrl" });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) return jsonResponse({ success: false, error: "LOVABLE_API_KEY not configured" }, 500);
+    if (!LOVABLE_API_KEY) return jsonResponse({ success: false, error: "LOVABLE_API_KEY not configured" });
 
     const fileResponse = await fetch(fileUrl);
     if (!fileResponse.ok) {
-      return jsonResponse({ success: false, error: `Failed to download file: ${fileResponse.status}` }, 400);
+      return jsonResponse({ success: false, error: `Failed to download file: ${fileResponse.status}` });
     }
 
     const bytes = new Uint8Array(await fileResponse.arrayBuffer());
-    if (bytes.length === 0) return jsonResponse({ success: false, error: "הקובץ ריק" }, 400);
+    if (bytes.length === 0) return jsonResponse({ success: false, error: "הקובץ ריק" });
     if (bytes.length > MAX_PARSE_FILE_BYTES) {
-      return jsonResponse({ success: false, error: "הקובץ גדול מדי לניתוח אוטומטי (מקסימום 8MB)." }, 400);
+      return jsonResponse({ success: false, error: "הקובץ גדול מדי לניתוח אוטומטי (מקסימום 8MB)." });
     }
 
     const ext = (fileName || fileUrl).split("?")[0].toLowerCase();
