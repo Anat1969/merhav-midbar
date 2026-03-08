@@ -269,6 +269,75 @@ const BinuiProjectDetail: React.FC = () => {
     }
   };
 
+  const handlePlanInstructions = async (file: File) => {
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+      toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB.");
+      return;
+    }
+    setParsingPlan(true);
+    try {
+      // 1. Upload the file as attachment
+      const url = await uploadProjectFile(file, "binui", project.id);
+      await saveAttachmentAsync("binui", project.id, `הוראות_תוכנית_${file.name}`, url);
+      qc.invalidateQueries({ queryKey: ["binui-projects"] });
+
+      // 2. Send to AI for parsing
+      toast.info("מנתח את הוראות התוכנית...");
+      const { data: fnData, error: fnError } = await supabase.functions.invoke("parse-plan-instructions", {
+        body: { fileUrl: url, fileName: file.name },
+      });
+
+      if (fnError) throw fnError;
+      if (!fnData?.success || !fnData?.data) throw new Error("Failed to parse");
+
+      const parsed = fnData.data;
+
+      // 3. Apply extracted data to project fields
+      const newDetails = { ...(project.details || {}) };
+      if (parsed.details) {
+        for (const [section, fields] of Object.entries(parsed.details)) {
+          const existing = newDetails[section] || {};
+          const newFields = fields as Record<string, string>;
+          // Only fill empty fields
+          for (const [key, val] of Object.entries(newFields)) {
+            if (val && !existing[key]) {
+              existing[key] = val;
+            }
+          }
+          newDetails[section] = existing;
+        }
+      }
+
+      // Build history entries for consultant notes
+      const newHistory = [...project.history];
+      if (parsed.consultantNotes) {
+        const dateStr = getHebrewDateNow();
+        for (const [party, note] of Object.entries(parsed.consultantNotes)) {
+          if (note && typeof note === "string") {
+            newHistory.unshift({
+              date: dateStr,
+              note: `חוות דעת: [פורום יועצים - ${party}] ${note} (מתוך הוראות תוכנית)`,
+            });
+          }
+        }
+      }
+
+      // Apply project description and name
+      const patchObj: Partial<BinuiProject> = { details: newDetails, history: newHistory };
+      if (parsed.projectDescription && !project.note) {
+        patchObj.note = parsed.projectDescription;
+      }
+
+      await update(patchObj);
+      toast.success("הוראות התוכנית נותחו בהצלחה ושדות הפרויקט עודכנו!");
+    } catch (err: any) {
+      console.error("Plan parsing error:", err);
+      toast.error(err.message || "שגיאה בניתוח הוראות התוכנית");
+    } finally {
+      setParsingPlan(false);
+    }
+  };
+
   const startEdit = (section: string) => {
     setEditingSections((s) => ({ ...s, [section]: true }));
     setEditValues((v) => ({ ...v, [section]: { ...(project.details?.[section] ?? {}) } }));
