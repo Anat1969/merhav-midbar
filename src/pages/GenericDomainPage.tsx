@@ -415,18 +415,32 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               </div>
             </div>
             {config.hasLink && (
-              <div className="flex flex-col gap-1 min-w-[180px]">
-                <label className="text-sm text-gray-400 font-medium">🔗 קישור</label>
-                <input
-                  title="קישור לאפליקציה"
-                  className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
-                  style={{ direction: "ltr" }}
-                  placeholder="https://..."
-                  value={newLink}
-                  onChange={(e) => setNewLink(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addProject()}
-                />
-              </div>
+              <>
+                <div className="flex flex-col gap-1 min-w-[160px]">
+                  <label className="text-sm text-gray-400 font-medium">🔗 קישור עבודה</label>
+                  <input
+                    title="קישור עבודה"
+                    className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+                    style={{ direction: "ltr" }}
+                    placeholder="https://..."
+                    value={newLink}
+                    onChange={(e) => setNewLink(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addProject()}
+                  />
+                </div>
+                <div className="flex flex-col gap-1 min-w-[160px]">
+                  <label className="text-sm text-gray-400 font-medium">👁 קישור תצוגה</label>
+                  <input
+                    title="קישור תצוגה"
+                    className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+                    style={{ direction: "ltr" }}
+                    placeholder="https://..."
+                    value={newViewLink}
+                    onChange={(e) => setNewViewLink(e.target.value)}
+                    onKeyDown={(e) => e.key === "Enter" && addProject()}
+                  />
+                </div>
+              </>
             )}
             <button
               title="הוסף פרויקט"
