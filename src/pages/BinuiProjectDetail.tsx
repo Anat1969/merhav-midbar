@@ -288,7 +288,7 @@ const BinuiProjectDetail: React.FC = () => {
       });
 
       if (fnError) throw fnError;
-      if (!fnData?.success || !fnData?.data) throw new Error("Failed to parse");
+      if (!fnData?.success) throw new Error(fnData?.error || "Failed to parse");
 
       const parsed = fnData.data;
 
