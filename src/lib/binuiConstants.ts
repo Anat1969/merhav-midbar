@@ -61,6 +61,11 @@ export interface BinuiAttachment {
   data: string;
 }
 
+export interface ConsultantNote {
+  quote: string;
+  comment: string;
+}
+
 export interface BinuiProject {
   id: number;
   name: string;
@@ -77,6 +82,7 @@ export interface BinuiProject {
     hadmaya: string | null;
   };
   attachments: BinuiAttachment[];
+  consultant_notes: Record<string, ConsultantNote>;
 }
 
 const STORAGE_KEY = "binui_projects";
