@@ -168,6 +168,8 @@ const BinuiProjectDetail: React.FC = () => {
     digitalPlan: false,
     finalDraft: false,
   });
+  const [parsingPlan, setParsingPlan] = useState(false);
+  const planFileRef = useRef<HTMLInputElement>(null);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
   useEffect(() => {
