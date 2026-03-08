@@ -163,6 +163,7 @@ const BinuiProjectDetail: React.FC = () => {
     Object.fromEntries(CONSULTANT_PARTIES.map((p) => [p, { date: "", text: "" }]))
   );
   const [consultantDate, setConsultantDate] = useState("");
+  const [consultantFilter, setConsultantFilter] = useState<"all" | "pending" | "not_done" | "done">("all");
 
   const [committeeChecks, setCommitteeChecks] = useState({
     printedPlan: false,
