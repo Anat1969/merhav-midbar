@@ -11,6 +11,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "מיידעים": "/meyadim",
   "פעולות": "/peulot",
   "אפליקציות": "/apps",
+  "סוכנים": "/agents",
 };
 
 const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "אפליקציות"]);
