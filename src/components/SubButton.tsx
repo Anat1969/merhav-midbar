@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { countSubProjectsAsync, loadProjectsBySubAsync } from "@/lib/supabaseStorage";
@@ -44,6 +44,7 @@ export const SubButton: React.FC<SubButtonProps> = ({
 }) => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { data: count = 0 } = useQuery({
     queryKey: ["sub-count", domain, category, sub, refreshKey],
@@ -64,21 +65,27 @@ export const SubButton: React.FC<SubButtonProps> = ({
     return `/`;
   };
 
+  const handleEnter = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    setOpen(true);
+  };
+
+  const handleLeave = () => {
+    timeoutRef.current = setTimeout(() => setOpen(false), 200);
+  };
+
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
           title={`פתח ${label}`}
+          onMouseEnter={handleEnter}
+          onMouseLeave={handleLeave}
+          onClick={onClick}
           className="group flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2.5 text-right text-base transition-all duration-200 hover:-translate-x-0.5"
           style={{ borderColor: `${color}30` }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.borderColor = `${color}80`;
-            e.currentTarget.style.backgroundColor = `${color}08`;
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.borderColor = `${color}30`;
-            e.currentTarget.style.backgroundColor = "white";
-          }}
+          onFocus={handleEnter}
+          onBlur={handleLeave}
           dir="rtl"
         >
           <span className="font-medium text-gray-700">{label}</span>
@@ -96,6 +103,8 @@ export const SubButton: React.FC<SubButtonProps> = ({
         className="w-72 p-0 max-h-80 overflow-auto"
         align="start"
         dir="rtl"
+        onMouseEnter={handleEnter}
+        onMouseLeave={handleLeave}
       >
         <div className="px-3 py-2 border-b flex items-center justify-between">
           <span className="font-bold text-sm" style={{ color }}>{label}</span>
