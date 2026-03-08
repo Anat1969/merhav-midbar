@@ -897,8 +897,27 @@ const BinuiProjectDetail: React.FC = () => {
                                   )}
                                 </div>
                               </div>
-                              <div className="text-xs text-gray-700 whitespace-pre-wrap leading-relaxed max-h-[200px] overflow-y-auto" style={{ background: "#FFF", borderRadius: 6, padding: 8, border: "1px solid #F3E8D0", textDecoration: status === "done" ? "line-through" : "none", opacity: status === "done" ? 0.7 : 1 }}>
-                                {cn.quote}
+                              <div className="text-xs text-gray-700 leading-relaxed max-h-[200px] overflow-y-auto space-y-0.5" style={{ background: "#FFF", borderRadius: 6, padding: 8, border: "1px solid #F3E8D0", opacity: status === "done" ? 0.7 : 1 }}>
+                                {cn.quote.split("\n").filter(l => l.trim()).map((line, idx) => {
+                                  const checked = (cn.checkedLines || []).includes(idx);
+                                  return (
+                                    <label key={idx} className="flex items-start gap-2 cursor-pointer py-0.5 rounded hover:bg-gray-50 px-1" style={{ textDecoration: checked ? "line-through" : "none", opacity: checked ? 0.6 : 1 }}>
+                                      <input
+                                        type="checkbox"
+                                        className="mt-0.5 accent-emerald-600 shrink-0"
+                                        checked={checked}
+                                        onChange={() => {
+                                          const newNotes = { ...(project.consultant_notes || {}) };
+                                          const prev = newNotes[party]?.checkedLines || [];
+                                          const next = checked ? prev.filter(i => i !== idx) : [...prev, idx];
+                                          newNotes[party] = { ...newNotes[party], checkedLines: next };
+                                          update({ consultant_notes: newNotes });
+                                        }}
+                                      />
+                                      <span>{line}</span>
+                                    </label>
+                                  );
+                                })}
                               </div>
                               <div className="flex gap-2 items-end">
                                 <textarea

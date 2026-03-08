@@ -65,6 +65,7 @@ export interface ConsultantNote {
   quote: string;
   comment: string;
   status?: "pending" | "done" | "not_done";
+  checkedLines?: number[];
 }
 
 export interface BinuiProject {
