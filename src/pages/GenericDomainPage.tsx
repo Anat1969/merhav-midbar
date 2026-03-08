@@ -61,6 +61,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [search, setSearch] = useState("");
   const [newName, setNewName] = useState("");
   const [newLink, setNewLink] = useState("");
+  const [newViewLink, setNewViewLink] = useState("");
   const [newCat, setNewCat] = useState(firstCat);
   const [newSub, setNewSub] = useState(firstSubs[0]);
   const [filterCat, setFilterCat] = useState<string | null>(null);
@@ -112,6 +113,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       image: null,
       attachments: [],
       link: newLink.trim(),
+      viewLink: newViewLink.trim(),
     };
     try {
       await saveMutation.mutateAsync(p);
