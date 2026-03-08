@@ -72,7 +72,7 @@ export const HIERARCHY: Record<string, DomainDef> = {
     description: "כלים ופלטפורמות דיגיטליות",
     categories: {
       "סוכנים": { items: [] },
-      "אפליקציות": { items: [] },
+      "כלי AI": { items: [] },
     },
   },
 };

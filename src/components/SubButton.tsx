@@ -14,6 +14,7 @@ const DOMAIN_ROUTE_BASE: Record<string, string> = {
 const CATEGORY_ROUTE_BASE: Record<string, string> = {
   "סוכנים": "agents",
   "אפליקציות": "apps",
+  "כלי AI": "apps",
 };
 
 const STATUS_COLORS: Record<string, string> = {
