@@ -10,7 +10,7 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "פיתוח": "/pitua",
   "מיידעים": "/meyadim",
   "פעולות": "/peulot",
-  "אפליקציות": "/apps",
+  "כלי AI": "/apps",
 };
 
 // Categories with their own dedicated route
@@ -18,7 +18,7 @@ const CATEGORY_ROUTES: Record<string, string> = {
   "סוכנים": "/agents",
 };
 
-const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "אפליקציות"]);
+const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "כלי AI"]);
 
 interface DomainCardProps {
   name: string;
