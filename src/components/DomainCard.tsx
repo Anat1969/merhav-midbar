@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DomainDef } from "@/lib/hierarchy";
 import { countDomainProjectsAsync, countCategoryProjectsAsync } from "@/lib/supabaseStorage";
 import { SubButton } from "./SubButton";
+import { AppIconsBar } from "./AppIconsBar";
 
 const DOMAIN_ROUTES: Record<string, string> = {
   "מבנים": "/binui",
@@ -59,6 +60,10 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
           <span className="opacity-0 transition-opacity group-hover:opacity-80 text-lg">→</span>
         </div>
       </Link>
+
+      {name === "כלי AI" && (
+        <AppIconsBar refreshKey={refreshKey} color={def.color} />
+      )}
 
       <div className="p-4">
         {hasSubItems ? (
