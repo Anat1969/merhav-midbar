@@ -4,6 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import { DomainDef } from "@/lib/hierarchy";
 import { countDomainProjectsAsync, countCategoryProjectsAsync } from "@/lib/supabaseStorage";
 import { SubButton } from "./SubButton";
+import { AppIconsBar } from "./AppIconsBar";
 
 const DOMAIN_ROUTES: Record<string, string> = {
   "מבנים": "/binui",
