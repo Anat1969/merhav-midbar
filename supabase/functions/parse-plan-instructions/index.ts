@@ -118,9 +118,9 @@ Return ONLY valid JSON with this shape, omitting empty fields:
     const aiText = await aiResponse.text();
 
     if (!aiResponse.ok) {
-      if (aiResponse.status === 429) return jsonResponse({ success: false, error: "Rate limit reached. Try again shortly." }, 429);
-      if (aiResponse.status === 402) return jsonResponse({ success: false, error: "Payment required for AI usage." }, 402);
-      return jsonResponse({ success: false, error: `AI API error: ${aiResponse.status} - ${aiText}` }, 400);
+      if (aiResponse.status === 429) return jsonResponse({ success: false, error: "Rate limit reached. Try again shortly.", code: 429 });
+      if (aiResponse.status === 402) return jsonResponse({ success: false, error: "Payment required for AI usage.", code: 402 });
+      return jsonResponse({ success: false, error: `AI API error: ${aiResponse.status} - ${aiText}` });
     }
 
     const aiData = JSON.parse(aiText);
@@ -133,6 +133,6 @@ Return ONLY valid JSON with this shape, omitting empty fields:
     return jsonResponse({ success: true, data: parsed });
   } catch (error) {
     console.error("Error parsing plan instructions:", error);
-    return jsonResponse({ success: false, error: error instanceof Error ? error.message : "Failed to parse document" }, 500);
+    return jsonResponse({ success: false, error: error instanceof Error ? error.message : "Failed to parse document" });
   }
 });
