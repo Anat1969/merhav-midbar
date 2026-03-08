@@ -359,6 +359,15 @@ export async function countSubProjectsAsync(domainName: string, category: string
   return 0;
 }
 
+export async function loadAppsWithLinksAsync(): Promise<{ id: number; name: string; link: string; status: string }[]> {
+  const { data } = await supabase
+    .from("generic_projects")
+    .select("id, name, link, status")
+    .eq("domain", "apps")
+    .order("created_at", { ascending: false });
+  return (data || []).filter((p) => p.link);
+}
+
 export interface SearchResult {
   domain: string;
   category: string;
