@@ -14,11 +14,12 @@ import {
   MAX_FILE_SIZE_BYTES,
 } from "@/lib/binuiConstants";
 import { toast } from "sonner";
-import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2 } from "lucide-react";
+import { Camera, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, Trash2, BookOpen, Loader2 } from "lucide-react";
 import { useBinuiProjects, useSaveBinuiProject, useDeleteBinuiProject } from "@/hooks/use-binui-projects";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { generateDraftDocx, downloadDraftDocx } from "@/lib/generateDraftDocx";
+import { supabase } from "@/integrations/supabase/client";
 
 function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
   if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
