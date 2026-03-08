@@ -64,6 +64,7 @@ export interface BinuiAttachment {
 export interface ConsultantNote {
   quote: string;
   comment: string;
+  status?: "pending" | "done" | "not_done";
 }
 
 export interface BinuiProject {
