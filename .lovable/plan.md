@@ -1,54 +1,38 @@
 
-# דשבורד אדריכלית העיר — Implementation Plan
 
-## Overview
-A fully RTL Hebrew city architect dashboard for managing projects across 5 domains, with localStorage persistence, search, and a slide-in project panel.
+## Analysis
 
-## Pages & Layout
+The current automatic parsing system has two significant gaps compared to what I extracted manually:
 
-### Home Page (single page app)
-- **Sticky top nav bar** — action buttons (home, back, print, email) on the left; dashboard title on the right
-- **Hero banner** — gradient teal-to-green card with title "מרחב ביניים", subtitle, and a global search input
-- **Stats bar** — conditionally shown summary of project counts by status
-- **Domain grid** — top row: 2 equal cards (בינוי, פיתוח); bottom row: 3 cards (מיידעים, פעולות, אפליקציות)
+### Problem 1: File Size and PDF Handling
+- The edge function has an **8MB limit** -- your file is larger than that
+- The `estimatePdfPages` heuristic incorrectly rejects valid PDFs (returns 0 pages for compressed PDFs), causing the "document has no pages" error
+- These two issues mean the parser **fails before even reaching the AI model**
 
-## Key Components
+### Problem 2: Shallow Extraction
+- The current prompt asks for brief consultant notes, but when I parsed manually, I extracted **detailed quoted sections** per consultant (Traffic, Drainage, Environment, etc.)
+- Consultant data is dumped into history entries rather than structured, editable fields
+- The prompt doesn't instruct the AI to quote specific plan clauses per consultant topic
 
-1. **DomainCard** — gradient header with icon/name/description/count badge, body lists categories with SubButton grids
-2. **SubButton** — white bordered button per item (or category if no items), shows project count, opens ProjectPanel on click
-3. **ProjectPanel** — slide-in overlay from left (420px), with:
-   - Colored header with breadcrumb + close
-   - Add project input row
-   - Search/filter input
-   - Scrollable project list (name, date, status dropdown, delete with confirm)
-   - Footer with status counts
-4. **GlobalSearch** — searches all localStorage projects, shows dropdown results with domain color dot and breadcrumb, clicking opens the relevant ProjectPanel
-5. **EmailModal** — form dialog with recipient/subject/body fields, generates mailto: link
+### Plan
 
-## Data & State
-- All data in localStorage with key pattern `{domain}__{category}__{sub}`
-- Project shape: id, name, status, created (Hebrew date), note, history
-- No external state library — React useState + localStorage read/write
-- Hardcoded HIERARCHY constant defines the domain tree
+**1. Fix Edge Function (`supabase/functions/parse-plan-instructions/index.ts`)**
+- Increase file size limit from 8MB to 20MB
+- Remove the unreliable `estimatePdfPages` check that blocks valid PDFs
+- Keep only the `isPdf` magic-bytes check
+- Upgrade model to `google/gemini-2.5-pro` for better accuracy with large documents
+- Enhance the system prompt to extract **detailed, quoted clauses** per consultant topic (matching the quality of manual extraction)
 
-## Styling
-- RTL direction globally, Heebo font from Google Fonts
-- Background #F2F1EE, domain-specific color palette
-- Status colors: planning (blue), inprogress (amber), review (orange), done (green)
-- Custom thin scrollbar, hover animations on SubButtons, fadeIn on grid sections, slideIn on panel
-- Print CSS: hide nav, white background, A4-friendly layout
+**2. Update Frontend Parsing Handler (`src/pages/BinuiProjectDetail.tsx`)**
+- Store consultant notes in a dedicated `consultantNotes` field on the project (structured object) instead of dumping into history
+- Display each consultant's extracted content in its own editable text area with the consultant name as label
+- Add a comments input field next to each consultant's extracted data
 
-## Files to Create/Modify
-- `index.html` — add Heebo font link
-- `src/index.css` — RTL base styles, custom scrollbar, print styles, animations
-- `src/lib/hierarchy.ts` — HIERARCHY constant + types
-- `src/lib/storage.ts` — localStorage helpers (getProjects, saveProjects, searchAll)
-- `src/components/TopNav.tsx` — sticky navigation bar
-- `src/components/HeroBanner.tsx` — gradient banner with GlobalSearch
-- `src/components/GlobalSearch.tsx` — search input + results dropdown
-- `src/components/StatsBar.tsx` — conditional stats summary
-- `src/components/DomainCard.tsx` — domain card with categories
-- `src/components/SubButton.tsx` — item button with count
-- `src/components/ProjectPanel.tsx` — slide-in project management panel
-- `src/components/EmailModal.tsx` — email compose dialog
-- `src/pages/Index.tsx` — compose all components into the dashboard layout
+**3. Add `consultant_notes` Column**
+- Database migration to add a JSONB `consultant_notes` column to `binui_projects` table for structured storage
+
+### Summary of Changes
+- 1 edge function update (bigger limit, better prompt, remove bad heuristic)
+- 1 database migration (add `consultant_notes` JSONB column)
+- 1 page update (display consultant notes as editable fields with comment support)
+
