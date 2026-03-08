@@ -37,7 +37,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const route = DOMAIN_ROUTES[name] ?? "/";
   const hasDedicatedPage = DOMAINS_WITH_PAGES.has(name);
   const hasSubItems = Object.values(def.categories).some((c) => c.items.length > 0);
-
+  const hideCategoryTitles = !hasSubItems;
   return (
     <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
       <Link
