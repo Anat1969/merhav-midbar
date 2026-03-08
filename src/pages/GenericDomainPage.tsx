@@ -362,13 +362,15 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
         {/* Panel 2: Add new record */}
         <div className="rounded-xl bg-card shadow-sm border border-border/50 p-5 lg:col-span-2">
           <div className="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">➕ הוספת רשומה חדשה</div>
-          <div className="flex flex-wrap gap-3 items-end">
-            <div className="flex flex-col gap-1">
-              <label className="text-sm text-gray-400 font-medium">① קטגוריה</label>
+          
+          {/* Row 1: Name construction — category + sub + unique name */}
+          <div className="mb-3">
+            <label className="text-xs text-gray-400 font-medium mb-1.5 block">שם הרשומה (קטגוריה{hasSubs ? " › תת-קטגוריה" : ""} › שם ייחודי)</label>
+            <div className="flex items-center h-11 rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
               <select
                 title="קטגוריה"
-                className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white"
-                style={{ direction: "rtl" }}
+                className="h-full px-3 text-sm font-bold border-none bg-gray-50 focus:outline-none cursor-pointer"
+                style={{ direction: "rtl", color: config.color }}
                 value={newCat}
                 onChange={(e) => {
                   setNewCat(e.target.value);
@@ -380,13 +382,11 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-            </div>
-            {hasSubs && (
-              <div className="flex flex-col gap-1">
-                <label className="text-sm text-gray-400 font-medium">② תת-קטגוריה</label>
+              <span className="text-gray-300 text-sm select-none px-0.5">:</span>
+              {hasSubs ? (
                 <select
                   title="תת-קטגוריה"
-                  className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white"
+                  className="h-full px-2 text-sm font-medium border-none bg-gray-50 focus:outline-none cursor-pointer text-gray-600"
                   style={{ direction: "rtl" }}
                   value={newSub}
                   onChange={(e) => setNewSub(e.target.value)}
@@ -395,28 +395,30 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                     <option key={s} value={s}>{s}</option>
                   ))}
                 </select>
-              </div>
-            )}
-            <div className="flex flex-col gap-1 flex-1 min-w-[180px]">
-              <label className="text-sm text-gray-400 font-medium">{hasSubs ? "③" : "②"} שם ייחודי</label>
-              <div className="h-11 flex items-center rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
-                <span className="px-3 text-sm font-medium text-gray-400 whitespace-nowrap select-none bg-gray-50 h-full flex items-center border-l border-gray-200">
-                  {namePrefix}
-                </span>
-                <input
-                  title="שם פרויקט חדש"
-                  className="h-full flex-1 px-3 text-base focus:outline-none"
-                  style={{ direction: "rtl" }}
-                  placeholder="הקלד שם..."
-                  value={newName}
-                  onChange={(e) => setNewName(e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && addProject()}
-                />
-              </div>
+              ) : (
+                <span className="px-2 text-sm font-medium text-gray-500 bg-gray-50">{newCat}</span>
+              )}
+              <span className="text-gray-300 text-sm select-none px-1">–</span>
+              <input
+                title="שם פרויקט חדש"
+                className="h-full flex-1 px-3 text-base font-medium focus:outline-none"
+                style={{ direction: "rtl" }}
+                placeholder="הקלד שם ייחודי..."
+                value={newName}
+                onChange={(e) => setNewName(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && addProject()}
+              />
             </div>
+            <div className="mt-1 text-xs text-gray-300 font-mono" dir="rtl">
+              תצוגה מקדימה: <span className="text-gray-500">{namePrefix}{newName || "..."}</span>
+            </div>
+          </div>
+
+          {/* Row 2: Links (if applicable) + Add button */}
+          <div className="flex flex-wrap gap-3 items-end">
             {config.hasLink && (
               <>
-                <div className="flex flex-col gap-1 min-w-[160px]">
+                <div className="flex flex-col gap-1 flex-1 min-w-[160px]">
                   <label className="text-sm text-gray-400 font-medium">🔗 קישור עבודה</label>
                   <input
                     title="קישור עבודה"
@@ -428,7 +430,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                     onKeyDown={(e) => e.key === "Enter" && addProject()}
                   />
                 </div>
-                <div className="flex flex-col gap-1 min-w-[160px]">
+                <div className="flex flex-col gap-1 flex-1 min-w-[160px]">
                   <label className="text-sm text-gray-400 font-medium">👁 קישור תצוגה</label>
                   <input
                     title="קישור תצוגה"
@@ -451,7 +453,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               + הוספה
             </button>
           </div>
-          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם{config.hasLink ? " וקישור" : ""} ולחץ הוספה</p>
+          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם{config.hasLink ? ", קישורים" : ""} ולחץ הוספה</p>
         </div>
       </div>
 
