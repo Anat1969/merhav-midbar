@@ -1477,7 +1477,9 @@ const BinuiProjectDetail: React.FC = () => {
                   <>📄 העלה הוראות תוכנית</>
                 )}
               </button>
-            </div>
+                </div>
+              );
+            })()}
 
             <div className="flex items-start gap-2">
               <FileDropZone
