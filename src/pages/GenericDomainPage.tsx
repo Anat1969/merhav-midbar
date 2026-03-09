@@ -54,6 +54,21 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
   const urlFilter = searchParams.get("filter");
 
+  // Pre-select category/sub based on URL filter
+  const getInitialCatSub = () => {
+    if (!urlFilter) return { cat: firstCat, sub: firstSubs[0] };
+    if (catNames.includes(urlFilter)) {
+      const subs = getSubsForCategory(config, urlFilter);
+      return { cat: urlFilter, sub: subs[0] };
+    }
+    for (const cat of catNames) {
+      const subs = getSubsForCategory(config, cat);
+      if (subs.includes(urlFilter)) return { cat, sub: urlFilter };
+    }
+    return { cat: firstCat, sub: firstSubs[0] };
+  };
+  const initialCatSub = getInitialCatSub();
+
   const { data: projects = [], isLoading } = useGenericProjects(config.storageKey);
   const saveMutation = useSaveGenericProject(config.storageKey);
   const deleteMutation = useDeleteGenericProject(config.storageKey);
@@ -62,8 +77,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [newName, setNewName] = useState("");
   const [newLink, setNewLink] = useState("");
   const [newViewLink, setNewViewLink] = useState("");
-  const [newCat, setNewCat] = useState(firstCat);
-  const [newSub, setNewSub] = useState(firstSubs[0]);
+  const [newCat, setNewCat] = useState(initialCatSub.cat);
+  const [newSub, setNewSub] = useState(initialCatSub.sub);
   const [filterCat, setFilterCat] = useState<string | null>(null);
   const [filterSub, setFilterSub] = useState<string | null>(urlFilter);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
