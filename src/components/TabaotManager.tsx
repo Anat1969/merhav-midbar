@@ -95,20 +95,28 @@ export const TabaotManager: React.FC<Props> = ({ isOpen, onClose }) => {
     fetchRecords();
   };
 
-  // Group by quarter
-  const grouped = records.reduce<Record<string, TabaRecord[]>>((acc, r) => {
-    const q = r.quarter || "ללא רובע";
-    if (!acc[q]) acc[q] = [];
-    acc[q].push(r);
-    return acc;
-  }, {});
+  // Upload file for existing record
+  const uploadFileForRecord = async (recordId: number, type: "instructions" | "tashrit", file: File) => {
+    setUploading(true);
+    try {
+      const url = await uploadProjectFile(file, "binui", 0);
+      const updateField = type === "instructions" ? { instructions_url: url } : { tashrit_url: url };
+      await supabase.from("tabaot" as any).update(updateField as any).eq("id", recordId);
+      toast.success(type === "instructions" ? "הוראות התוכנית הועלו" : "התשריט הועלה");
+      fetchRecords();
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בהעלאת קובץ");
+    } finally {
+      setUploading(false);
+    }
+  };
 
-  const sortedQuarters = Object.keys(grouped).sort((a, b) => a.localeCompare(b, "he"));
+  const sortedRecords = [...records].sort((a, b) => a.quarter.localeCompare(b.quarter, "he"));
 
   return (
     <>
       <Dialog open={isOpen} onOpenChange={(o) => !o && onClose()}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right flex items-center gap-2">
               <Map className="h-5 w-5" style={{ color: "#2C6E6A" }} />
@@ -118,109 +126,115 @@ export const TabaotManager: React.FC<Props> = ({ isOpen, onClose }) => {
 
           {/* Add form */}
           <div className="rounded-lg border p-3 space-y-3" style={{ borderColor: "#2C6E6A44", background: "#2C6E6A08" }}>
-            <div className="text-sm font-bold" style={{ color: "#2C6E6A" }}>➕ הוספת תב&quot;ע חדשה</div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">שם רובע *</label>
-                <Input value={quarter} onChange={(e) => setQuarter(e.target.value)} placeholder="שם הרובע..." className="h-8 text-sm" />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">שם תוכנית</label>
-                <Input value={planName} onChange={(e) => setPlanName(e.target.value)} placeholder="שם התוכנית..." className="h-8 text-sm" />
-              </div>
+            <div className="text-sm font-bold" style={{ color: "#2C6E6A" }}>➕ הוספת רובע חדש</div>
+            <div className="flex items-center gap-2">
+              <Input value={quarter} onChange={(e) => setQuarter(e.target.value)} placeholder="שם הרובע..." className="h-8 text-sm flex-1" />
+              <Input value={planName} onChange={(e) => setPlanName(e.target.value)} placeholder="שם התוכנית (אופציונלי)..." className="h-8 text-sm flex-1" />
+              <Button
+                size="sm"
+                onClick={handleAdd}
+                disabled={uploading || !quarter.trim()}
+                className="h-8 text-xs font-bold shrink-0"
+                style={{ background: "#2C6E6A" }}
+              >
+                {uploading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Plus className="h-3 w-3" />}
+                הוסף
+              </Button>
             </div>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">📄 הוראות תוכנית</label>
-                <input
-                  ref={instrRef}
-                  type="file"
-                  accept=".pdf,image/*"
-                  className="block w-full text-xs file:h-7 file:rounded file:border-0 file:px-3 file:text-xs file:font-medium file:cursor-pointer"
-                  style={{ direction: "ltr" }}
-                  onChange={(e) => setInstructionsFile(e.target.files?.[0] || null)}
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-muted-foreground">🗺️ תשריט</label>
-                <input
-                  ref={tashRef}
-                  type="file"
-                  accept=".pdf,image/*"
-                  className="block w-full text-xs file:h-7 file:rounded file:border-0 file:px-3 file:text-xs file:font-medium file:cursor-pointer"
-                  style={{ direction: "ltr" }}
-                  onChange={(e) => setTashritFile(e.target.files?.[0] || null)}
-                />
-              </div>
-            </div>
-            <Button
-              size="sm"
-              onClick={handleAdd}
-              disabled={uploading || !quarter.trim()}
-              className="h-8 text-xs font-bold"
-              style={{ background: "#2C6E6A" }}
-            >
-              {uploading ? <><Loader2 className="h-3 w-3 animate-spin" /> מעלה...</> : <><Plus className="h-3 w-3" /> הוסף תב&quot;ע</>}
-            </Button>
           </div>
 
-          {/* Records list grouped by quarter */}
+          {/* Records list - each quarter as a row */}
           {loading ? (
             <div className="text-center py-6 text-muted-foreground text-sm">טוען...</div>
-          ) : sortedQuarters.length === 0 ? (
+          ) : sortedRecords.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground text-sm">אין תב&quot;עות — הוסף את הראשונה</div>
           ) : (
-            <div className="space-y-2 mt-2">
-              {sortedQuarters.map((q) => (
-                <div key={q} className="rounded-lg border overflow-hidden">
+            <div className="space-y-1 mt-2">
+              {/* Header row */}
+              <div className="grid grid-cols-[1fr_120px_120px_32px] gap-2 px-3 py-1 text-xs font-bold text-muted-foreground border-b">
+                <span>רובע / תוכנית</span>
+                <span className="text-center">הוראות תוכנית</span>
+                <span className="text-center">תשריט</span>
+                <span></span>
+              </div>
+              
+              {sortedRecords.map((r) => (
+                <div key={r.id} className="grid grid-cols-[1fr_120px_120px_32px] gap-2 items-center px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors border">
+                  {/* Quarter & Plan name */}
+                  <div className="min-w-0">
+                    <div className="font-semibold text-sm truncate" style={{ color: "#2C6E6A" }}>📍 {r.quarter}</div>
+                    {r.plan_name && <div className="text-xs text-muted-foreground truncate">{r.plan_name}</div>}
+                  </div>
+                  
+                  {/* Instructions button/upload */}
+                  <div className="flex justify-center">
+                    {r.instructions_url ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs gap-1"
+                        style={{ borderColor: "#2C6E6A", color: "#2C6E6A" }}
+                        onClick={() => { setPreviewUrl(r.instructions_url); setPreviewName(`הוראות - ${r.plan_name || r.quarter}`); }}
+                      >
+                        <FileText className="h-3 w-3" /> צפה
+                      </Button>
+                    ) : (
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".pdf,image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadFileForRecord(r.id, "instructions", file);
+                            e.target.value = "";
+                          }}
+                        />
+                        <span className="inline-flex items-center gap-1 h-7 px-2 text-xs border border-dashed rounded-md text-muted-foreground hover:bg-muted/50 transition-colors" style={{ borderColor: "#F59E0B" }}>
+                          <Plus className="h-3 w-3" /> העלה
+                        </span>
+                      </label>
+                    )}
+                  </div>
+                  
+                  {/* Tashrit button/upload */}
+                  <div className="flex justify-center">
+                    {r.tashrit_url ? (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-7 text-xs gap-1"
+                        style={{ borderColor: "#6B4C9A", color: "#6B4C9A" }}
+                        onClick={() => { setPreviewUrl(r.tashrit_url); setPreviewName(`תשריט - ${r.plan_name || r.quarter}`); }}
+                      >
+                        <Map className="h-3 w-3" /> צפה
+                      </Button>
+                    ) : (
+                      <label className="cursor-pointer">
+                        <input
+                          type="file"
+                          accept=".pdf,image/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) uploadFileForRecord(r.id, "tashrit", file);
+                            e.target.value = "";
+                          }}
+                        />
+                        <span className="inline-flex items-center gap-1 h-7 px-2 text-xs border border-dashed rounded-md text-muted-foreground hover:bg-muted/50 transition-colors" style={{ borderColor: "#6B4C9A" }}>
+                          <Plus className="h-3 w-3" /> העלה
+                        </span>
+                      </label>
+                    )}
+                  </div>
+                  
+                  {/* Delete */}
                   <button
-                    className="w-full flex items-center justify-between px-3 py-2 text-sm font-bold hover:bg-muted/50 transition-colors"
-                    style={{ color: "#2C6E6A" }}
-                    onClick={() => setExpandedId(expandedId === grouped[q][0]?.id ? null : grouped[q][0]?.id)}
+                    onClick={() => handleDelete(r.id)}
+                    className="text-muted-foreground hover:text-destructive transition-colors"
                   >
-                    <span>📍 {q} ({grouped[q].length})</span>
-                    {expandedId === grouped[q][0]?.id ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                    <X className="h-4 w-4" />
                   </button>
-                  {expandedId === grouped[q][0]?.id && (
-                    <div className="border-t divide-y">
-                      {grouped[q].map((r) => (
-                        <div key={r.id} className="px-3 py-2 flex items-center gap-3 text-sm">
-                          <div className="flex-1 min-w-0">
-                            <div className="font-medium text-foreground truncate">{r.plan_name || "ללא שם"}</div>
-                            <div className="flex gap-3 mt-1">
-                              {r.instructions_url && (
-                                <button
-                                  onClick={() => { setPreviewUrl(r.instructions_url); setPreviewName(`הוראות - ${r.plan_name || r.quarter}`); }}
-                                  className="text-xs flex items-center gap-1 hover:underline"
-                                  style={{ color: "#2C6E6A" }}
-                                >
-                                  <FileText className="h-3 w-3" /> הוראות תוכנית
-                                </button>
-                              )}
-                              {r.tashrit_url && (
-                                <button
-                                  onClick={() => { setPreviewUrl(r.tashrit_url); setPreviewName(`תשריט - ${r.plan_name || r.quarter}`); }}
-                                  className="text-xs flex items-center gap-1 hover:underline"
-                                  style={{ color: "#6B4C9A" }}
-                                >
-                                  <Map className="h-3 w-3" /> תשריט
-                                </button>
-                              )}
-                              {!r.instructions_url && !r.tashrit_url && (
-                                <span className="text-xs text-muted-foreground">אין מסמכים</span>
-                              )}
-                            </div>
-                          </div>
-                          <button
-                            onClick={() => handleDelete(r.id)}
-                            className="text-muted-foreground hover:text-destructive transition-colors shrink-0"
-                          >
-                            <X className="h-4 w-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
