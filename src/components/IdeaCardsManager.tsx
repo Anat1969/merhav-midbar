@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Plus, Lightbulb, Loader2, Image, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Plus, Lightbulb, Loader2, Image, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { toast } from "sonner";
@@ -115,7 +115,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                 <input
                   ref={fileRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.pdf"
                   className="hidden"
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                 />
@@ -155,8 +155,12 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                       style={{ width: "180px" }}
                       onClick={() => {
                         if (card.image_url) {
-                          setPreviewUrl(card.image_url);
-                          setPreviewName(card.name);
+                          if (card.image_url.toLowerCase().endsWith(".pdf")) {
+                            window.open(card.image_url, "_blank");
+                          } else {
+                            setPreviewUrl(card.image_url);
+                            setPreviewName(card.name);
+                          }
                         }
                       }}
                       onDragOver={(e) => {
@@ -179,19 +183,25 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                         e.stopPropagation();
                         setDragOverCardId(null);
                         const file = e.dataTransfer.files?.[0];
-                        if (file && file.type.startsWith("image/")) {
+                        if (file && (file.type.startsWith("image/") || file.type === "application/pdf")) {
                           uploadImageForCard(card.id, file);
                         } else {
-                          toast.error("יש לגרור קובץ תמונה בלבד");
+                          toast.error("יש לגרור קובץ תמונה או PDF בלבד");
                         }
                       }}
                     >
                       {card.image_url ? (
                         <div className="aspect-[4/3] bg-muted relative">
-                          <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                          {card.image_url.toLowerCase().endsWith(".pdf") ? (
+                            <div className="w-full h-full flex items-center justify-center bg-muted">
+                              <FileText className="h-10 w-10 text-muted-foreground" />
+                            </div>
+                          ) : (
+                            <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                          )}
                           {dragOverCardId === card.id && (
                             <div className="absolute inset-0 bg-[#E67E22]/30 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">החלף תמונה</span>
+                              <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">החלף קובץ</span>
                             </div>
                           )}
                         </div>
@@ -202,7 +212,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                           <label className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,.pdf"
                               className="hidden"
                               onClick={(e) => e.stopPropagation()}
                               onChange={(e) => {
@@ -213,7 +223,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                             />
                             <div className="text-center text-muted-foreground">
                               <Image className="h-8 w-8 mx-auto mb-1 opacity-50" />
-                              <span className="text-xs">{dragOverCardId === card.id ? "שחרר כאן" : "גרור או בחר תמונה"}</span>
+                              <span className="text-xs">{dragOverCardId === card.id ? "שחרר כאן" : "גרור או בחר קובץ"}</span>
                             </div>
                           </label>
                         </div>
