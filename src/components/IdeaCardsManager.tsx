@@ -155,8 +155,12 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                       style={{ width: "180px" }}
                       onClick={() => {
                         if (card.image_url) {
-                          setPreviewUrl(card.image_url);
-                          setPreviewName(card.name);
+                          if (card.image_url.toLowerCase().endsWith(".pdf")) {
+                            window.open(card.image_url, "_blank");
+                          } else {
+                            setPreviewUrl(card.image_url);
+                            setPreviewName(card.name);
+                          }
                         }
                       }}
                       onDragOver={(e) => {
