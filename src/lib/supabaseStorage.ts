@@ -363,13 +363,15 @@ export async function countSubProjectsAsync(domainName: string, category: string
   return 0;
 }
 
-export async function loadProjectsWithLinksAsync(domain: string): Promise<{ id: number; name: string; link: string; status: string }[]> {
+export async function loadProjectsWithLinksAsync(domain: string): Promise<{ id: number; name: string; link: string; viewLink: string; status: string }[]> {
   const { data } = await supabase
     .from("generic_projects")
-    .select("id, name, link, status")
+    .select("id, name, link, view_link, status")
     .eq("domain", domain)
     .order("created_at", { ascending: false });
-  return (data || []).filter((p) => p.link);
+  return (data || [])
+    .filter((p) => p.link || p.view_link)
+    .map((p) => ({ id: p.id, name: p.name, link: p.link, viewLink: p.view_link, status: p.status }));
 }
 
 // Backwards compat alias
