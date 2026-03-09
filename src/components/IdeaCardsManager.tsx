@@ -136,58 +136,63 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
             </div>
           </div>
 
-          {/* Cards grid */}
+          {/* Cards carousel */}
           {loading ? (
             <div className="text-center py-6 text-muted-foreground text-sm">טוען...</div>
           ) : cards.length === 0 ? (
             <div className="text-center py-6 text-muted-foreground text-sm">אין כרטיסים — הוסף את הראשון</div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 mt-2">
-              {cards.map((card) => (
-                <div
-                  key={card.id}
-                  className="relative rounded-lg border overflow-hidden group hover:shadow-md transition-shadow cursor-pointer"
-                  onClick={() => {
-                    if (card.image_url) {
-                      setPreviewUrl(card.image_url);
-                      setPreviewName(card.name);
-                    }
-                  }}
-                >
-                  {card.image_url ? (
-                    <div className="aspect-[4/3] bg-muted">
-                      <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
-                    </div>
-                  ) : (
-                    <label className="aspect-[4/3] bg-muted/50 flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onClick={(e) => e.stopPropagation()}
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) uploadImageForCard(card.id, file);
-                          e.target.value = "";
-                        }}
-                      />
-                      <div className="text-center text-muted-foreground">
-                        <Image className="h-8 w-8 mx-auto mb-1 opacity-50" />
-                        <span className="text-xs">העלה תמונה</span>
+            <div className="relative mt-2">
+              <ScrollArea className="w-full" dir="rtl">
+                <div className="flex gap-3 pb-4 px-1" style={{ direction: "rtl" }}>
+                  {cards.map((card) => (
+                    <div
+                      key={card.id}
+                      className="relative rounded-lg border overflow-hidden group hover:shadow-md transition-shadow cursor-pointer shrink-0"
+                      style={{ width: "180px" }}
+                      onClick={() => {
+                        if (card.image_url) {
+                          setPreviewUrl(card.image_url);
+                          setPreviewName(card.name);
+                        }
+                      }}
+                    >
+                      {card.image_url ? (
+                        <div className="aspect-[4/3] bg-muted">
+                          <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <label className="aspect-[4/3] bg-muted/50 flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onClick={(e) => e.stopPropagation()}
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) uploadImageForCard(card.id, file);
+                              e.target.value = "";
+                            }}
+                          />
+                          <div className="text-center text-muted-foreground">
+                            <Image className="h-8 w-8 mx-auto mb-1 opacity-50" />
+                            <span className="text-xs">העלה תמונה</span>
+                          </div>
+                        </label>
+                      )}
+                      <div className="p-2 bg-background">
+                        <div className="text-xs font-medium truncate" style={{ color: "#E67E22" }}>{card.name}</div>
                       </div>
-                    </label>
-                  )}
-                  <div className="p-2 bg-background">
-                    <div className="text-sm font-medium truncate" style={{ color: "#E67E22" }}>{card.name}</div>
-                  </div>
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}
-                    className="absolute top-1 left-1 h-6 w-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); handleDelete(card.id); }}
+                        className="absolute top-1 left-1 h-6 w-6 rounded-full bg-black/50 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </ScrollArea>
             </div>
           )}
         </DialogContent>
