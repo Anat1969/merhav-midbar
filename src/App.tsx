@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import DomainPage from "./pages/DomainPage";
 import BinuiPage from "./pages/BinuiPage";
 import BinuiProjectDetail from "./pages/BinuiProjectDetail";
+import PlanInstructionsPage from "./pages/PlanInstructionsPage";
 import PituaPage from "./pages/PituaPage";
 import PituaDetail from "./pages/PituaDetail";
 import MeyadimPage from "./pages/MeyadimPage";
