@@ -42,8 +42,12 @@ export const TabaotManager: React.FC<Props> = ({ isOpen, onClose }) => {
     const { data } = await supabase
       .from("tabaot" as any)
       .select("*")
-      .order("quarter", { ascending: true });
-    setRecords((data as any as TabaRecord[]) || []);
+      .order("quarter", { ascending: true })
+      .order("plan_name", { ascending: true });
+    const sorted = ((data as any as TabaRecord[]) || []).sort((a, b) =>
+      a.quarter.localeCompare(b.quarter, "he", { sensitivity: "base" })
+    );
+    setRecords(sorted);
     setLoading(false);
   };
 
