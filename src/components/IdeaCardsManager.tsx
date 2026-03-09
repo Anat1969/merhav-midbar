@@ -115,7 +115,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                 <input
                   ref={fileRef}
                   type="file"
-                  accept="image/*"
+                  accept="image/*,.pdf"
                   className="hidden"
                   onChange={(e) => setImageFile(e.target.files?.[0] || null)}
                 />
@@ -179,10 +179,10 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                         e.stopPropagation();
                         setDragOverCardId(null);
                         const file = e.dataTransfer.files?.[0];
-                        if (file && file.type.startsWith("image/")) {
+                        if (file && (file.type.startsWith("image/") || file.type === "application/pdf")) {
                           uploadImageForCard(card.id, file);
                         } else {
-                          toast.error("יש לגרור קובץ תמונה בלבד");
+                          toast.error("יש לגרור קובץ תמונה או PDF בלבד");
                         }
                       }}
                     >
@@ -202,7 +202,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                           <label className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
                             <input
                               type="file"
-                              accept="image/*"
+                              accept="image/*,.pdf"
                               className="hidden"
                               onClick={(e) => e.stopPropagation()}
                               onChange={(e) => {
