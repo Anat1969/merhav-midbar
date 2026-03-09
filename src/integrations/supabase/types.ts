@@ -131,6 +131,27 @@ export type Database = {
         }
         Relationships: []
       }
+      idea_cards: {
+        Row: {
+          created_at: string
+          id: number
+          image_url: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          image_url?: string
+          name?: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          image_url?: string
+          name?: string
+        }
+        Relationships: []
+      }
       project_attachments: {
         Row: {
           created_at: string
