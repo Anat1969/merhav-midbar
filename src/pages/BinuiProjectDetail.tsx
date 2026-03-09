@@ -177,6 +177,8 @@ const BinuiProjectDetail: React.FC = () => {
     finalDraft: false,
   });
   const [parsingPlan, setParsingPlan] = useState(false);
+  const [checkingCompliance, setCheckingCompliance] = useState(false);
+  const [complianceReport, setComplianceReport] = useState<string | null>(null);
   const planFileRef = useRef<HTMLInputElement>(null);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
