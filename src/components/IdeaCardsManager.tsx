@@ -188,10 +188,16 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                     >
                       {card.image_url ? (
                         <div className="aspect-[4/3] bg-muted relative">
-                          <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                          {card.image_url.toLowerCase().endsWith(".pdf") ? (
+                            <div className="w-full h-full flex items-center justify-center bg-muted">
+                              <FileText className="h-10 w-10 text-muted-foreground" />
+                            </div>
+                          ) : (
+                            <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                          )}
                           {dragOverCardId === card.id && (
                             <div className="absolute inset-0 bg-[#E67E22]/30 flex items-center justify-center">
-                              <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">החלף תמונה</span>
+                              <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">החלף קובץ</span>
                             </div>
                           )}
                         </div>
