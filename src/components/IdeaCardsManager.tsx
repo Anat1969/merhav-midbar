@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { X, Plus, Lightbulb, Loader2, Image, ChevronLeft, ChevronRight } from "lucide-react";
+import { X, Plus, Lightbulb, Loader2, Image, ChevronLeft, ChevronRight, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { uploadProjectFile } from "@/lib/fileStorage";
 import { toast } from "sonner";
