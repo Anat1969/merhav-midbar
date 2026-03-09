@@ -219,7 +219,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                             />
                             <div className="text-center text-muted-foreground">
                               <Image className="h-8 w-8 mx-auto mb-1 opacity-50" />
-                              <span className="text-xs">{dragOverCardId === card.id ? "שחרר כאן" : "גרור או בחר תמונה"}</span>
+                              <span className="text-xs">{dragOverCardId === card.id ? "שחרר כאן" : "גרור או בחר קובץ"}</span>
                             </div>
                           </label>
                         </div>
