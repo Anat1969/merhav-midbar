@@ -28,6 +28,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState("");
+  const [dragOverCardId, setDragOverCardId] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchCards = async () => {
