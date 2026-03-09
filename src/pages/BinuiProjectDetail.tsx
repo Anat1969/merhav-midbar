@@ -607,11 +607,11 @@ const BinuiProjectDetail: React.FC = () => {
               </div>
               {/* Show plan_detail (תוכנית בינוי) very large */}
               {isTaba && planDetailVal && !editing && (
-                <div className="px-3 pt-3 pb-1 text-center">
+                <div className="px-3 pt-3 pb-1 text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(`/binui/${project.id}/plan-instructions`)}>
                   <div className="text-3xl font-black" style={{ color: "#2C6E6A", letterSpacing: "0.05em" }}>
                     {planDetailVal}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">מספר תוכנית בינוי</div>
+                  <div className="text-[10px] text-muted-foreground">מספר תוכנית בינוי — לחץ לצפייה בהוראות</div>
                 </div>
               )}
               <div className="px-3 py-2 space-y-1.5">
