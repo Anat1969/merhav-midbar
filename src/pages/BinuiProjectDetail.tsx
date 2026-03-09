@@ -177,6 +177,8 @@ const BinuiProjectDetail: React.FC = () => {
     finalDraft: false,
   });
   const [parsingPlan, setParsingPlan] = useState(false);
+  const [checkingCompliance, setCheckingCompliance] = useState(false);
+  const [complianceReport, setComplianceReport] = useState<string | null>(null);
   const planFileRef = useRef<HTMLInputElement>(null);
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
 
@@ -696,7 +698,87 @@ const BinuiProjectDetail: React.FC = () => {
                       onChange={(e) => setLocalNote(e.target.value)}
                       onBlur={() => update({ note: localNote })}
                     />
-                    <span className="text-[10px] text-muted-foreground block mb-2">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-[10px] text-muted-foreground">תיאור זה יופיע גם במסמך המלצת הוועדה</span>
+                      <button
+                        title="בדוק התאמה להוראות התוכנית"
+                        className="h-7 px-3 rounded-lg text-white text-xs font-bold flex items-center gap-1 hover:brightness-110 transition-all disabled:opacity-50"
+                        style={{ background: "#1E5E6E" }}
+                        disabled={checkingCompliance || !localNote.trim() || !Object.keys(project.consultant_notes || {}).length}
+                        onClick={async () => {
+                          if (!localNote.trim()) {
+                            toast.error("יש למלא תיאור פרויקט לפני בדיקת התאמה");
+                            return;
+                          }
+                          if (!Object.keys(project.consultant_notes || {}).length) {
+                            toast.error("לא נמצאו הוראות תוכנית. יש להעלות קודם הוראות תוכנית.");
+                            return;
+                          }
+                          
+                          setCheckingCompliance(true);
+                          setComplianceReport(null);
+                          
+                          try {
+                            toast.info("בודק התאמה להוראות התוכנית...");
+                            const { data: fnData, error: fnError } = await supabase.functions.invoke("check-plan-compliance", {
+                              body: {
+                                projectDescription: localNote,
+                                consultantNotes: project.consultant_notes,
+                                projectDetails: project.details,
+                              },
+                            });
+
+                            if (fnError) throw fnError;
+                            if (!fnData?.success) throw new Error(fnData?.error || "Failed to check compliance");
+
+                            setComplianceReport(fnData.report);
+                            toast.success("בדיקת ההתאמה הושלמה בהצלחה");
+                          } catch (err: any) {
+                            console.error("Compliance check error:", err);
+                            toast.error(err.message || "שגיאה בבדיקת התאמה");
+                          } finally {
+                            setCheckingCompliance(false);
+                          }
+                        }}
+                      >
+                        {checkingCompliance ? <Loader2 className="w-3 h-3 animate-spin" /> : <BookOpen className="w-3 h-3" />}
+                        {checkingCompliance ? "בודק..." : "בדוק התאמה"}
+                      </button>
+                    </div>
+                    
+                    {complianceReport && (
+                      <div className="rounded-lg border p-3 space-y-2" style={{ borderColor: "#1E5E6E33", background: "#F0F9FF" }}>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs font-bold" style={{ color: "#1E5E6E" }}>דוח בדיקת התאמה להוראות התוכנית</span>
+                          <button
+                            title="סגור דוח"
+                            className="h-6 w-6 rounded flex items-center justify-center hover:bg-gray-100"
+                            onClick={() => setComplianceReport(null)}
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <div className="text-sm whitespace-pre-wrap p-3 rounded" style={{ background: "#FFFFFF", maxHeight: 400, overflowY: "auto", direction: "rtl" }}>
+                          {complianceReport}
+                        </div>
+                        <button
+                          title="שמור דוח בהיסטוריה"
+                          className="h-7 px-3 rounded-lg text-white text-xs font-bold"
+                          style={{ background: "#2C6E6A" }}
+                          onClick={() => {
+                            update({
+                              history: [
+                                { date: getHebrewDateNow(), note: `בדיקת התאמה להוראות תוכנית:\n${complianceReport}` },
+                                ...project.history
+                              ]
+                            });
+                            toast.success("הדוח נשמר בהיסטוריה");
+                          }}
+                        >
+                          שמור דוח בהיסטוריה
+                        </button>
+                      </div>
+                    )}
                   </div>
 
                   {/* Architect Forum */}
