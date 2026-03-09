@@ -1428,12 +1428,28 @@ const BinuiProjectDetail: React.FC = () => {
             </div>
 
             {/* Plan Instructions special upload */}
-            <div className="mb-3 rounded-lg border-2 border-dashed p-3 flex items-center gap-3" style={{ borderColor: "#F59E0B66", background: "#FFFBEB" }}>
-              <BookOpen size={20} style={{ color: "#F59E0B" }} />
-              <div className="flex-1">
-                <div className="text-xs font-bold" style={{ color: "#B45309" }}>הוראות תוכנית</div>
-                <div className="text-[10px] text-amber-700">העלה מסמך הוראות תוכנית — המערכת תנתח ותמלא שדות רלוונטיים אוטומטית</div>
-              </div>
+            {(() => {
+              const hasPlanInstructions = project.attachments.some((a) => /הוראות_תוכנית/i.test(a.name)) ||
+                Object.keys(project.consultant_notes || {}).some(k => k !== "פרוטוקול_ועדה" && (project.consultant_notes as any)?.[k]?.quote);
+              return (
+                <div className="mb-3 rounded-lg border-2 p-3 flex items-center gap-3" style={{
+                  borderColor: hasPlanInstructions ? "#16a34a88" : "#F59E0B66",
+                  borderStyle: hasPlanInstructions ? "solid" : "dashed",
+                  background: hasPlanInstructions ? "#f0fdf4" : "#FFFBEB",
+                }}>
+                  {hasPlanInstructions ? (
+                    <span className="text-green-600 text-xl">✅</span>
+                  ) : (
+                    <BookOpen size={20} style={{ color: "#F59E0B" }} />
+                  )}
+                  <div className="flex-1">
+                    <div className="text-xs font-bold" style={{ color: hasPlanInstructions ? "#16a34a" : "#B45309" }}>
+                      הוראות תוכנית {hasPlanInstructions && <span className="text-[10px] font-normal mr-1">(הועלה)</span>}
+                    </div>
+                    <div className={`text-[10px] ${hasPlanInstructions ? "text-green-700" : "text-amber-700"}`}>
+                      {hasPlanInstructions ? "הוראות תוכנית נותחו ושדות הפרויקט עודכנו" : "העלה מסמך הוראות תוכנית — המערכת תנתח ותמלא שדות רלוונטיים אוטומטית"}
+                    </div>
+                  </div>
               <input
                 ref={planFileRef}
                 type="file"
