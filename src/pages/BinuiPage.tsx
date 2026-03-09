@@ -277,13 +277,21 @@ const BinuiPage: React.FC = () => {
       </div>
 
       {/* === Navigation buttons bar === */}
-      <div className="no-print mx-4 mt-3 flex items-center gap-3">
+      <div className="no-print mx-4 mt-3 flex items-center gap-3 flex-wrap">
         <button
           onClick={() => navigate("/")}
           className="h-14 px-10 rounded-xl text-white text-lg font-black hover:brightness-110 transition-all shadow-lg flex items-center gap-2"
           style={{ background: "linear-gradient(135deg, #2C6E6A, #1E5E5A)" }}
         >
           🏠 חזור לדשבורד
+        </button>
+        <button
+          onClick={() => navigate("/plan-instructions")}
+          className="h-12 px-6 rounded-xl border-2 text-base font-bold transition-colors flex items-center gap-2"
+          style={{ borderColor: "#2C6E6A", color: "#2C6E6A" }}
+        >
+          <FileText size={18} />
+          הוראות תוכנית
         </button>
         <button
           onClick={() => navigate(-1)}
