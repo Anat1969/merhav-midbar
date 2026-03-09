@@ -28,6 +28,7 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
   const [uploading, setUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const [previewName, setPreviewName] = useState("");
+  const [dragOverCardId, setDragOverCardId] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const fetchCards = async () => {
@@ -148,7 +149,9 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                   {cards.map((card) => (
                     <div
                       key={card.id}
-                      className="relative rounded-lg border overflow-hidden group hover:shadow-md transition-shadow cursor-pointer shrink-0"
+                      className={`relative rounded-lg border overflow-hidden group hover:shadow-md transition-all cursor-pointer shrink-0 ${
+                        dragOverCardId === card.id ? "ring-2 ring-[#E67E22] scale-105 border-[#E67E22]" : ""
+                      }`}
                       style={{ width: "180px" }}
                       onClick={() => {
                         if (card.image_url) {
@@ -156,29 +159,64 @@ export const IdeaCardsManager: React.FC<Props> = ({ isOpen, onClose }) => {
                           setPreviewName(card.name);
                         }
                       }}
+                      onDragOver={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragOverCardId(card.id);
+                      }}
+                      onDragEnter={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragOverCardId(card.id);
+                      }}
+                      onDragLeave={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        if (dragOverCardId === card.id) setDragOverCardId(null);
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setDragOverCardId(null);
+                        const file = e.dataTransfer.files?.[0];
+                        if (file && file.type.startsWith("image/")) {
+                          uploadImageForCard(card.id, file);
+                        } else {
+                          toast.error("יש לגרור קובץ תמונה בלבד");
+                        }
+                      }}
                     >
                       {card.image_url ? (
-                        <div className="aspect-[4/3] bg-muted">
+                        <div className="aspect-[4/3] bg-muted relative">
                           <img src={card.image_url} alt={card.name} className="w-full h-full object-cover" />
+                          {dragOverCardId === card.id && (
+                            <div className="absolute inset-0 bg-[#E67E22]/30 flex items-center justify-center">
+                              <span className="text-white text-xs font-bold bg-black/50 px-2 py-1 rounded">החלף תמונה</span>
+                            </div>
+                          )}
                         </div>
                       ) : (
-                        <label className="aspect-[4/3] bg-muted/50 flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
-                          <input
-                            type="file"
-                            accept="image/*"
-                            className="hidden"
-                            onClick={(e) => e.stopPropagation()}
-                            onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) uploadImageForCard(card.id, file);
-                              e.target.value = "";
-                            }}
-                          />
-                          <div className="text-center text-muted-foreground">
-                            <Image className="h-8 w-8 mx-auto mb-1 opacity-50" />
-                            <span className="text-xs">העלה תמונה</span>
-                          </div>
-                        </label>
+                        <div className={`aspect-[4/3] flex items-center justify-center transition-colors ${
+                          dragOverCardId === card.id ? "bg-[#E67E22]/10" : "bg-muted/50"
+                        }`}>
+                          <label className="w-full h-full flex items-center justify-center cursor-pointer hover:bg-muted transition-colors">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              className="hidden"
+                              onClick={(e) => e.stopPropagation()}
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (file) uploadImageForCard(card.id, file);
+                                e.target.value = "";
+                              }}
+                            />
+                            <div className="text-center text-muted-foreground">
+                              <Image className="h-8 w-8 mx-auto mb-1 opacity-50" />
+                              <span className="text-xs">{dragOverCardId === card.id ? "שחרר כאן" : "גרור או בחר תמונה"}</span>
+                            </div>
+                          </label>
+                        </div>
                       )}
                       <div className="p-2 bg-background">
                         <div className="text-xs font-medium truncate" style={{ color: "#E67E22" }}>{card.name}</div>
