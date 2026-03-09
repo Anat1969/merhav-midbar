@@ -1,0 +1,1 @@
+ALTER TABLE public.tabaot ADD COLUMN IF NOT EXISTS consultant_notes jsonb NOT NULL DEFAULT '{}'::jsonb;
