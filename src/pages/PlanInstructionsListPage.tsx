@@ -3,7 +3,27 @@ import { useNavigate } from "react-router-dom";
 import { TopNav } from "@/components/TopNav";
 import { supabase } from "@/integrations/supabase/client";
 import { openFileInNewTab } from "@/lib/fileAccess";
-import { FileText, Map, Search, ChevronDown, ChevronUp, ExternalLink } from "lucide-react";
+import {
+  FileText, Map, Search, ChevronDown, ChevronUp, ExternalLink,
+  Loader2, Sparkles, X,
+} from "lucide-react";
+import { toast } from "sonner";
+
+const CONSULTANT_PARTIES = [
+  "תנועה", "תברואה", "ניהול ניקוז", "חשמל", "נטיעות",
+  "איכות סביבה", "נכסים", "חינוך", "רישוי", "תכנון",
+];
+
+const PARTY_ICONS: Record<string, string> = {
+  "תנועה": "🚗", "תברואה": "🚰", "ניהול ניקוז": "🌊", "חשמל": "⚡",
+  "נטיעות": "🌳", "איכות סביבה": "🌍", "נכסים": "🏘️",
+  "חינוך": "🎓", "רישוי": "📋", "תכנון": "📐",
+};
+
+interface ConsultantNote {
+  quote: string;
+  comment?: string;
+}
 
 interface TabaRecord {
   id: number;
@@ -12,6 +32,7 @@ interface TabaRecord {
   instructions_url: string;
   tashrit_url: string;
   note: string;
+  consultant_notes: Record<string, ConsultantNote>;
   created_at: string;
 }
 
@@ -21,19 +42,51 @@ const PlanInstructionsListPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [parsingId, setParsingId] = useState<number | null>(null);
+  const [activeParty, setActiveParty] = useState<{ id: number; party: string } | null>(null);
 
-  useEffect(() => {
-    (async () => {
-      setLoading(true);
-      const { data } = await supabase
+  const fetchRecords = async () => {
+    setLoading(true);
+    const { data } = await supabase
+      .from("tabaot" as any)
+      .select("*")
+      .order("quarter", { ascending: true })
+      .order("plan_name", { ascending: true });
+    setRecords((data as any as TabaRecord[]) || []);
+    setLoading(false);
+  };
+
+  useEffect(() => { fetchRecords(); }, []);
+
+  const handleParse = async (rec: TabaRecord) => {
+    if (!rec.instructions_url) {
+      toast.error("אין קובץ הוראות מצורף לתוכנית זו");
+      return;
+    }
+    setParsingId(rec.id);
+    try {
+      const { data, error } = await supabase.functions.invoke("parse-plan-instructions", {
+        body: { fileUrl: rec.instructions_url, fileName: rec.plan_name },
+      });
+      if (error) throw error;
+      if (!data?.success) throw new Error(data?.error || "שגיאה בניתוח");
+
+      const notes = data.data?.consultantNotes || {};
+      await supabase
         .from("tabaot" as any)
-        .select("*")
-        .order("quarter", { ascending: true })
-        .order("plan_name", { ascending: true });
-      setRecords((data as any as TabaRecord[]) || []);
-      setLoading(false);
-    })();
-  }, []);
+        .update({ consultant_notes: notes } as any)
+        .eq("id", rec.id);
+
+      setRecords((prev) =>
+        prev.map((r) => (r.id === rec.id ? { ...r, consultant_notes: notes } : r))
+      );
+      toast.success("הניתוח הושלם בהצלחה!");
+    } catch (err: any) {
+      toast.error(err.message || "שגיאה בניתוח המסמך");
+    } finally {
+      setParsingId(null);
+    }
+  };
 
   const filtered = records.filter(
     (r) =>
@@ -53,10 +106,15 @@ const PlanInstructionsListPage: React.FC = () => {
     a.localeCompare(b, "he", { sensitivity: "base" })
   );
 
+  const getPartiesWithContent = (notes: Record<string, ConsultantNote> | null | undefined) => {
+    if (!notes || typeof notes !== "object") return [];
+    return CONSULTANT_PARTIES.filter((p) => notes[p]?.quote);
+  };
+
   return (
     <div className="min-h-screen bg-background" dir="rtl">
       <TopNav />
-      <div className="max-w-5xl mx-auto px-4 py-6 space-y-6">
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
         {/* Header */}
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-2">
@@ -76,21 +134,15 @@ const PlanInstructionsListPage: React.FC = () => {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-          <div className="rounded-xl border bg-card shadow-sm p-3 text-center">
-            <div className="text-2xl font-black text-primary">{records.length}</div>
-            <div className="text-[10px] text-muted-foreground font-medium mt-1">סה״כ תוכניות</div>
-          </div>
-          <div className="rounded-xl border bg-card shadow-sm p-3 text-center">
-            <div className="text-2xl font-black text-primary">{quarters.length}</div>
-            <div className="text-[10px] text-muted-foreground font-medium mt-1">רובעים</div>
-          </div>
-          <div className="rounded-xl border bg-card shadow-sm p-3 text-center">
-            <div className="text-2xl font-black text-primary">
-              {records.filter((r) => r.instructions_url).length}
-            </div>
-            <div className="text-[10px] text-muted-foreground font-medium mt-1">עם הוראות מצורפות</div>
-          </div>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <StatCard label="סה״כ תוכניות" value={records.length} color="text-primary" />
+          <StatCard label="רובעים" value={quarters.length} color="text-primary" />
+          <StatCard label="עם הוראות" value={records.filter((r) => r.instructions_url).length} color="text-primary" />
+          <StatCard
+            label="נותחו"
+            value={records.filter((r) => getPartiesWithContent(r.consultant_notes).length > 0).length}
+            color="text-green-600"
+          />
         </div>
 
         {loading ? (
@@ -109,35 +161,115 @@ const PlanInstructionsListPage: React.FC = () => {
                 <span className="text-xs text-muted-foreground">({grouped[quarter].length})</span>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="space-y-3">
                 {grouped[quarter].map((rec) => {
                   const isExpanded = expandedId === rec.id;
+                  const isParsing = parsingId === rec.id;
+                  const parties = getPartiesWithContent(rec.consultant_notes);
+                  const hasNotes = parties.length > 0;
+
                   return (
                     <div
                       key={rec.id}
                       className="rounded-xl border bg-card shadow-sm overflow-hidden transition-shadow hover:shadow-md"
                     >
-                      <button
-                        className="w-full flex items-center justify-between px-4 py-3 text-right"
-                        onClick={() => setExpandedId(isExpanded ? null : rec.id)}
-                      >
-                        <div className="flex items-center gap-2 min-w-0">
+                      {/* Header row */}
+                      <div className="flex items-center justify-between px-4 py-3 gap-2">
+                        <button
+                          className="flex items-center gap-2 min-w-0 flex-1 text-right"
+                          onClick={() => setExpandedId(isExpanded ? null : rec.id)}
+                        >
                           <FileText className="h-4 w-4 text-primary shrink-0" />
                           <span className="font-bold text-sm truncate">{rec.plan_name || "ללא שם"}</span>
-                        </div>
-                        {isExpanded ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                          <span className="text-xs text-muted-foreground shrink-0">({rec.quarter})</span>
+                          {isExpanded ? (
+                            <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+                          ) : (
+                            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+                          )}
+                        </button>
+
+                        {/* Parse button */}
+                        {rec.instructions_url && (
+                          <button
+                            onClick={() => handleParse(rec)}
+                            disabled={isParsing}
+                            className="flex items-center gap-1 text-xs font-bold px-3 py-1.5 rounded-lg transition-colors shrink-0 bg-primary/10 text-primary hover:bg-primary/20 disabled:opacity-50"
+                          >
+                            {isParsing ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <Sparkles className="h-3 w-3" />
+                            )}
+                            {isParsing ? "מנתח..." : hasNotes ? "נתח מחדש" : "נתח הוראות"}
+                          </button>
                         )}
-                      </button>
+                      </div>
 
-                      {isExpanded && (
-                        <div className="px-4 pb-3 space-y-2 border-t">
-                          <div className="pt-2 text-xs text-muted-foreground">
-                            רובע: <span className="font-bold">{rec.quarter}</span>
+                      {/* Consultant party pills */}
+                      {hasNotes && (
+                        <div className="px-4 pb-2 flex flex-wrap gap-1.5">
+                          {CONSULTANT_PARTIES.map((party) => {
+                            const hasContent = rec.consultant_notes?.[party]?.quote;
+                            if (!hasContent) return null;
+                            const isActive = activeParty?.id === rec.id && activeParty?.party === party;
+                            return (
+                              <button
+                                key={party}
+                                onClick={() =>
+                                  setActiveParty(isActive ? null : { id: rec.id, party })
+                                }
+                                className={`flex items-center gap-1 text-xs font-bold px-2.5 py-1 rounded-full transition-all ${
+                                  isActive
+                                    ? "bg-primary text-primary-foreground shadow-sm"
+                                    : "bg-muted text-muted-foreground hover:bg-muted/80"
+                                }`}
+                              >
+                                <span>{PARTY_ICONS[party]}</span>
+                                {party}
+                              </button>
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Active party detail */}
+                      {activeParty?.id === rec.id && rec.consultant_notes?.[activeParty.party]?.quote && (
+                        <div className="mx-4 mb-3 rounded-lg border bg-muted/20 overflow-hidden">
+                          <div className="flex items-center justify-between px-3 py-2 bg-primary/5 border-b">
+                            <div className="flex items-center gap-2 text-sm font-bold text-primary">
+                              <span>{PARTY_ICONS[activeParty.party]}</span>
+                              {activeParty.party}
+                            </div>
+                            <button
+                              onClick={() => setActiveParty(null)}
+                              className="text-muted-foreground hover:text-foreground"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
                           </div>
+                          <div className="p-3 space-y-1.5">
+                            {rec.consultant_notes[activeParty.party].quote
+                              .split(/\n|\.(?=\s)/)
+                              .filter((l: string) => l.trim())
+                              .map((line: string, i: number) => (
+                                <div
+                                  key={i}
+                                  className="flex items-start gap-2 text-sm leading-relaxed p-2 rounded-lg bg-background"
+                                >
+                                  <span className="text-muted-foreground text-[10px] mt-1 shrink-0">
+                                    {i + 1}.
+                                  </span>
+                                  <span>{line.trim()}</span>
+                                </div>
+                              ))}
+                          </div>
+                        </div>
+                      )}
 
+                      {/* Expanded details */}
+                      {isExpanded && (
+                        <div className="px-4 pb-3 space-y-2 border-t pt-2">
                           {rec.note && (
                             <div className="text-sm bg-muted/20 rounded-lg p-2 border-r-2 border-primary">
                               {rec.note}
@@ -166,6 +298,13 @@ const PlanInstructionsListPage: React.FC = () => {
                               </button>
                             )}
                           </div>
+
+                          {/* All parties summary when no specific one selected */}
+                          {hasNotes && !activeParty && (
+                            <div className="text-xs text-muted-foreground pt-1">
+                              נותחו {parties.length} גורמים — לחץ על גורם לצפייה בהנחיות
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
@@ -179,5 +318,12 @@ const PlanInstructionsListPage: React.FC = () => {
     </div>
   );
 };
+
+const StatCard: React.FC<{ label: string; value: number; color: string }> = ({ label, value, color }) => (
+  <div className="rounded-xl border bg-card shadow-sm p-3 text-center">
+    <div className={`text-2xl font-black ${color}`}>{value}</div>
+    <div className="text-[10px] text-muted-foreground font-medium mt-1">{label}</div>
+  </div>
+);
 
 export default PlanInstructionsListPage;
