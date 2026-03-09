@@ -158,6 +158,36 @@ export type Database = {
         }
         Relationships: []
       }
+      tabaot: {
+        Row: {
+          created_at: string
+          id: number
+          instructions_url: string
+          note: string
+          plan_name: string
+          quarter: string
+          tashrit_url: string
+        }
+        Insert: {
+          created_at?: string
+          id?: never
+          instructions_url?: string
+          note?: string
+          plan_name?: string
+          quarter?: string
+          tashrit_url?: string
+        }
+        Update: {
+          created_at?: string
+          id?: never
+          instructions_url?: string
+          note?: string
+          plan_name?: string
+          quarter?: string
+          tashrit_url?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
