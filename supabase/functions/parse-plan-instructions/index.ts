@@ -46,10 +46,12 @@ serve(async (req) => {
 
     const ext = (fileName || fileUrl).split("?")[0].toLowerCase();
     const isPdfExt = ext.endsWith(".pdf");
+    const isDocx = ext.endsWith(".docx") || ext.endsWith(".doc");
     let mimeType = "application/pdf";
     if (ext.endsWith(".png")) mimeType = "image/png";
     else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
     else if (ext.endsWith(".webp")) mimeType = "image/webp";
+    else if (isDocx) mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
 
     if (isPdfExt && !isPdf(bytes)) {
       return jsonResponse({
