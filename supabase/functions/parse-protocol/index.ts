@@ -1,6 +1,8 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
+import JSZip from "https://esm.sh/jszip@3.10.1";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -21,13 +23,81 @@ function isPdf(bytes: Uint8Array) {
   return bytes[0] === 0x25 && bytes[1] === 0x50 && bytes[2] === 0x44 && bytes[3] === 0x46 && bytes[4] === 0x2d;
 }
 
+function isZip(bytes: Uint8Array) {
+  if (bytes.length < 4) return false;
+  return bytes[0] === 0x50 && bytes[1] === 0x4b && bytes[2] === 0x03 && bytes[3] === 0x04;
+}
+
+/** Extract embedded images from a DOCX file and upload them to Supabase storage */
+async function extractDocxImages(bytes: Uint8Array, projectId: number): Promise<{ slot: string; url: string }[]> {
+  try {
+    if (!isZip(bytes)) return [];
+    
+    const zip = await JSZip.loadAsync(bytes);
+    const mediaFiles: { name: string; data: Uint8Array; mime: string }[] = [];
+    
+    // Find all images in word/media/
+    for (const [path, file] of Object.entries(zip.files)) {
+      if (path.startsWith("word/media/") && !file.dir) {
+        const lower = path.toLowerCase();
+        let mime = "image/png";
+        if (lower.endsWith(".jpg") || lower.endsWith(".jpeg")) mime = "image/jpeg";
+        else if (lower.endsWith(".png")) mime = "image/png";
+        else if (lower.endsWith(".gif")) mime = "image/gif";
+        else if (lower.endsWith(".webp")) mime = "image/webp";
+        else if (lower.endsWith(".emf") || lower.endsWith(".wmf") || lower.endsWith(".tiff")) continue; // skip non-web formats
+        
+        const data = await (file as any).async("uint8array");
+        if (data.length > 5000) { // Skip tiny icons/bullets
+          mediaFiles.push({ name: path.split("/").pop()!, data, mime });
+        }
+      }
+    }
+    
+    if (mediaFiles.length === 0) return [];
+    
+    // Sort by size descending - largest images are most likely project renders
+    mediaFiles.sort((a, b) => b.data.length - a.data.length);
+    
+    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+    const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
+    const slots = ["hadmaya", "tashrit", "tza"];
+    const results: { slot: string; url: string }[] = [];
+    
+    for (let i = 0; i < Math.min(mediaFiles.length, slots.length); i++) {
+      const img = mediaFiles[i];
+      const ext = img.mime.split("/")[1] === "jpeg" ? "jpg" : img.mime.split("/")[1];
+      const storagePath = `binui/${projectId}/images/${slots[i]}-${Date.now()}-${i}.${ext}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from("project-files")
+        .upload(storagePath, img.data, { contentType: img.mime, upsert: true });
+      
+      if (!uploadError) {
+        const { data: publicData } = supabase.storage
+          .from("project-files")
+          .getPublicUrl(storagePath);
+        
+        results.push({ slot: slots[i], url: publicData.publicUrl });
+      }
+    }
+    
+    return results;
+  } catch (e) {
+    console.error("Error extracting DOCX images:", e);
+    return [];
+  }
+}
+
 serve(async (req) => {
   if (req.method === "OPTIONS") {
     return new Response("ok", { headers: corsHeaders });
   }
 
   try {
-    const { fileUrl, fileName } = await req.json();
+    const { fileUrl, fileName, projectId } = await req.json();
     if (!fileUrl) return jsonResponse({ success: false, error: "Missing fileUrl" });
 
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
@@ -45,12 +115,13 @@ serve(async (req) => {
     }
 
     const ext = (fileName || fileUrl).split("?")[0].toLowerCase();
+    const isDocx = ext.endsWith(".docx");
     const isPdfExt = ext.endsWith(".pdf");
     let mimeType = "application/pdf";
     if (ext.endsWith(".png")) mimeType = "image/png";
     else if (ext.endsWith(".jpg") || ext.endsWith(".jpeg")) mimeType = "image/jpeg";
     else if (ext.endsWith(".webp")) mimeType = "image/webp";
-    else if (ext.endsWith(".docx")) mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+    else if (isDocx) mimeType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     else if (ext.endsWith(".doc")) mimeType = "application/msword";
 
     if (isPdfExt && !isPdf(bytes)) {
@@ -59,6 +130,11 @@ serve(async (req) => {
         error: "הקובץ שהועלה אינו PDF תקין.",
       }, 400);
     }
+
+    // Extract images from DOCX in parallel with AI parsing
+    const imageExtractionPromise = (isDocx && projectId) 
+      ? extractDocxImages(bytes, projectId) 
+      : Promise.resolve([]);
 
     const base64 = base64Encode(bytes);
     const dataUrl = `data:${mimeType};base64,${base64}`;
@@ -95,6 +171,8 @@ You MUST return ONLY valid JSON (no markdown, no backticks) with this exact shap
       "plan_detail": ""
     }
   },
+  "plan_name": "",
+  "plan_number": "",
   "note": "",
   "fullText": ""
 }
@@ -115,16 +193,22 @@ CRITICAL EXTRACTION INSTRUCTIONS:
    - plan_overall (מס' תוכנית): main plan number (e.g., "תב/1714")
    - plan_detail (תוכנית בינוי): detailed plan number (e.g., "במ/196/3")
 
-4. NOTE FIELD:
+4. PLAN NAME & NUMBER (top level fields):
+   - plan_name: The name/title of the plan or project (שם התוכנית / שם הפרויקט). This is typically at the top of the document.
+   - plan_number: The main plan number (מספר תוכנית). Same as plan_overall but kept at top level for convenience.
+
+5. NOTE FIELD:
    - Summarize the project purpose and scope
    - Include: building type, number of floors, number of units/rooms
    - Include the main goal (מטרת התב"ע)
 
-5. FULL TEXT FIELD:
-   - Include ALL text from the document
-   - This should be the complete content for reference
-   - Include tables, requirements, approvals, recommendations
+6. FULL TEXT FIELD:
+   - Include ALL text from the document - every single word, table, heading, paragraph
+   - This should be the COMPLETE content for reference
+   - Include tables, requirements, approvals, recommendations, consultant opinions
+   - Include all consultant remarks (הערות יועצים), conditions (תנאים), requirements (דרישות)
    - Format with clear sections and line breaks
+   - Do NOT summarize or shorten - copy EVERYTHING
 
 Return empty strings for fields you cannot find. Do NOT make up data.`;
 
@@ -142,7 +226,7 @@ Return empty strings for fields you cannot find. Do NOT make up data.`;
             role: "user",
             content: [
               { type: "image_url", image_url: { url: dataUrl } },
-              { type: "text", text: "נתח את פרוטוקול הועדה לעומק. חלץ את כל הנתונים האפשריים - פרטי יזם, אדריכל, מנהל פרויקט, נתוני מיקום, נתוני תב\"ע. העתק את כל הטקסט מהמסמך לשדה fullText. החזר JSON בלבד." },
+              { type: "text", text: "נתח את פרוטוקול הועדה לעומק. חלץ את כל הנתונים האפשריים - פרטי יזם, אדריכל, מנהל פרויקט, נתוני מיקום, נתוני תב\"ע, שם התוכנית ומספר התוכנית. העתק את כל הטקסט מהמסמך במלואו לשדה fullText - כל מילה, כל טבלה, כל הערה. החזר JSON בלבד." },
             ],
           },
         ],
@@ -165,7 +249,17 @@ Return empty strings for fields you cannot find. Do NOT make up data.`;
     if (jsonMatch) jsonStr = jsonMatch[1];
 
     const parsed = JSON.parse(jsonStr.trim());
-    return jsonResponse({ success: true, data: parsed });
+    
+    // Wait for image extraction to complete
+    const extractedImages = await imageExtractionPromise;
+    
+    return jsonResponse({ 
+      success: true, 
+      data: { 
+        ...parsed, 
+        extractedImages // Array of { slot, url }
+      } 
+    });
   } catch (error) {
     console.error("Error parsing protocol:", error);
     return jsonResponse({ success: false, error: error instanceof Error ? error.message : "Failed to parse document" });
