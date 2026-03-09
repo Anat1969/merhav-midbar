@@ -1310,16 +1310,78 @@ const BinuiProjectDetail: React.FC = () => {
           <PresentationDevPlanTabs project={project} onUpload={addAttachment} onMinutesUpload={async (file: File) => {
             if (file.size > MAX_FILE_SIZE_BYTES) { toast.error("הקובץ גדול מדי. גודל מרבי מותר: 20MB."); return; }
             try {
+              // 1. Upload the file as attachment
               const url = await uploadProjectFile(file, "binui", project.id);
               await saveAttachmentAsync("binui", project.id, `פרוטוקול ועדה - ${file.name}`, url);
               qc.invalidateQueries({ queryKey: ["binui-projects"] });
-              const label = STATUS_OPTIONS.find((s) => s.value === "done")?.label ?? "בוצע";
-              await update({
-                status: "done",
-                history: [{ date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה. סטטוס שונה ל: ${label}` }, ...project.history],
+              
+              // 2. Parse the protocol document using AI
+              toast.info("מנתח את פרוטוקול הועדה...");
+              const { data: fnData, error: fnError } = await supabase.functions.invoke("parse-protocol", {
+                body: { fileUrl: url, fileName: file.name },
               });
-              toast.success("פרוטוקול ועדה הועלה והסטטוס עודכן לבוצע");
-            } catch (err: any) { toast.error(err.message || "שגיאה בהעלאת קובץ"); }
+              
+              let patchObj: Partial<BinuiProject> = {};
+              const label = STATUS_OPTIONS.find((s) => s.value === "done")?.label ?? "בוצע";
+              
+              if (!fnError && fnData?.success && fnData?.data) {
+                const parsed = fnData.data;
+                
+                // Apply extracted details to project fields
+                const newDetails = { ...(project.details || {}) };
+                if (parsed.details) {
+                  for (const [section, fields] of Object.entries(parsed.details)) {
+                    const existing = newDetails[section] || {};
+                    const newFields = fields as Record<string, string>;
+                    for (const [key, val] of Object.entries(newFields)) {
+                      if (val) {
+                        existing[key] = val; // Override with new data from protocol
+                      }
+                    }
+                    newDetails[section] = existing;
+                  }
+                }
+                
+                patchObj = {
+                  details: newDetails,
+                  status: "done",
+                  history: [
+                    { date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה ונותח אוטומטית. סטטוס שונה ל: ${label}` },
+                    ...project.history,
+                  ],
+                };
+                
+                // Set note (project description/purpose)
+                if (parsed.note) {
+                  patchObj.note = parsed.note;
+                }
+                
+                // Store full text in consultant_notes for reference
+                if (parsed.fullText) {
+                  const newConsultantNotes = { ...(project.consultant_notes || {}) };
+                  newConsultantNotes["פרוטוקול_ועדה"] = { 
+                    quote: parsed.fullText, 
+                    comment: "", 
+                    status: "done" 
+                  };
+                  patchObj.consultant_notes = newConsultantNotes;
+                }
+                
+                await update(patchObj);
+                toast.success("פרוטוקול ועדה הועלה ונותח בהצלחה! כל השדות עודכנו.");
+              } else {
+                // Parsing failed but file was uploaded
+                console.warn("Protocol parsing failed:", fnError || fnData?.error);
+                await update({
+                  status: "done",
+                  history: [{ date: getHebrewDateNow(), note: `פרוטוקול ועדה הועלה. סטטוס שונה ל: ${label}` }, ...project.history],
+                });
+                toast.success("פרוטוקול ועדה הועלה והסטטוס עודכן לבוצע (ניתוח אוטומטי לא הצליח)");
+              }
+            } catch (err: any) { 
+              console.error("Protocol upload error:", err);
+              toast.error(err.message || "שגיאה בהעלאת קובץ"); 
+            }
           }} />
 
           {/* Images */}
