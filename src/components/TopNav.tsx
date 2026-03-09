@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { EmailModal } from "./EmailModal";
 import { LinksManager } from "./LinksManager";
 import { TabaotManager } from "./TabaotManager";
@@ -6,6 +7,7 @@ import { IdeaCardsManager } from "./IdeaCardsManager";
 import { DataMigration } from "./DataMigration";
 
 export const TopNav: React.FC = () => {
+  const navigate = useNavigate();
   const [emailOpen, setEmailOpen] = useState(false);
   const [linksOpen, setLinksOpen] = useState(false);
   const [tabaotOpen, setTabaotOpen] = useState(false);
@@ -35,11 +37,18 @@ export const TopNav: React.FC = () => {
             🔗 קישורים
           </button>
           <button
-            title="תב&quot;עות"
-            onClick={() => setTabaotOpen(true)}
+            title="הוראות תוכנית"
+            onClick={() => navigate("/plan-instructions")}
             className="rounded border border-primary/40 bg-background px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary/10"
           >
-            📋 תב&quot;עות
+            📋 הוראות תוכנית
+          </button>
+          <button
+            title="תב&quot;עות"
+            onClick={() => setTabaotOpen(true)}
+            className="rounded border border-input bg-background px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+          >
+            📑 תב&quot;עות
           </button>
           <button
             title="כרטיסי רעיונות"
