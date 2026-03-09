@@ -90,11 +90,13 @@ export const SubIconsRow: React.FC<SubIconsRowProps> = ({ sub, color, refreshKey
     enabled: !!domainKey,
   });
 
-  if (!domainKey || projects.length === 0) return null;
+  const appsWithLinks = projects.filter((app) => app.viewLink || app.link);
+
+  if (!domainKey || appsWithLinks.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2 mt-2">
-      {projects.map((app) => {
+      {appsWithLinks.map((app) => {
         const Icon = getIconForApp(app.name);
         const displayName = getDisplayName(app.name);
         return (
@@ -102,7 +104,7 @@ export const SubIconsRow: React.FC<SubIconsRowProps> = ({ sub, color, refreshKey
             key={app.id}
             onClick={(e) => {
               e.preventDefault();
-              openExternalLink(app.link);
+              openExternalLink(app.viewLink || app.link);
             }}
             title={`פתח ${displayName}`}
             className="group flex flex-col items-center gap-1 rounded-xl px-2.5 py-2 transition-all duration-200 hover:scale-105 hover:shadow-lg cursor-pointer"
