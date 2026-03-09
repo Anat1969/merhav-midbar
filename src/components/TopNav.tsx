@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { EmailModal } from "./EmailModal";
 import { LinksManager } from "./LinksManager";
+import { TabaotManager } from "./TabaotManager";
 import { DataMigration } from "./DataMigration";
 
 export const TopNav: React.FC = () => {
   const [emailOpen, setEmailOpen] = useState(false);
   const [linksOpen, setLinksOpen] = useState(false);
+  const [tabaotOpen, setTabaotOpen] = useState(false);
   const [migrateOpen, setMigrateOpen] = useState(false);
 
   return (
@@ -29,6 +31,14 @@ export const TopNav: React.FC = () => {
             className="rounded border border-gray-300 px-3 py-1.5 text-sm transition-colors hover:bg-gray-50"
           >
             🔗 קישורים
+          </button>
+          <button
+            title="תב&quot;עות"
+            onClick={() => setTabaotOpen(true)}
+            className="rounded border px-3 py-1.5 text-sm transition-colors hover:bg-emerald-50"
+            style={{ borderColor: "#2C6E6A66", color: "#2C6E6A" }}
+          >
+            📋 תב&quot;עות
           </button>
           <button
             title="הדפס"
@@ -55,6 +65,7 @@ export const TopNav: React.FC = () => {
       </nav>
       <EmailModal isOpen={emailOpen} onClose={() => setEmailOpen(false)} />
       <LinksManager isOpen={linksOpen} onClose={() => setLinksOpen(false)} />
+      <TabaotManager isOpen={tabaotOpen} onClose={() => setTabaotOpen(false)} />
       <DataMigration open={migrateOpen} onOpenChange={setMigrateOpen} />
     </>
   );
