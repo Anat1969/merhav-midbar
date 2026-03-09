@@ -181,6 +181,7 @@ export type Database = {
       }
       tabaot: {
         Row: {
+          consultant_notes: Json
           created_at: string
           id: number
           instructions_url: string
@@ -190,6 +191,7 @@ export type Database = {
           tashrit_url: string
         }
         Insert: {
+          consultant_notes?: Json
           created_at?: string
           id?: never
           instructions_url?: string
@@ -199,6 +201,7 @@ export type Database = {
           tashrit_url?: string
         }
         Update: {
+          consultant_notes?: Json
           created_at?: string
           id?: never
           instructions_url?: string
