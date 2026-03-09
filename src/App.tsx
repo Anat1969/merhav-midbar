@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import DomainPage from "./pages/DomainPage";
 import BinuiPage from "./pages/BinuiPage";
 import BinuiProjectDetail from "./pages/BinuiProjectDetail";
+import PlanInstructionsPage from "./pages/PlanInstructionsPage";
 import PituaPage from "./pages/PituaPage";
 import PituaDetail from "./pages/PituaDetail";
 import MeyadimPage from "./pages/MeyadimPage";
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/" element={<Index />} />
           <Route path="/binui" element={<BinuiPage />} />
           <Route path="/binui/:id" element={<BinuiProjectDetail />} />
+          <Route path="/binui/:id/plan-instructions" element={<PlanInstructionsPage />} />
           <Route path="/pitua" element={<PituaPage />} />
           <Route path="/pitua/:id" element={<PituaDetail />} />
           <Route path="/meyadim" element={<MeyadimPage />} />
