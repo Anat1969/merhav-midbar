@@ -607,27 +607,42 @@ const BinuiProjectDetail: React.FC = () => {
               </div>
               {/* Show plan_detail (תוכנית בינוי) very large */}
               {isTaba && planDetailVal && !editing && (
-                <div className="px-3 pt-3 pb-1 text-center">
+                <div className="px-3 pt-3 pb-1 text-center cursor-pointer hover:opacity-80 transition-opacity" onClick={() => navigate(`/binui/${project.id}/plan-instructions`)}>
                   <div className="text-3xl font-black" style={{ color: "#2C6E6A", letterSpacing: "0.05em" }}>
                     {planDetailVal}
                   </div>
-                  <div className="text-[10px] text-muted-foreground">מספר תוכנית בינוי</div>
+                  <div className="text-[10px] text-muted-foreground">מספר תוכנית בינוי — לחץ לצפייה בהוראות</div>
                 </div>
               )}
               <div className="px-3 py-2 space-y-1.5">
-                {fields.map((f) => (
-                  <div key={f.key} className="flex items-center gap-1.5 text-[11px]">
-                    <span className="text-gray-400 whitespace-nowrap" style={{ minWidth: 80 }}>{f.label}</span>
-                    {editing ? (
-                      <input title={f.label} className="flex-1 h-5 rounded border border-gray-200 px-1 text-[11px]" style={{ direction: "rtl" }}
-                        value={vals[f.key] ?? ""}
-                        onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), [f.key]: e.target.value } }))}
-                      />
-                    ) : (
-                      <span style={{ color: vals[f.key] ? "#222" : "#ccc" }}>{vals[f.key] || "—"}</span>
-                    )}
-                  </div>
-                ))}
+                {fields.map((f) => {
+                  const val = vals[f.key] ?? "";
+                  const isClickable = !editing && val && (
+                    (isTaba && (f.key === "plan_detail" || f.key === "plan_overall")) ||
+                    (section === "מיקום" && f.key === "quarter")
+                  );
+                  return (
+                    <div key={f.key} className="flex items-center gap-1.5 text-[11px]">
+                      <span className="text-gray-400 whitespace-nowrap" style={{ minWidth: 80 }}>{f.label}</span>
+                      {editing ? (
+                        <input title={f.label} className="flex-1 h-5 rounded border border-gray-200 px-1 text-[11px]" style={{ direction: "rtl" }}
+                          value={val}
+                          onChange={(e) => setEditValues((v) => ({ ...v, [section]: { ...(v[section] ?? {}), [f.key]: e.target.value } }))}
+                        />
+                      ) : isClickable ? (
+                        <button
+                          className="font-bold hover:underline transition-colors cursor-pointer"
+                          style={{ color: "#2C6E6A" }}
+                          onClick={() => navigate(`/binui/${project.id}/plan-instructions`)}
+                        >
+                          {val}
+                        </button>
+                      ) : (
+                        <span style={{ color: val ? "#222" : "#ccc" }}>{val || "—"}</span>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           );
