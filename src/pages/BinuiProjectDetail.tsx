@@ -818,6 +818,13 @@ const BinuiProjectDetail: React.FC = () => {
                       {Object.keys(project.consultant_notes || {}).length > 0 && (
                         <div className="flex items-center gap-2">
                           <button
+                            className="flex items-center gap-1 text-[10px] px-2 py-1 rounded border hover:opacity-80 font-bold"
+                            style={{ borderColor: "#2C6E6A", color: "white", background: "#2C6E6A" }}
+                            onClick={() => navigate(`/binui/${project.id}/plan-instructions`)}
+                          >
+                            <BookOpen className="w-3 h-3" /> כל הוראות התוכנית
+                          </button>
+                          <button
                             className="flex items-center gap-1 text-[10px] px-2 py-1 rounded border hover:opacity-80"
                             style={{ borderColor: "#B4530966", color: "#B45309", background: "#FEF3C7" }}
                             onClick={() => {
