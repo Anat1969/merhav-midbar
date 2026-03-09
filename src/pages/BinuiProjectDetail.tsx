@@ -1318,7 +1318,7 @@ const BinuiProjectDetail: React.FC = () => {
               // 2. Parse the protocol document using AI
               toast.info("מנתח את פרוטוקול הועדה...");
               const { data: fnData, error: fnError } = await supabase.functions.invoke("parse-protocol", {
-                body: { fileUrl: url, fileName: file.name },
+                body: { fileUrl: url, fileName: file.name, projectId: project.id },
               });
               
               let patchObj: Partial<BinuiProject> = {};
@@ -1351,12 +1351,17 @@ const BinuiProjectDetail: React.FC = () => {
                   ],
                 };
                 
+                // Set project name from plan name if available
+                if (parsed.plan_name) {
+                  patchObj.name = parsed.plan_name;
+                }
+                
                 // Set note (project description/purpose)
                 if (parsed.note) {
                   patchObj.note = parsed.note;
                 }
                 
-                // Store full text in consultant_notes for reference
+                // Store full text in consultant_notes for reference (חוות דעת)
                 if (parsed.fullText) {
                   const newConsultantNotes = { ...(project.consultant_notes || {}) };
                   newConsultantNotes["פרוטוקול_ועדה"] = { 
@@ -1365,6 +1370,17 @@ const BinuiProjectDetail: React.FC = () => {
                     status: "done" 
                   };
                   patchObj.consultant_notes = newConsultantNotes;
+                }
+                
+                // Apply extracted images from DOCX
+                if (parsed.extractedImages && parsed.extractedImages.length > 0) {
+                  const newImages = { ...(project.images || { tashrit: null, tza: null, hadmaya: null }) };
+                  for (const img of parsed.extractedImages) {
+                    if (img.slot && img.url) {
+                      newImages[img.slot as keyof typeof newImages] = img.url;
+                    }
+                  }
+                  patchObj.images = newImages;
                 }
                 
                 await update(patchObj);
