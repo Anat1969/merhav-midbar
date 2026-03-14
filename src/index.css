@@ -125,8 +125,6 @@ nav button, nav a {
   to   { transform: translateX(0);     opacity: 1; }
 }
 
-
-}
 .link-entry:last-child { border-bottom: none; }
 
 /* PrintHeader — hidden on screen */
