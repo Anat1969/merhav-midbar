@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;            /* white */
-    --foreground: 0 0% 10%;             /* #1a1a1a */
+    --background: 220 20% 96%;          /* #F2F1EE warm light */
+    --foreground: 0 0% 8%;              /* #141414 */
     --card: 0 0% 100%;                  /* white */
-    --card-foreground: 0 0% 10%;
+    --card-foreground: 0 0% 8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 10%;
+    --popover-foreground: 0 0% 8%;
     --primary: 43 50% 55%;              /* #C9A84C gold */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96%;              /* #F5F5F5 */
-    --secondary-foreground: 0 0% 10%;
-    --muted: 0 0% 96%;
-    --muted-foreground: 220 9% 46%;     /* #6B7280 */
+    --secondary: 220 14% 92%;           /* #EAECF0 */
+    --secondary-foreground: 0 0% 8%;
+    --muted: 220 14% 92%;
+    --muted-foreground: 220 9% 36%;     /* #525A65 darker gray */
     --accent: 43 68% 67%;               /* #E8C96A */
-    --accent-foreground: 0 0% 10%;
+    --accent-foreground: 0 0% 8%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 91%;              /* #E5E7EB */
-    --input: 220 13% 91%;
+    --border: 220 13% 82%;              /* #CBCFD6 stronger border */
+    --input: 220 13% 82%;
     --ring: 43 50% 55%;
     --radius: 0.5rem;
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 10%;
+    --sidebar-foreground: 0 0% 8%;
     --sidebar-primary: 43 50% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 220 13% 91%;
+    --sidebar-accent: 220 14% 92%;
+    --sidebar-accent-foreground: 0 0% 8%;
+    --sidebar-border: 220 13% 82%;
     --sidebar-ring: 43 50% 55%;
   }
 }
@@ -51,13 +51,13 @@
   body {
     @apply bg-background text-foreground;
     font-family: "Heebo", sans-serif;
-
+    font-size: 1.0625rem; /* 17px base */
   }
 
-  h1 { font-size: 2.5rem; }
-  h2 { font-size: 2rem; }
-  h3 { font-size: 1.75rem; }
-  h4 { font-size: 1.5rem; }
+  h1 { font-size: 3rem; }
+  h2 { font-size: 2.25rem; }
+  h3 { font-size: 1.875rem; }
+  h4 { font-size: 1.625rem; }
 
   /* Custom scrollbar */
   ::-webkit-scrollbar {
@@ -89,18 +89,18 @@
 
 /* Typography utility classes */
 .stat-number {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
 }
 
 .record-count {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
 }
 
 /* Nav/button text minimum */
 nav button, nav a {
-  font-size: 1rem;
+  font-size: 1.0625rem;
 }
 
 /* Sort buttons */
@@ -146,7 +146,7 @@ nav button, nav a {
 
 /* [UPGRADE: Activity Log] */
 .activity-log { border-top: 1px solid hsl(220 13% 91%); margin-top: 8px; }
-.activity-entry { font-size: 0.8rem; color: hsl(220 9% 46%); padding: 4px 0; border-bottom: 1px solid hsl(220 13% 91% / 0.5); }
+.activity-entry { font-size: 0.875rem; color: hsl(220 9% 36%); padding: 4px 0; border-bottom: 1px solid hsl(220 13% 82% / 0.5); }
 
 /* [UPGRADE: Image drop] Gold dashed drop target */
 .image-drop-target { border: 2px dashed hsl(43 50% 55%) !important; background: hsl(43 50% 55% / 0.05) !important; }
