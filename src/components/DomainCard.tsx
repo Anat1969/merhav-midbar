@@ -181,10 +181,10 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
     <div className={gridLayout ? "" : "space-y-2"}>
       {/* [UPGRADE: typography] Category title at h5 level (~14px bold caps) */}
       {!hideTitle && (
-        <div className="flex items-center gap-2 mb-2">
-          <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">{catName}</h3>
+        <div className="flex items-center gap-2 mb-3">
+          <h3 className="text-base font-black text-muted-foreground uppercase tracking-widest">{catName}</h3>
           {catCount > 0 && (
-            <span className="text-xs font-black px-2 py-0.5 rounded-full" style={{ backgroundColor: `${color}18`, color }}>{catCount}</span>
+            <span className="text-sm font-black px-2.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}18`, color }}>{catCount}</span>
           )}
         </div>
       )}

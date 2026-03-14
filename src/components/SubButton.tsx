@@ -30,14 +30,13 @@ export const SubButton: React.FC<SubButtonProps> = ({
     <button
       title={`פתח ${label}`}
       onClick={onClick}
-      className="group flex w-full items-center justify-between rounded-xl border bg-white px-4 py-3 text-right transition-all duration-200 hover:shadow-md hover:-translate-x-0.5 active:scale-[0.99]"
-      style={{ borderColor: `${color}30` }}
+      className="group flex w-full items-center justify-between rounded-xl border border-border bg-card px-4 py-3.5 text-right transition-all duration-200 hover:shadow-md hover:-translate-x-0.5 active:scale-[0.99] shadow-sm"
       dir="rtl"
     >
-      <span className="font-semibold text-gray-700 text-base leading-snug">{label}</span>
+      <span className="font-bold text-foreground text-lg leading-snug">{label}</span>
       {count > 0 && (
         <span
-          className="rounded-full px-2.5 py-0.5 text-sm font-black text-white min-w-[28px] text-center flex-shrink-0"
+          className="rounded-full px-3 py-0.5 text-base font-black text-white min-w-[32px] text-center flex-shrink-0"
           style={{ backgroundColor: color }}
         >
           {count}
