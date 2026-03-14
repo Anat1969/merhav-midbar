@@ -30,6 +30,8 @@ import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { openFileInNewTab, downloadFile, openExternalLink } from "@/lib/fileAccess";
 import { EmptyState } from "@/components/EmptyState";
+import { BreadcrumbNav } from "@/components/Breadcrumb";
+import { ActivityLog } from "@/components/ActivityLog";
 
 const DOMAIN_ICONS: Record<string, string> = {
   "מבנים": "🏛",
@@ -90,6 +92,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
   const [noteText, setNoteText] = useState("");
+  const [activityOpen, setActivityOpen] = useState<number | null>(null);
   const [editingField, setEditingField] = useState<{ id: number; field: string } | null>(null);
   const [editText, setEditText] = useState("");
   const [attachOpen, setAttachOpen] = useState<number | null>(null);
@@ -262,6 +265,13 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
     setNoteOpen(null);
   };
 
+  const addActivityEntry = async (id: number, text: string) => {
+    const project = projects.find((p) => p.id === id);
+    if (!project) return;
+    const entry = { date: getHebrewDateNow(), note: text };
+    await saveOne({ ...project, history: [entry, ...project.history] });
+  };
+
   const startInlineEdit = (id: number, field: string, current: string) => {
     setEditingField({ id, field });
     setEditText(current);
@@ -333,49 +343,53 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
-        <TopNav />
-        <div className="flex items-center justify-center" style={{ minHeight: "60vh" }}>
-          <div className="text-center">
-            <div className="text-5xl mb-4 animate-pulse">{DOMAIN_ICONS[config.domainName] || "📁"}</div>
-            <div className="text-lg text-muted-foreground font-medium">טוען פרויקטים...</div>
-            <div className="skeleton h-3 w-40 mt-4 mx-auto rounded-full" />
-          </div>
+
         </div>
       </div>
     );
   }
 
+  const breadcrumbItems = [
+    { label: "דשבורד", href: "/" },
+    { label: config.domainName, href: `/${config.routeBase}` },
+    ...(filterCat ? [{ label: filterCat }] : []),
+  ];
+
   return (
-    <div className="min-h-screen bg-background" style={{ direction: "rtl" }}>
+    <div className="min-h-screen bg-[#0A1628]" style={{ direction: "rtl" }}>
       <TopNav />
       <PrintHeader />
+      <BreadcrumbNav items={breadcrumbItems} />
 
       {/* [UPGRADE: navigation] Domain header banner with breadcrumb */}
       <div
-        className="mx-4 mt-4 rounded-2xl px-6 py-6 text-white print:hidden"
+
         style={{ background: `linear-gradient(135deg, ${config.color} 0%, ${config.color}CC 100%)` }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <span className="text-4xl drop-shadow">{DOMAIN_ICONS[config.domainName] || "📁"}</span>
             <div>
-              {/* [UPGRADE: navigation] Breadcrumb */}
-              <nav className="breadcrumb mb-1" aria-label="breadcrumb">
-                <a onClick={() => navigate("/")} style={{ cursor: "pointer" }}>דשבורד</a>
-                <span className="sep">←</span>
-                <span>{config.domainName}</span>
-              </nav>
-              {/* [UPGRADE: typography] h1 at 32px+ */}
-              <h1 style={{ fontSize: "2rem", fontWeight: 900, lineHeight: 1.2 }}>{config.domainName}</h1>
+
             </div>
           </div>
           <div className="flex items-center gap-3">
             {projects.length > 0 && (
-              <span className="rounded-full bg-white/20 px-4 py-2 num-value font-black backdrop-blur-sm" style={{ fontSize: "1.1rem" }}>
-                {projects.length} פרויקטים
+
               </span>
             )}
+            {/* Stage summary counters */}
+            <div className="flex flex-wrap gap-1">
+              {STATUS_OPTIONS.map((s) => {
+                const cnt = projects.filter((p) => p.status === s.value).length;
+                if (cnt === 0) return null;
+                return (
+                  <span key={s.value} className="rounded-full px-2 py-0.5 text-xs font-bold" style={{ background: s.bg, color: s.color }}>
+                    {s.label}: {cnt}
+                  </span>
+                );
+              })}
+            </div>
           </div>
         </div>
       </div>
@@ -384,20 +398,19 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       <div className="no-print mx-4 mt-3 flex items-center gap-3 flex-wrap">
         <button
           onClick={() => navigate("/")}
-          className="h-12 px-8 rounded-xl text-white text-base font-black hover:brightness-110 transition-all shadow-md flex items-center gap-2"
-          style={{ background: `linear-gradient(135deg, ${config.color}, ${config.color}DD)` }}
+
         >
           🏠 חזור לדשבורד
         </button>
         <button
           onClick={() => navigate(-1)}
-          className="h-11 px-5 rounded-xl border-2 border-gray-300 text-base font-bold text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
+
         >
           → חזור אחורה
         </button>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="h-11 px-4 rounded-xl border border-gray-200 text-base font-medium text-gray-500 hover:bg-gray-50 transition-colors"
+
         >
           ↑ ראש העמוד
         </button>
@@ -412,34 +425,34 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       <div className="no-print mx-4 mt-3 grid grid-cols-1 lg:grid-cols-3 gap-3">
 
         {/* Panel 1: Search */}
-        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-5">
-          <div className="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">🔍 חיפוש</div>
+        <div className="rounded-xl bg-[#162B55] shadow-sm border border-[#1E3A6E] p-5">
+          <div className="text-base font-bold text-[#C9A84C] mb-3 flex items-center gap-2">🔍 חיפוש</div>
           <div className="relative">
-            <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
+            <Search size={18} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#B8C5D6]" />
             <input
               title="חיפוש פרויקט"
-              className="w-full h-12 rounded-lg border border-input pr-10 pl-3 text-base focus:outline-none focus:ring-2 focus:ring-ring bg-background"
+              className="w-full h-12 rounded-lg border border-[#1E3A6E] bg-[#0F2044] text-white pr-10 pl-3 text-base focus:outline-none focus:border-[#C9A84C] placeholder:text-[#4A5568]"
               style={{ direction: "rtl" }}
               placeholder="חיפוש לפי שם, תיאור..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
             />
           </div>
-          <p className="text-sm text-muted-foreground mt-2">חיפוש חופשי ברשימת הפרויקטים</p>
+          <p className="text-sm text-[#B8C5D6] mt-2">חיפוש חופשי ברשימת הפרויקטים</p>
         </div>
 
         {/* Panel 2: Add new record */}
-        <div className="rounded-xl bg-card shadow-sm border border-border/50 p-5 lg:col-span-2">
-          <div className="text-base font-bold text-gray-700 mb-3 flex items-center gap-2">➕ הוספת רשומה חדשה</div>
+        <div className="rounded-xl bg-[#162B55] shadow-sm border border-[#1E3A6E] p-5 lg:col-span-2">
+          <div className="text-base font-bold text-[#C9A84C] mb-3 flex items-center gap-2">➕ הוספת רשומה חדשה</div>
           
           {/* Row 1: Name construction — category + sub + unique name */}
           <div className="mb-3">
-            <label className="text-xs text-gray-400 font-medium mb-1.5 block">שם הרשומה (קטגוריה{hasSubs ? " › תת-קטגוריה" : ""} › שם ייחודי)</label>
-            <div className="flex items-center h-11 rounded-lg border border-gray-200 bg-white overflow-hidden" dir="rtl">
+            <label className="text-xs text-[#B8C5D6] font-medium mb-1.5 block">שם הרשומה (קטגוריה{hasSubs ? " › תת-קטגוריה" : ""} › שם ייחודי)</label>
+            <div className="flex items-center h-11 rounded-lg border border-[#1E3A6E] bg-[#0F2044] overflow-hidden" dir="rtl">
               <select
                 title="קטגוריה"
-                className="h-full px-3 text-sm font-bold border-none bg-gray-50 focus:outline-none cursor-pointer"
-                style={{ direction: "rtl", color: config.color }}
+                className="h-full px-3 text-sm font-bold border-none bg-[#162B55] text-[#C9A84C] focus:outline-none cursor-pointer"
+                style={{ direction: "rtl" }}
                 value={newCat}
                 onChange={(e) => {
                   setNewCat(e.target.value);
@@ -451,11 +464,11 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   <option key={c} value={c}>{c}</option>
                 ))}
               </select>
-              <span className="text-gray-300 text-sm select-none px-0.5">:</span>
+              <span className="text-[#4A5568] text-sm select-none px-0.5">:</span>
               {hasSubs ? (
                 <select
                   title="תת-קטגוריה"
-                  className="h-full px-2 text-sm font-medium border-none bg-gray-50 focus:outline-none cursor-pointer text-gray-600"
+                  className="h-full px-2 text-sm font-medium border-none bg-[#162B55] text-[#B8C5D6] focus:outline-none cursor-pointer"
                   style={{ direction: "rtl" }}
                   value={newSub}
                   onChange={(e) => setNewSub(e.target.value)}
@@ -465,12 +478,12 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   ))}
                 </select>
               ) : (
-                <span className="px-2 text-sm font-medium text-gray-500 bg-gray-50">{newCat}</span>
+                <span className="px-2 text-sm font-medium text-[#B8C5D6] bg-[#162B55]">{newCat}</span>
               )}
-              <span className="text-gray-300 text-sm select-none px-1">–</span>
+              <span className="text-[#4A5568] text-sm select-none px-1">–</span>
               <input
                 title="שם פרויקט חדש"
-                className="h-full flex-1 px-3 text-base font-medium focus:outline-none"
+                className="h-full flex-1 px-3 text-base font-medium focus:outline-none bg-transparent text-white placeholder:text-[#4A5568]"
                 style={{ direction: "rtl" }}
                 placeholder="הקלד שם ייחודי..."
                 value={newName}
@@ -478,8 +491,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 onKeyDown={(e) => e.key === "Enter" && addProject()}
               />
             </div>
-            <div className="mt-1 text-xs text-gray-300 font-mono" dir="rtl">
-              תצוגה מקדימה: <span className="text-gray-500">{namePrefix}{newName || "..."}</span>
+            <div className="mt-1 text-xs text-[#4A5568] font-mono" dir="rtl">
+              תצוגה מקדימה: <span className="text-[#B8C5D6]">{namePrefix}{newName || "..."}</span>
             </div>
           </div>
 
@@ -488,10 +501,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             {config.hasLink && (
               <>
                 <div className="flex flex-col gap-1 flex-1 min-w-[160px]">
-                  <label className="text-sm text-gray-400 font-medium">🔗 קישור עבודה</label>
+                  <label className="text-sm text-[#B8C5D6] font-medium">🔗 קישור עבודה</label>
                   <input
                     title="קישור עבודה"
-                    className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="h-11 rounded-lg border border-[#1E3A6E] bg-[#0F2044] text-white px-3 text-base focus:outline-none focus:border-[#C9A84C] placeholder:text-[#4A5568]"
                     style={{ direction: "ltr" }}
                     placeholder="https://..."
                     value={newLink}
@@ -500,10 +513,10 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   />
                 </div>
                 <div className="flex flex-col gap-1 flex-1 min-w-[160px]">
-                  <label className="text-sm text-gray-400 font-medium">👁 קישור תצוגה</label>
+                  <label className="text-sm text-[#B8C5D6] font-medium">👁 קישור תצוגה</label>
                   <input
                     title="קישור תצוגה"
-                    className="h-11 rounded-lg border border-gray-200 px-3 text-base bg-white focus:outline-none focus:ring-2 focus:ring-ring"
+                    className="h-11 rounded-lg border border-[#1E3A6E] bg-[#0F2044] text-white px-3 text-base focus:outline-none focus:border-[#C9A84C] placeholder:text-[#4A5568]"
                     style={{ direction: "ltr" }}
                     placeholder="https://..."
                     value={newViewLink}
@@ -516,13 +529,12 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             <button
               title="הוסף פרויקט"
               onClick={addProject}
-              className="h-11 px-8 rounded-lg text-white text-base font-bold hover:opacity-90 transition-opacity"
-              style={{ background: config.color }}
+              className="h-11 px-8 rounded-lg bg-[#C9A84C] text-[#0A1628] text-base font-bold hover:bg-[#E8C96A] transition-colors"
             >
               + הוספה
             </button>
           </div>
-          <p className="text-sm text-gray-400 mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם{config.hasLink ? ", קישורים" : ""} ולחץ הוספה</p>
+          <p className="text-sm text-[#B8C5D6] mt-2">בחר קטגוריה{hasSubs ? " ותת-קטגוריה" : ""}, הקלד שם{config.hasLink ? ", קישורים" : ""} ולחץ הוספה</p>
         </div>
       </div>
 
@@ -568,67 +580,6 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
           <EmptyState domainName={config.domainName} storageKey={config.storageKey} />
         )}
 
-        {/* [UPGRADE: view-mode] View Mode — card grid, image-first, read-only, scannable */}
-        {!isWorkMode && (
-          <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {filtered.map((p) => {
-              const statusCfg = STATUS_OPTIONS.find((s) => s.value === p.status);
-              return (
-                <div
-                  key={p.id}
-                  className="view-mode-card project-card bg-white rounded-2xl shadow-sm overflow-hidden border border-border/40 hover:shadow-md transition-all cursor-pointer group"
-                  onClick={() => navigate(`/${config.routeBase}/${p.id}`)}
-                  style={{ minHeight: 160 }}
-                >
-                  {p.image && (
-                    <div className="w-full h-40 overflow-hidden bg-gray-100">
-                      <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                    </div>
-                  )}
-                  <div className="p-5">
-                    <h3 className="font-black text-gray-800 leading-snug group-hover:text-primary transition-colors mb-2" style={{ fontSize: "1.0625rem" }}>
-                      {p.name}
-                    </h3>
-                    <div className="flex items-center gap-2 flex-wrap mb-2">
-                      <span className="text-sm font-semibold px-2 py-1 rounded-lg" style={{ color: statusCfg?.color, background: statusCfg?.bg }}>
-                        {statusCfg?.label}
-                      </span>
-                      <span className="text-sm text-gray-400">{p.category}{p.sub !== p.category ? ` › ${p.sub}` : ""}</span>
-                    </div>
-                    {p.description && (
-                      <p className="text-sm text-gray-500 line-clamp-2">{p.description}</p>
-                    )}
-                    {/* [UPGRADE: links] Show links in view mode */}
-                    {(() => {
-                      try {
-                        const links: LinkEntry[] = JSON.parse(localStorage.getItem(`${config.storageKey}_links_${p.id}`) || "[]");
-                        const activeLinks = links.filter((l) => l.url.trim());
-                        if (!activeLinks.length) return null;
-                        return (
-                          <div className="mt-2">
-                            <RecordLinks links={activeLinks} isWorkMode={false} onUpdate={() => {}} />
-                          </div>
-                        );
-                      } catch { return null; }
-                    })()}
-                    <div className="flex items-center justify-between mt-3 pt-3 border-t border-border/30">
-                      <span className="text-xs text-gray-400">{p.created}</span>
-                      {p.attachments.length > 0 && (
-                        <span className="text-xs text-gray-400 flex items-center gap-1">
-                          <Paperclip size={11} /> {p.attachments.length}
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-
-        {/* [UPGRADE: view-mode] Work Mode — expanded rows with all editable fields */}
-        {isWorkMode && filtered.map((p, idx) => (
-          <div key={p.id} className="work-mode-row project-card bg-card rounded-2xl shadow-sm overflow-hidden flex border border-border/50" style={{ minHeight: 140 }}>
             {/* Right — image */}
             <FileDropZone
               onFile={(f) => handleImage(p.id, f)}
@@ -637,17 +588,16 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               }}
               currentSrc={p.image}
               label="תמונה"
-              className="flex-shrink-0 border-l border-gray-100 hover:bg-gray-50"
+              className="flex-shrink-0 border-l border-[#1E3A6E] hover:bg-[#1E3A6E] image-drop-target"
               style={{ width: 140 }}
             />
 
             {/* Center — info */}
             <div className="flex-1 p-4 flex flex-col gap-1.5">
-              <div className="flex items-center gap-3">
-                <span className="text-xs text-gray-400 font-mono w-6">{idx + 1}.</span>
+              <div className="flex items-center gap-3 flex-wrap">
+                <span className="text-xs text-[#4A5568] font-mono w-6">{idx + 1}.</span>
                 <span
-                  className="font-extrabold text-base cursor-pointer hover:underline"
-                  style={{ color: "#222" }}
+                  className="font-extrabold text-base cursor-pointer hover:underline text-white"
                   title="פתח פרויקט"
                   onClick={() => navigate(`/${config.routeBase}/${p.id}`)}
                 >
@@ -655,7 +605,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </span>
                 <select
                   title="שנה קטגוריה"
-                  className="text-xs text-gray-500 mr-1 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  className="text-xs text-[#B8C5D6] mr-1 bg-[#0F2044] border border-[#1E3A6E] hover:border-[#C9A84C] rounded px-1 cursor-pointer focus:outline-none"
                   style={{ direction: "rtl" }}
                   value={p.category}
                   onChange={(e) => changeCategory(p.id, e.target.value)}
@@ -667,7 +617,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 {config.categories[p.category]?.length > 0 && (
                   <select
                     title="שנה תת-קטגוריה"
-                    className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                    className="text-xs text-[#B8C5D6] bg-[#0F2044] border border-[#1E3A6E] hover:border-[#C9A84C] rounded px-1 cursor-pointer focus:outline-none"
                     style={{ direction: "rtl" }}
                     value={p.sub}
                     onChange={(e) => changeSub(p.id, e.target.value)}
@@ -679,7 +629,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 )}
                 <select
                   title="העבר לדומיין"
-                  className="text-xs text-gray-400 bg-transparent border border-transparent hover:border-gray-200 rounded px-1 cursor-pointer focus:outline-none focus:ring-1"
+                  className="text-xs text-[#B8C5D6] bg-[#0F2044] border border-[#1E3A6E] hover:border-[#C9A84C] rounded px-1 cursor-pointer focus:outline-none"
                   style={{ direction: "rtl" }}
                   value={config.domainName}
                   onChange={(e) => moveToDomain(p, e.target.value)}
@@ -748,14 +698,14 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 <div className="flex items-center gap-4 text-sm flex-wrap">
                   {p.link && (
                     <div className="flex items-center gap-1.5">
-                      <span className="text-gray-400 font-medium">🔗 עבודה:</span>
-                      <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline truncate max-w-[200px]" style={{ direction: "ltr" }}>{p.link}</a>
+                      <span className="text-[#B8C5D6] font-medium">🔗 עבודה:</span>
+                      <a href={p.link} target="_blank" rel="noopener noreferrer" className="text-[#C9A84C] hover:underline truncate max-w-[200px]" style={{ direction: "ltr" }}>{p.link}</a>
                     </div>
                   )}
                   {p.viewLink && (
                     <div className="flex items-center gap-1.5">
-                      <span className="text-gray-400 font-medium">👁 תצוגה:</span>
-                      <a href={p.viewLink} target="_blank" rel="noopener noreferrer" className="text-emerald-600 hover:underline truncate max-w-[200px]" style={{ direction: "ltr" }}>{p.viewLink}</a>
+                      <span className="text-[#B8C5D6] font-medium">👁 תצוגה:</span>
+                      <a href={p.viewLink} target="_blank" rel="noopener noreferrer" className="text-[#C9A84C] hover:underline truncate max-w-[200px]" style={{ direction: "ltr" }}>{p.viewLink}</a>
                     </div>
                   )}
                 </div>
@@ -765,8 +715,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               <div className="flex items-center gap-2 mt-auto flex-wrap">
                 <button
                   title="פתח"
-                  className="h-8 px-5 rounded-lg text-white text-sm font-bold hover:brightness-110 transition-all shadow-sm"
-                  style={{ background: `linear-gradient(135deg, ${config.color}, ${config.color}DD)` }}
+
                   onClick={() => navigate(`/${config.routeBase}/${p.id}`)}
                 >
                   פתח ←
@@ -774,8 +723,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 {config.hasLink && p.link && (
                   <button
                     title="קישור עבודה"
-                    className="h-8 px-3 rounded-lg text-sm font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1"
-                    style={{ background: config.color + "15", color: config.color, border: `1px solid ${config.color}44` }}
+
                     onClick={() => openExternalLink(p.link)}
                   >
                     🔗 עבודה
@@ -784,24 +732,20 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 {config.hasLink && p.viewLink && (
                   <button
                     title="קישור תצוגה"
-                    className="h-8 px-3 rounded-lg text-sm font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1"
-                    style={{ background: "#10B98115", color: "#10B981", border: "1px solid #10B98144" }}
+
                     onClick={() => openExternalLink(p.viewLink)}
                   >
                     👁 תצוגה
                   </button>
                 )}
                 <button
-                  title="חוות דעת"
-                  className="h-8 px-3 rounded-lg border text-sm font-semibold hover:brightness-110 transition-all"
-                  style={{ borderColor: config.color + "44", color: config.color, background: config.color + "0A" }}
+
                   onClick={() => { setNoteOpen(noteOpen === p.id ? null : p.id); setNoteText(p.note); }}
                 >
-                  חוות דעת
+                  הערות
                 </button>
                 <button
-                  title="שלח חוות דעת במייל"
-                  className="h-8 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors"
+
                   onClick={() => {
                     const statusLabel = STATUS_OPTIONS.find((s) => s.value === p.status)?.label ?? p.status;
                     setEmailModal({
@@ -815,19 +759,13 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </button>
                 <button
                   title="קבצים"
-                  className="h-8 px-3 rounded-lg border border-gray-200 text-sm text-gray-600 hover:bg-gray-50 transition-colors flex items-center gap-1"
+
                   onClick={() => setAttachOpen(attachOpen === p.id ? null : p.id)}
                 >
                   <Paperclip size={13} />
                   קבצים
                   {p.attachments.length > 0 && (
-                    <span className="rounded-full text-[11px] text-white px-1.5 leading-5" style={{ background: config.color }}>{p.attachments.length}</span>
-                  )}
-                </button>
-                <span className="text-xs text-gray-400 mr-1">{p.created}</span>
-                <button
-                  title="מחק פרויקט"
-                  className="no-print mr-auto h-8 w-8 rounded-lg text-red-400 hover:bg-red-50 hover:text-red-600 transition-colors flex items-center justify-center"
+
                   onClick={() => deleteProject(p.id)}
                 >
                   <Trash2 size={15} />
@@ -836,59 +774,36 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
               {/* [UPGRADE: interactions] Inline note with auto-save on blur */}
               {noteOpen === p.id && (
-                <div className="mt-2 border-t pt-3 flex gap-2">
-                  <textarea
-                    title="חוות דעת"
-                    className="flex-1 rounded-xl border border-gray-200 p-3 text-base resize-none"
-                    style={{ direction: "rtl", minHeight: 72 }}
-                    value={noteText}
-                    onChange={(e) => setNoteText(e.target.value)}
-                    onBlur={() => saveNote(p.id)}
-                    placeholder="כתוב חוות דעת..."
-                  />
-                  <div className="flex flex-col gap-1">
-                    <button title="שמור חוות דעת" className="h-9 px-4 rounded-lg text-white text-sm font-bold" style={{ background: config.color }} onClick={() => saveNote(p.id)}>שמור</button>
-                    <button title="ביטול" className="h-9 px-4 rounded-lg border border-gray-200 text-sm text-gray-500" onClick={() => setNoteOpen(null)}>ביטול</button>
+
                   </div>
                 </div>
               )}
 
-              {/* [UPGRADE: links] Universal Links section in Work Mode */}
-              {isWorkMode && (
-                <RecordLinks
-                  links={(() => {
-                    try { return JSON.parse(localStorage.getItem(`${config.storageKey}_links_${p.id}`) || "[]"); } catch { return []; }
-                  })()}
-                  isWorkMode={true}
-                  onUpdate={(links) => {
-                    localStorage.setItem(`${config.storageKey}_links_${p.id}`, JSON.stringify(links));
-                  }}
-                />
-              )}
+
 
               {/* Attachments panel */}
               {attachOpen === p.id && (
-                <div className="mt-2 border-t pt-2">
+                <div className="mt-2 border-t border-[#1E3A6E] pt-2">
                   <div className="flex items-center gap-2 mb-2">
                     <FileDropZone
                       onFile={(f) => addAttachment(p.id, f)}
                       accept="image/*,video/*,application/pdf,.pptx,.docx,.xlsx,.msg,.eml"
                       label="הוסף קובץ"
-                      className="h-16 w-24 rounded-lg border-2 border-dashed border-gray-200 hover:border-gray-400 flex-shrink-0"
-                      style={{ background: "#FAFAF8" }}
+                      className="h-16 w-24 rounded-lg border-2 border-dashed border-[#1E3A6E] hover:border-[#C9A84C] flex-shrink-0 image-drop-target"
+                      style={{ background: "#0F2044" }}
                     />
                     <div className="flex-1 flex flex-wrap gap-2 overflow-x-auto">
                       {p.attachments.map((att, ai) => {
                         const ft = getAttachType(att.data);
                         return (
                           <div key={att.id} className="relative group flex flex-col items-center w-20 cursor-pointer" onClick={() => setViewerData({ attachments: p.attachments, index: ai })}>
-                            <div className="w-16 h-16 rounded-lg border border-gray-200 overflow-hidden flex items-center justify-center bg-gray-50">
+                            <div className="w-16 h-16 rounded-lg border border-[#1E3A6E] overflow-hidden flex items-center justify-center bg-[#0F2044]">
                               {ft === "image" && <img src={att.data} alt={att.name} className="w-full h-full object-cover" />}
                               {ft === "video" && <Film size={24} className="text-purple-400" />}
                               {ft === "pdf" && <FileText size={24} className="text-red-400" />}
                               {ft === "other" && <FileSpreadsheet size={24} className="text-blue-400" />}
                             </div>
-                            <span className="text-[9px] text-gray-500 truncate w-full text-center mt-0.5">{att.name}</span>
+                            <span className="text-[9px] text-[#B8C5D6] truncate w-full text-center mt-0.5">{att.name}</span>
                             <button
                               title="הסר קובץ"
                               className="absolute -top-1 -left-1 h-4 w-4 rounded-full bg-red-500 text-white text-[10px] flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
@@ -906,8 +821,8 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             {/* Left — Haiku square box (poetic domains only) */}
             {config.extraFields === "poetic" && (
               <div
-                className="flex-shrink-0 border-r border-gray-100 flex flex-col items-center justify-center cursor-pointer group"
-                style={{ width: 140, minHeight: 140, background: "#FAFAF8" }}
+                className="flex-shrink-0 border-r border-[#1E3A6E] flex flex-col items-center justify-center cursor-pointer group"
+                style={{ width: 140, minHeight: 140, background: "#0F2044" }}
                 onClick={() => startInlineEdit(p.id, "poeticName", p.poeticName)}
                 title="לחץ לעריכת הייקו"
               >
@@ -915,7 +830,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   <div className="w-full h-full p-2 flex flex-col gap-1">
                     <textarea
                       title="הייקו"
-                      className="flex-1 w-full rounded border border-gray-300 p-1.5 text-sm font-bold text-center resize-none focus:outline-none focus:ring-1"
+                      className="flex-1 w-full rounded border border-[#1E3A6E] bg-[#162B55] text-white p-1.5 text-sm font-bold text-center resize-none focus:outline-none focus:border-[#C9A84C] placeholder:text-[#4A5568]"
                       style={{ direction: "rtl" }}
                       value={editText}
                       onChange={(e) => setEditText(e.target.value)}
@@ -923,17 +838,17 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                       placeholder="הייקו..."
                     />
                     <div className="flex gap-1 justify-center">
-                      <button title="שמור" className="text-[10px] px-2 py-0.5 rounded text-white" style={{ background: config.color }} onClick={(e) => { e.stopPropagation(); saveInlineEdit(); }}>✓</button>
-                      <button title="ביטול" className="text-[10px] px-2 py-0.5 rounded border border-gray-200 text-gray-500" onClick={(e) => { e.stopPropagation(); setEditingField(null); }}>✕</button>
+                      <button title="שמור" className="text-[10px] px-2 py-0.5 rounded bg-[#C9A84C] text-[#0A1628] font-bold" onClick={(e) => { e.stopPropagation(); saveInlineEdit(); }}>✓</button>
+                      <button title="ביטול" className="text-[10px] px-2 py-0.5 rounded border border-[#1E3A6E] text-[#B8C5D6]" onClick={(e) => { e.stopPropagation(); setEditingField(null); }}>✕</button>
                     </div>
                   </div>
                 ) : (
                   <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center">
-                    <span className="text-[10px] text-gray-400 mb-1">🎋 הייקו</span>
+                    <span className="text-[10px] text-[#4A5568] mb-1">🎋 הייקו</span>
                     {p.poeticName ? (
-                      <span className="text-sm font-bold text-gray-700 whitespace-pre-line leading-relaxed">{p.poeticName}</span>
+                      <span className="text-sm font-bold text-[#C9A84C] whitespace-pre-line leading-relaxed">{p.poeticName}</span>
                     ) : (
-                      <span className="text-xs text-gray-300 group-hover:text-gray-400 transition-colors">לחץ להוספה</span>
+                      <span className="text-xs text-[#4A5568] group-hover:text-[#B8C5D6] transition-colors">לחץ להוספה</span>
                     )}
                   </div>
                 )}
@@ -966,22 +881,22 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       {/* Fullscreen attachment viewer */}
       {viewerData && (
         <div className="fixed inset-0 z-[9999] bg-black/80 flex items-center justify-center" onClick={() => setViewerData(null)} style={{ direction: "rtl" }}>
-          <div className="relative bg-white rounded-xl shadow-2xl overflow-hidden" style={{ maxWidth: "90vw", maxHeight: "90vh", width: 800 }} onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between px-4 py-2 bg-gray-50 border-b">
-              <span className="text-sm font-semibold text-gray-700">{viewerData.attachments[viewerData.index]?.name}</span>
+          <div className="relative bg-[#162B55] border border-[#1E3A6E] rounded-xl shadow-2xl overflow-hidden" style={{ maxWidth: "90vw", maxHeight: "90vh", width: 800 }} onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-2 bg-[#0F2044] border-b border-[#1E3A6E]">
+              <span className="text-sm font-semibold text-white">{viewerData.attachments[viewerData.index]?.name}</span>
               <div className="flex gap-2 items-center">
-                <span className="text-xs text-gray-400">{viewerData.index + 1} / {viewerData.attachments.length}</span>
+                <span className="text-xs text-[#B8C5D6]">{viewerData.index + 1} / {viewerData.attachments.length}</span>
                 {viewerData.attachments.length > 1 && (
                   <>
-                    <button title="הקודם" className="h-7 w-7 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index - 1 + viewerData.attachments.length) % viewerData.attachments.length })}><ChevronRight size={16} /></button>
-                    <button title="הבא" className="h-7 w-7 rounded flex items-center justify-center text-gray-500 hover:bg-gray-100" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index + 1) % viewerData.attachments.length })}><ChevronLeft size={16} /></button>
+                    <button title="הקודם" className="h-7 w-7 rounded flex items-center justify-center text-[#B8C5D6] hover:bg-[#1E3A6E]" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index - 1 + viewerData.attachments.length) % viewerData.attachments.length })}><ChevronRight size={16} /></button>
+                    <button title="הבא" className="h-7 w-7 rounded flex items-center justify-center text-[#B8C5D6] hover:bg-[#1E3A6E]" onClick={() => setViewerData({ ...viewerData, index: (viewerData.index + 1) % viewerData.attachments.length })}><ChevronLeft size={16} /></button>
                   </>
                 )}
-                <button title="הורד" className="h-7 px-2 rounded text-xs border border-gray-200 text-gray-600 hover:bg-gray-100 flex items-center gap-1" onClick={() => {
+                <button title="הורד" className="h-7 px-2 rounded text-xs border border-[#1E3A6E] text-[#B8C5D6] hover:bg-[#1E3A6E] flex items-center gap-1" onClick={() => {
                   const att = viewerData.attachments[viewerData.index];
                   void downloadFile(att.data, att.name);
                 }}><Download size={12} /> הורד</button>
-                <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-gray-400 hover:text-gray-700" onClick={() => setViewerData(null)}><X size={16} /></button>
+                <button title="סגור" className="h-7 w-7 rounded flex items-center justify-center text-[#B8C5D6] hover:text-white" onClick={() => setViewerData(null)}><X size={16} /></button>
               </div>
             </div>
             <div className="flex items-center justify-center" style={{ maxHeight: "calc(90vh - 48px)", overflow: "auto" }}>
@@ -1038,13 +953,12 @@ function InlineField({
   italic?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-2 text-sm">
-      <span className="text-xs text-gray-400 mt-0.5 flex-shrink-0 font-medium">{label}</span>
+
       {editing ? (
         <div className="flex-1 flex gap-1">
           <input
             title={label}
-            className="flex-1 h-7 rounded-lg border border-gray-200 px-2 text-sm"
+
             style={{ direction: "rtl" }}
             value={editText}
             onChange={(e) => onChange(e.target.value)}
@@ -1054,12 +968,7 @@ function InlineField({
           />
         </div>
       ) : (
-        <div className="flex items-center gap-1.5 flex-1">
-          <span className={`text-sm inline-editable ${italic ? "italic" : ""}`} style={{ color: value ? "#444" : "#ccc" }} onClick={onStart}>
-            {value || "—"}
-          </span>
-          <button title="ערוך" className="text-gray-300 hover:text-gray-500 transition-colors" onClick={onStart}>
-            <Pencil size={12} />
+
           </button>
         </div>
       )}
@@ -1077,10 +986,10 @@ function FilterPill({ children, active, color, variant, onClick }: { children: R
       className="h-9 px-4 rounded-full text-sm font-semibold transition-all border"
       style={
         active
-          ? { background: color || "#666", color: "#fff", borderColor: color || "#666" }
+          ? { background: "#C9A84C", color: "#0A1628", borderColor: "#C9A84C" }
           : isStatus && color
-            ? { background: "#fff", color: color, borderColor: color + "66" }
-            : { background: "#F5F5F2", color: "#666", borderColor: "#E0E0D8" }
+            ? { background: "#162B55", color: color, borderColor: color + "66" }
+            : { background: "#162B55", color: "#B8C5D6", borderColor: "#1E3A6E" }
       }
     >
       {children}

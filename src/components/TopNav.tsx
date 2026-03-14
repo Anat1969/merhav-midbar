@@ -30,29 +30,7 @@ export const TopNav: React.FC = () => {
 
   return (
     <>
-      <nav
-        className="sticky top-0 z-40 flex items-center justify-between bg-background px-4 py-3 shadow-sm print:hidden border-b border-border/40"
-        dir="rtl"
-      >
-        {/* Brand */}
-        <div className="text-right">
-          <div className="text-lg font-black text-primary leading-tight">דשבורד — אדריכלית העיר</div>
-          <div className="text-sm text-muted-foreground font-medium">עץ ארגוני תכולת עבודה</div>
-        </div>
 
-        {/* Desktop buttons */}
-        <div className="hidden md:flex gap-2 flex-wrap justify-end">
-          {navBtns.map((b) => (
-            <button
-              key={b.label}
-              title={b.label}
-              onClick={b.action}
-              className={`rounded-lg border bg-background px-3 py-2 text-sm font-semibold transition-all hover:shadow-sm hover:brightness-95 flex items-center gap-1.5 ${b.border}`}
-            >
-              <span>{b.icon}</span>
-              <span className="hidden lg:inline">{b.label}</span>
-            </button>
-          ))}
         </div>
 
         {/* [UPGRADE: navigation] Mobile hamburger */}
