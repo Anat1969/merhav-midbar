@@ -131,12 +131,12 @@ nav button, nav a {
 .print-header { display: none; }
 
 /* [UPGRADE: Color System] Stage badges */
-.stage-initiated  { background: #4A5568; color: #fff; }
-.stage-planning   { background: #2563EB; color: #fff; }
-.stage-inprogress { background: #C9A84C; color: #0A1628; }
-.stage-review     { background: #EA580C; color: #fff; }
-.stage-completed  { background: #2D6A4F; color: #fff; }
-.stage-archived   { background: #374151; color: #9CA3AF; }
+.stage-initiated  { background: hsl(220 9% 46%); color: hsl(0 0% 100%); }
+.stage-planning   { background: hsl(217 91% 60%); color: hsl(0 0% 100%); }
+.stage-inprogress { background: hsl(43 50% 55%); color: hsl(0 0% 100%); }
+.stage-review     { background: hsl(21 90% 48%); color: hsl(0 0% 100%); }
+.stage-completed  { background: hsl(153 42% 30%); color: hsl(0 0% 100%); }
+.stage-archived   { background: hsl(218 11% 27%); color: hsl(220 9% 70%); }
 
 /* [UPGRADE: Process Stages] Completed row styling */
 .record-completed {
