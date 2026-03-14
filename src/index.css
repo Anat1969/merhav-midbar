@@ -145,8 +145,8 @@ nav button, nav a {
 }
 
 /* [UPGRADE: Activity Log] */
-.activity-log { border-top: 1px solid #1E3A6E; margin-top: 8px; }
-.activity-entry { font-size: 0.8rem; color: #B8C5D6; padding: 4px 0; border-bottom: 1px solid #1E3A6E22; }
+.activity-log { border-top: 1px solid hsl(220 13% 91%); margin-top: 8px; }
+.activity-entry { font-size: 0.8rem; color: hsl(220 9% 46%); padding: 4px 0; border-bottom: 1px solid hsl(220 13% 91% / 0.5); }
 
 /* [UPGRADE: Image drop] Gold dashed drop target */
 .image-drop-target { border: 2px dashed #C9A84C !important; background: rgba(201,168,76,0.05) !important; }
