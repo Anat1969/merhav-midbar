@@ -30,12 +30,12 @@ export const TopNav: React.FC = () => {
   return (
     <>
       <nav
-        className="sticky top-0 z-40 flex items-center justify-between bg-[#0A1628] px-4 py-2 shadow-sm border-b border-[#1E3A6E] print:hidden"
+        className="sticky top-0 z-40 flex items-center justify-between bg-background px-4 py-2 shadow-sm border-b border-border print:hidden"
         dir="rtl"
       >
         <div className="text-right">
-          <div className="text-xl font-black text-[#C9A84C]">דשבורד — אדריכלית העיר</div>
-          <div className="text-sm text-[#B8C5D6]">עץ ארגוני תכולת עבודה</div>
+          <div className="text-xl font-black text-primary">דשבורד — אדריכלית העיר</div>
+          <div className="text-sm text-muted-foreground">עץ ארגוני תכולת עבודה</div>
         </div>
 
         {/* Desktop buttons */}
@@ -47,8 +47,8 @@ export const TopNav: React.FC = () => {
               onClick={b.action}
               className={
                 b.primary
-                  ? "min-h-12 rounded border border-[#C9A84C] bg-[#C9A84C] px-4 py-2 text-base font-bold text-[#0A1628] transition-colors hover:bg-[#E8C96A]"
-                  : "min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
+                  ? "min-h-12 rounded border border-primary bg-primary px-4 py-2 text-base font-bold text-primary-foreground transition-colors hover:bg-accent"
+                  : "min-h-12 rounded border border-border bg-transparent px-4 py-2 text-base text-foreground transition-colors hover:bg-secondary"
               }
             >
               {b.icon} {b.label}
@@ -58,7 +58,7 @@ export const TopNav: React.FC = () => {
 
         {/* Mobile hamburger */}
         <button
-          className="md:hidden rounded-lg border border-[#1E3A6E] bg-transparent p-2 text-white transition-colors hover:bg-[#162B55]"
+          className="md:hidden rounded-lg border border-border bg-transparent p-2 text-foreground transition-colors hover:bg-secondary"
           onClick={() => setMenuOpen((o) => !o)}
           title="תפריט"
         >
@@ -73,14 +73,14 @@ export const TopNav: React.FC = () => {
           onClick={() => setMenuOpen(false)}
         >
           <div
-            className="absolute top-14 left-0 right-0 bg-[#0A1628] border-b border-[#1E3A6E] shadow-xl p-4 flex flex-col gap-2"
+            className="absolute top-14 left-0 right-0 bg-background border-b border-border shadow-xl p-4 flex flex-col gap-2"
             onClick={(e) => e.stopPropagation()}
           >
             {navBtns.map((b) => (
               <button
                 key={b.label}
                 onClick={() => { b.action(); setMenuOpen(false); }}
-                className="rounded-lg border border-[#1E3A6E] bg-transparent px-4 py-3 text-base font-semibold text-right text-white transition-all hover:bg-[#162B55] flex items-center gap-3"
+                className="rounded-lg border border-border bg-transparent px-4 py-3 text-base font-semibold text-right text-foreground transition-all hover:bg-secondary flex items-center gap-3"
               >
                 <span className="text-xl">{b.icon}</span>
                 <span>{b.label}</span>

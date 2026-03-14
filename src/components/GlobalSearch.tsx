@@ -59,7 +59,7 @@ export const GlobalSearch: React.FC<GlobalSearchProps> = ({ onOpenPanel }) => {
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         placeholder="🔍 חיפוש פרויקט..."
-        className="w-full rounded-lg border-0 bg-white/20 px-4 py-3 text-base text-white placeholder-white/70 backdrop-blur-sm outline-none focus:bg-white/30 transition-colors"
+        className="w-full rounded-lg border border-border bg-background px-4 py-3 text-base text-foreground placeholder-muted-foreground outline-none focus:ring-2 focus:ring-primary/30 transition-colors"
         dir="rtl"
       />
       {showDropdown && results.length > 0 && (

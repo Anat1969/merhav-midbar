@@ -4,33 +4,33 @@
 
 @layer base {
   :root {
-    --background: 215 45% 10%;        /* #0A1628 */
-    --foreground: 0 0% 100%;          /* #FFFFFF */
-    --card: 217 55% 21%;               /* #162B55 */
-    --card-foreground: 0 0% 100%;
-    --popover: 217 55% 21%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 43 50% 55%;             /* #C9A84C gold */
-    --primary-foreground: 215 45% 10%;
-    --secondary: 216 52% 16%;          /* #0F2044 */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 217 55% 21%;
-    --muted-foreground: 212 25% 71%;   /* #B8C5D6 */
-    --accent: 43 68% 67%;              /* #E8C96A */
-    --accent-foreground: 215 45% 10%;
+    --background: 0 0% 100%;            /* white */
+    --foreground: 0 0% 10%;             /* #1a1a1a */
+    --card: 0 0% 100%;                  /* white */
+    --card-foreground: 0 0% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 10%;
+    --primary: 43 50% 55%;              /* #C9A84C gold */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 0 0% 96%;              /* #F5F5F5 */
+    --secondary-foreground: 0 0% 10%;
+    --muted: 0 0% 96%;
+    --muted-foreground: 220 9% 46%;     /* #6B7280 */
+    --accent: 43 68% 67%;               /* #E8C96A */
+    --accent-foreground: 0 0% 10%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 218 57% 27%;             /* #1E3A6E */
-    --input: 218 57% 27%;
+    --border: 220 13% 91%;              /* #E5E7EB */
+    --input: 220 13% 91%;
     --ring: 43 50% 55%;
     --radius: 0.5rem;
-    --sidebar-background: 215 45% 10%;
-    --sidebar-foreground: 0 0% 100%;
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 0 0% 10%;
     --sidebar-primary: 43 50% 55%;
-    --sidebar-primary-foreground: 215 45% 10%;
-    --sidebar-accent: 217 55% 21%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 218 57% 27%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 220 13% 91%;
     --sidebar-ring: 43 50% 55%;
   }
 }
@@ -67,23 +67,23 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1E3A6E;
+    background: hsl(220 13% 85%);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #C9A84C;
+    background: hsl(43 50% 55%);
   }
 
   /* Focus visible */
   *:focus-visible {
-    outline: 2px solid #C9A84C;
+    outline: 2px solid hsl(43 50% 55%);
     outline-offset: 2px;
   }
 
   /* Inputs */
   input:focus, textarea:focus {
-    box-shadow: 0 0 0 2px rgba(201,168,76,0.4);
-    border-color: #C9A84C;
+    box-shadow: 0 0 0 2px hsl(43 50% 55% / 0.3);
+    border-color: hsl(43 50% 55%);
   }
 }
 
@@ -105,18 +105,18 @@ nav button, nav a {
 
 /* Sort buttons */
 .sort-btn.active {
-  background: #C9A84C;
-  color: #0A1628;
-  border-color: #C9A84C;
+  background: hsl(43 50% 55%);
+  color: hsl(0 0% 100%);
+  border-color: hsl(43 50% 55%);
 }
 .sort-btn:hover {
-  border-color: #C9A84C;
-  color: #C9A84C;
+  border-color: hsl(43 50% 55%);
+  color: hsl(43 50% 55%);
 }
 
 /* Inline editable */
 .inline-editable:hover {
-  background: rgba(201,168,76,0.1);
+  background: hsl(43 50% 55% / 0.08);
 }
 
 /* [UPGRADE: animations] Smooth page transitions and loading states */
@@ -131,12 +131,12 @@ nav button, nav a {
 .print-header { display: none; }
 
 /* [UPGRADE: Color System] Stage badges */
-.stage-initiated  { background: #4A5568; color: #fff; }
-.stage-planning   { background: #2563EB; color: #fff; }
-.stage-inprogress { background: #C9A84C; color: #0A1628; }
-.stage-review     { background: #EA580C; color: #fff; }
-.stage-completed  { background: #2D6A4F; color: #fff; }
-.stage-archived   { background: #374151; color: #9CA3AF; }
+.stage-initiated  { background: hsl(220 9% 46%); color: hsl(0 0% 100%); }
+.stage-planning   { background: hsl(217 91% 60%); color: hsl(0 0% 100%); }
+.stage-inprogress { background: hsl(43 50% 55%); color: hsl(0 0% 100%); }
+.stage-review     { background: hsl(21 90% 48%); color: hsl(0 0% 100%); }
+.stage-completed  { background: hsl(153 42% 30%); color: hsl(0 0% 100%); }
+.stage-archived   { background: hsl(218 11% 27%); color: hsl(220 9% 70%); }
 
 /* [UPGRADE: Process Stages] Completed row styling */
 .record-completed {
@@ -145,11 +145,11 @@ nav button, nav a {
 }
 
 /* [UPGRADE: Activity Log] */
-.activity-log { border-top: 1px solid #1E3A6E; margin-top: 8px; }
-.activity-entry { font-size: 0.8rem; color: #B8C5D6; padding: 4px 0; border-bottom: 1px solid #1E3A6E22; }
+.activity-log { border-top: 1px solid hsl(220 13% 91%); margin-top: 8px; }
+.activity-entry { font-size: 0.8rem; color: hsl(220 9% 46%); padding: 4px 0; border-bottom: 1px solid hsl(220 13% 91% / 0.5); }
 
 /* [UPGRADE: Image drop] Gold dashed drop target */
-.image-drop-target { border: 2px dashed #C9A84C !important; background: rgba(201,168,76,0.05) !important; }
+.image-drop-target { border: 2px dashed hsl(43 50% 55%) !important; background: hsl(43 50% 55% / 0.05) !important; }
 
 /* [UPGRADE: Section 3] Full viewport layout */
 html, body, #root { min-height: 100vh; overflow-x: hidden; }
@@ -228,6 +228,6 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
 
 /* [UPGRADE: accessibility] Focus visible for keyboard nav */
 *:focus-visible {
-  outline: 2px solid #2C6E6A;
+  outline: 2px solid hsl(43 50% 55%);
   outline-offset: 2px;
 }
