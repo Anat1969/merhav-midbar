@@ -149,7 +149,7 @@ nav button, nav a {
 .activity-entry { font-size: 0.8rem; color: hsl(220 9% 46%); padding: 4px 0; border-bottom: 1px solid hsl(220 13% 91% / 0.5); }
 
 /* [UPGRADE: Image drop] Gold dashed drop target */
-.image-drop-target { border: 2px dashed #C9A84C !important; background: rgba(201,168,76,0.05) !important; }
+.image-drop-target { border: 2px dashed hsl(43 50% 55%) !important; background: hsl(43 50% 55% / 0.05) !important; }
 
 /* [UPGRADE: Section 3] Full viewport layout */
 html, body, #root { min-height: 100vh; overflow-x: hidden; }
