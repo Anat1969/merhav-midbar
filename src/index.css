@@ -67,11 +67,11 @@
     background: transparent;
   }
   ::-webkit-scrollbar-thumb {
-    background: #1E3A6E;
+    background: hsl(220 13% 85%);
     border-radius: 3px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #C9A84C;
+    background: hsl(43 50% 55%);
   }
 
   /* Focus visible */
