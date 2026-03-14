@@ -89,18 +89,18 @@
 
 /* Typography utility classes */
 .stat-number {
-  font-size: 2rem;
+  font-size: 2.5rem;
   font-weight: 800;
 }
 
 .record-count {
-  font-size: 1.75rem;
+  font-size: 2rem;
   font-weight: 700;
 }
 
 /* Nav/button text minimum */
 nav button, nav a {
-  font-size: 1rem;
+  font-size: 1.0625rem;
 }
 
 /* Sort buttons */
