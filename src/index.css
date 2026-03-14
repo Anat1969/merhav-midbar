@@ -116,7 +116,7 @@ nav button, nav a {
 
 /* Inline editable */
 .inline-editable:hover {
-  background: rgba(201,168,76,0.1);
+  background: hsl(43 50% 55% / 0.08);
 }
 
 /* [UPGRADE: animations] Smooth page transitions and loading states */
