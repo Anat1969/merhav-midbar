@@ -105,13 +105,13 @@ nav button, nav a {
 
 /* Sort buttons */
 .sort-btn.active {
-  background: #C9A84C;
-  color: #0A1628;
-  border-color: #C9A84C;
+  background: hsl(43 50% 55%);
+  color: hsl(0 0% 100%);
+  border-color: hsl(43 50% 55%);
 }
 .sort-btn:hover {
-  border-color: #C9A84C;
-  color: #C9A84C;
+  border-color: hsl(43 50% 55%);
+  color: hsl(43 50% 55%);
 }
 
 /* Inline editable */
