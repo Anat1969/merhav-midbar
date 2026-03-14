@@ -1,4 +1,5 @@
 import { toast } from "sonner";
+export { STATUS_OPTIONS } from "@/lib/binuiConstants";
 
 export const MAX_FILE_SIZE_BYTES = 20 * 1024 * 1024; // 20MB
 
@@ -42,13 +43,6 @@ export interface DomainConfig {
   extraFields: "poetic" | "task";
   hasLink?: boolean;
 }
-
-export const STATUS_OPTIONS = [
-  { value: "planning",   label: "בתכנון",  color: "#3B82F6", bg: "#EFF6FF" },
-  { value: "inprogress", label: "בתהליך",  color: "#F59E0B", bg: "#FFFBEB" },
-  { value: "review",     label: "בבדיקה",  color: "#F97316", bg: "#FFF7ED" },
-  { value: "done",       label: "בוצע",    color: "#10B981", bg: "#F0FDF4" },
-] as const;
 
 export const PITUA_CONFIG: DomainConfig = {
   storageKey: "pitua_projects",

@@ -29,19 +29,7 @@ import { uploadProjectFile } from "@/lib/fileStorage";
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { openFileInNewTab, downloadFile } from "@/lib/fileAccess";
 import { EmptyState } from "@/components/EmptyState";
-
-function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
-  if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
-  if (/^(data:video|https?:.*\.(mp4|webm|ogg|mov))/i.test(src)) return "video";
-  if (/^(data:application\/pdf|https?:.*\.pdf)/i.test(src)) return "pdf";
-  return "other";
-}
-
-const IMAGE_LABELS: Record<string, string> = {
-  tashrit: "תשריט",
-  tza: 'תצ"א',
-  hadmaya: "הדמייה",
-};
+import { getAttachType, IMAGE_LABELS } from "@/lib/utils";
 
 // [UPGRADE: sort] Sort projects by key
 function sortProjects(list: BinuiProject[], key: SortKey, dir: SortDir): BinuiProject[] {

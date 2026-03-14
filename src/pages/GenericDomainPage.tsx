@@ -32,6 +32,7 @@ import { openFileInNewTab, downloadFile, openExternalLink } from "@/lib/fileAcce
 import { EmptyState } from "@/components/EmptyState";
 import { BreadcrumbNav } from "@/components/Breadcrumb";
 import { ActivityLog } from "@/components/ActivityLog";
+import { getAttachType } from "@/lib/utils";
 
 const DOMAIN_ICONS: Record<string, string> = {
   "מבנים": "🏛",
@@ -40,13 +41,6 @@ const DOMAIN_ICONS: Record<string, string> = {
   "פעולות": "⚡",
   "אפליקציות": "💻",
 };
-
-function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
-  if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
-  if (/^(data:video|https?:.*\.(mp4|webm|ogg|mov))/i.test(src)) return "video";
-  if (/^(data:application\/pdf|https?:.*\.pdf)/i.test(src)) return "pdf";
-  return "other";
-}
 
 interface Props {
   config: DomainConfig;

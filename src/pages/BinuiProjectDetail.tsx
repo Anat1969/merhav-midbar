@@ -22,19 +22,7 @@ import { resolveAccessibleFileUrl, openFileInNewTab, downloadFile as dlFile } fr
 import { saveAttachmentAsync, deleteAttachmentAsync } from "@/lib/supabaseStorage";
 import { generateDraftDocx, downloadDraftDocx, downloadConsultantRequirementsDocx, generateConsultantRequirementsBlob } from "@/lib/generateDraftDocx";
 import { supabase } from "@/integrations/supabase/client";
-
-function getAttachType(src: string): "image" | "video" | "pdf" | "other" {
-  if (/^(data:image|https?:.*\.(jpg|jpeg|png|gif|webp|svg))/i.test(src)) return "image";
-  if (/^(data:video|https?:.*\.(mp4|webm|ogg|mov))/i.test(src)) return "video";
-  if (/^(data:application\/pdf|https?:.*\.pdf)/i.test(src)) return "pdf";
-  return "other";
-}
-
-const IMAGE_LABELS: Record<string, string> = {
-  tashrit: "תשריט",
-  tza: 'תצ"א',
-  hadmaya: "הדמייה",
-};
+import { getAttachType, IMAGE_LABELS } from "@/lib/utils";
 
 const PresentationDevPlanTabs: React.FC<{ project: BinuiProject; onUpload: (file: File) => void; onMinutesUpload: (file: File) => void }> = ({ project, onUpload, onMinutesUpload }) => {
   const [tab, setTab] = useState<"presentation" | "devplan" | "minutes">("presentation");
