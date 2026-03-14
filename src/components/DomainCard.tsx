@@ -14,7 +14,6 @@ const DOMAIN_ROUTES: Record<string, string> = {
   "כלי AI": "/apps",
 };
 
-// Categories with their own dedicated route
 const CATEGORY_ROUTES: Record<string, string> = {
   "כלי AI": "/apps",
   "סוכנים": "/agents",
@@ -22,8 +21,6 @@ const CATEGORY_ROUTES: Record<string, string> = {
 };
 
 const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "כלי AI"]);
-
-// Subs that should show icon rows
 const SUBS_WITH_ICONS = new Set(["אפליקציות", "סוכנים"]);
 
 interface DomainCardProps {
@@ -33,6 +30,7 @@ interface DomainCardProps {
   refreshKey: number;
 }
 
+// [UPGRADE: typography] Larger headings, better visual hierarchy throughout domain cards
 export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, refreshKey }) => {
   const navigate = useNavigate();
   const { data: totalCount = 0 } = useQuery({
@@ -47,28 +45,31 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const isAITools = name === "כלי AI";
 
   return (
-    <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
+    <div className="overflow-hidden rounded-2xl shadow-md bg-white hover:shadow-lg transition-shadow duration-200" dir="rtl">
+      {/* [UPGRADE: typography] Domain header — h2 at 24px+ */}
       <Link
         to={route}
-        className="group flex items-center justify-between px-5 py-4 text-white transition-all hover:brightness-110"
+        className="group flex items-center justify-between px-6 py-5 text-white transition-all hover:brightness-110 active:brightness-95"
         style={{ background: `linear-gradient(135deg, ${def.color}, ${def.color}CC)` }}
       >
-        <div className="flex items-center gap-3">
-          <span className="text-3xl">{def.icon}</span>
+        <div className="flex items-center gap-4">
+          <span className="text-4xl drop-shadow">{def.icon}</span>
           <div>
-            <h2 className="text-xl font-bold">{name}</h2>
-            <p className="text-sm font-light opacity-80">{def.description}</p>
+            <h2 className="text-2xl font-black leading-tight">{name}</h2>
+            <p className="text-sm font-light opacity-85 mt-0.5">{def.description}</p>
           </div>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {totalCount > 0 && (
-            <span className="rounded-full bg-white/20 px-3 py-1 text-base font-bold backdrop-blur-sm">{totalCount}</span>
+            <span className="rounded-full bg-white/25 px-3.5 py-1.5 num-value font-black text-white backdrop-blur-sm" style={{ fontSize: "1.125rem" }}>
+              {totalCount}
+            </span>
           )}
-          <span className="opacity-0 transition-opacity group-hover:opacity-80 text-lg">→</span>
+          <span className="opacity-0 transition-opacity group-hover:opacity-70 text-xl">→</span>
         </div>
       </Link>
 
-      <div className="p-4">
+      <div className="p-5">
         {isAITools ? (
           <AIToolsLayout
             domainName={name}
@@ -81,7 +82,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
             navigate={navigate}
           />
         ) : hasSubItems ? (
-          <div className="grid gap-4" style={{ gridTemplateColumns: `repeat(${Object.keys(def.categories).length}, 1fr)` }}>
+          <div className="grid gap-5" style={{ gridTemplateColumns: `repeat(${Object.keys(def.categories).length}, 1fr)` }}>
             {Object.entries(def.categories).map(([catName, catDef]) => {
               const subs = catDef.items.length > 0 ? catDef.items : [catName];
               return (
@@ -102,7 +103,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
             })}
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-5">
             {Object.entries(def.categories).map(([catName, catDef]) => {
               const subs = catDef.items.length > 0 ? catDef.items : [catName];
               return (
@@ -179,11 +180,12 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
 
   return (
     <div className={gridLayout ? "" : "space-y-2"}>
+      {/* [UPGRADE: typography] Category title at h5 level (~14px bold caps) */}
       {!hideTitle && (
-        <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">{catName}</h3>
+        <div className="flex items-center gap-2 mb-2">
+          <h3 className="text-sm font-black text-gray-400 uppercase tracking-widest">{catName}</h3>
           {catCount > 0 && (
-            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}15`, color }}>{catCount}</span>
+            <span className="text-xs font-black px-2 py-0.5 rounded-full" style={{ backgroundColor: `${color}18`, color }}>{catCount}</span>
           )}
         </div>
       )}

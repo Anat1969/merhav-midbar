@@ -12,6 +12,7 @@ interface SubButtonProps {
   refreshKey: number;
 }
 
+// [UPGRADE: typography] Larger text, better hover state, count badge prominent
 export const SubButton: React.FC<SubButtonProps> = ({
   label,
   domain,
@@ -30,14 +31,15 @@ export const SubButton: React.FC<SubButtonProps> = ({
     <button
       title={`פתח ${label}`}
       onClick={onClick}
-      className="group flex w-full items-center justify-between rounded-lg border bg-white px-3 py-2.5 text-right text-base transition-all duration-200 hover:-translate-x-0.5"
+      className="group flex w-full items-center justify-between rounded-xl border bg-white px-4 py-3 text-right transition-all duration-200 hover:shadow-md hover:-translate-x-0.5 active:scale-[0.99]"
       style={{ borderColor: `${color}30` }}
       dir="rtl"
     >
-      <span className="font-medium text-gray-700">{label}</span>
+      {/* [UPGRADE: typography] 16px+ font weight 600 */}
+      <span className="font-semibold text-gray-700 text-base leading-snug">{label}</span>
       {count > 0 && (
         <span
-          className="rounded-full px-2 py-0.5 text-sm font-bold text-white"
+          className="rounded-full px-2.5 py-0.5 text-sm font-black text-white min-w-[28px] text-center flex-shrink-0"
           style={{ backgroundColor: color }}
         >
           {count}
