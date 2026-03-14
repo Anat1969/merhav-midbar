@@ -93,7 +93,7 @@ export const ProjectPanel: React.FC<ProjectPanelProps> = ({
 
       {/* Panel */}
       <div
-        className="relative z-10 flex h-full w-[420px] max-w-[90vw] flex-col bg-white shadow-2xl"
+        className="relative z-10 flex h-full w-[420px] max-w-[90vw] flex-col bg-[#162B55] shadow-2xl border-l border-[#1E3A6E]"
         style={{ animation: "slideInPanel 0.35s ease-out" }}
       >
         {/* Header */}
@@ -115,32 +115,31 @@ export const ProjectPanel: React.FC<ProjectPanelProps> = ({
         </div>
 
         {/* Add row */}
-        <div className="flex gap-2 border-b px-4 py-3">
+        <div className="flex gap-2 border-b border-[#1E3A6E] px-4 py-3">
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && addProject()}
             placeholder="שם הפרויקט..."
-            className="flex-1 rounded border border-gray-200 px-3 py-2 text-base outline-none focus:border-gray-400"
+            className="flex-1 rounded border border-[#1E3A6E] bg-[#0F2044] text-white px-3 py-2 text-base outline-none focus:border-[#C9A84C] placeholder:text-[#4A5568]"
             dir="rtl"
           />
           <button
             onClick={addProject}
             title="הוסף פרויקט"
-            className="shrink-0 rounded px-4 py-2 text-base font-bold text-white transition-opacity hover:opacity-90"
-            style={{ backgroundColor: color }}
+            className="shrink-0 rounded px-4 py-2 text-base font-bold bg-[#C9A84C] text-[#0A1628] transition-opacity hover:bg-[#E8C96A]"
           >
             הוסף +
           </button>
         </div>
 
         {/* Search */}
-        <div className="border-b px-4 py-2">
+        <div className="border-b border-[#1E3A6E] px-4 py-2">
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="🔍 סינון..."
-            className="w-full rounded border border-gray-200 px-3 py-2 text-base outline-none focus:border-gray-400"
+            className="w-full rounded border border-[#1E3A6E] bg-[#0F2044] text-white px-3 py-2 text-base outline-none focus:border-[#C9A84C] placeholder:text-[#4A5568]"
             dir="rtl"
           />
         </div>
@@ -149,7 +148,7 @@ export const ProjectPanel: React.FC<ProjectPanelProps> = ({
         <ScrollArea className="flex-1">
           <div className="p-4 space-y-2">
             {filtered.length === 0 && (
-              <div className="py-10 text-center text-base text-gray-400">
+              <div className="py-10 text-center text-base text-[#B8C5D6]">
                 {projects.length === 0 ? "אין פרויקטים עדיין" : "לא נמצאו תוצאות"}
               </div>
             )}
@@ -158,12 +157,12 @@ export const ProjectPanel: React.FC<ProjectPanelProps> = ({
               return (
                 <div
                   key={p.id}
-                  className="flex items-center gap-3 rounded-lg border border-gray-100 bg-gray-50/50 px-3 py-3 text-base"
+                  className="flex items-center gap-3 rounded-lg border border-[#1E3A6E] bg-[#0F2044] px-3 py-3 text-base"
                 >
-                  <span className="shrink-0 text-sm font-bold text-gray-300">{idx + 1}</span>
+                  <span className="shrink-0 text-sm font-bold text-[#4A5568]">{idx + 1}</span>
                   <div className="flex-1 min-w-0">
-                    <div className="font-medium truncate">{p.name}</div>
-                    <div className="text-sm text-gray-400">{p.created}</div>
+                    <div className="font-medium truncate text-white">{p.name}</div>
+                    <div className="text-sm text-[#B8C5D6]">{p.created}</div>
                   </div>
                   <select
                     value={p.status}
@@ -182,7 +181,7 @@ export const ProjectPanel: React.FC<ProjectPanelProps> = ({
                     <AlertDialogTrigger asChild>
                       <button
                         title="מחק פרויקט"
-                        className="shrink-0 rounded p-1 text-gray-300 transition-colors hover:bg-red-50 hover:text-red-500"
+                        className="shrink-0 rounded p-1 text-[#4A5568] transition-colors hover:bg-red-900/30 hover:text-red-400"
                       >
                         🗑
                       </button>
@@ -212,15 +211,15 @@ export const ProjectPanel: React.FC<ProjectPanelProps> = ({
         </ScrollArea>
 
         {/* Footer */}
-        <div className="border-t bg-gray-50 px-4 py-3">
+        <div className="border-t border-[#1E3A6E] bg-[#0F2044] px-4 py-3">
           <div className="grid grid-cols-4 gap-2 text-center text-sm">
             {(Object.entries(STATUS_CONFIG) as [string, { label: string; color: string; bg: string }][]).map(
               ([key, cfg]) => (
-                <div key={key} className="rounded-lg p-2" style={{ backgroundColor: cfg.bg }}>
-                  <div className="font-bold" style={{ color: cfg.color }}>
+                <div key={key} className="rounded-lg p-2 bg-[#162B55] border border-[#1E3A6E]">
+                  <div className="font-bold text-[#C9A84C] text-xl">
                     {statusCounts[key]}
                   </div>
-                  <div className="text-gray-500">{cfg.label}</div>
+                  <div className="text-[#B8C5D6] text-xs">{cfg.label}</div>
                 </div>
               )
             )}

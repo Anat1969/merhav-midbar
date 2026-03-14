@@ -16,65 +16,65 @@ export const TopNav: React.FC = () => {
 
   return (
     <>
-      <nav className="sticky top-0 z-40 flex items-center justify-between bg-background px-4 py-2 shadow-sm print:hidden" dir="rtl">
+      <nav className="sticky top-0 z-40 flex items-center justify-between bg-[#0A1628] px-4 py-2 shadow-sm border-b border-[#1E3A6E] print:hidden" dir="rtl">
         <div className="text-right">
-          <div className="text-base font-bold text-primary">דשבורד — אדריכלית העיר</div>
-          <div className="text-xs text-muted-foreground">עץ ארגוני תכולת עבודה</div>
+          <div className="text-xl font-black text-[#C9A84C]">דשבורד — אדריכלית העיר</div>
+          <div className="text-sm text-[#B8C5D6]">עץ ארגוני תכולת עבודה</div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           <button
             title="חזור הביתה"
-            onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-            className="rounded border border-input bg-background px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            onClick={() => navigate("/")}
+            className="min-h-12 rounded border border-[#C9A84C] bg-[#C9A84C] px-4 py-2 text-base font-bold text-[#0A1628] transition-colors hover:bg-[#E8C96A]"
           >
-            🏠 חזור הביתה
+            🏠 דשבורד
           </button>
           <button
             title="קישורים"
             onClick={() => setLinksOpen(true)}
-            className="rounded border border-input bg-background px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             🔗 קישורים
           </button>
           <button
             title="הוראות תוכנית"
             onClick={() => navigate("/plan-instructions")}
-            className="rounded border border-primary/40 bg-background px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary/10"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             📋 הוראות תוכנית
           </button>
           <button
             title="תב&quot;עות"
             onClick={() => setTabaotOpen(true)}
-            className="rounded border border-input bg-background px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             📑 תב&quot;עות
           </button>
           <button
             title="כרטיסי רעיונות"
             onClick={() => setIdeasOpen(true)}
-            className="rounded border border-primary/40 bg-background px-3 py-1.5 text-sm text-primary transition-colors hover:bg-primary/10"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             💡 רעיונות
           </button>
           <button
             title="הדפס"
             onClick={() => window.print()}
-            className="rounded border border-input bg-background px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             🖨 הדפס
           </button>
           <button
             title="שלח מייל"
             onClick={() => setEmailOpen(true)}
-            className="rounded border border-input bg-background px-3 py-1.5 text-sm transition-colors hover:bg-accent"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             ✉️ שלח מייל
           </button>
           <button
             title="העבר נתונים ל-Cloud"
             onClick={() => setMigrateOpen(true)}
-            className="rounded border border-orange-300 bg-orange-50 px-3 py-1.5 text-sm transition-colors hover:bg-orange-100"
+            className="min-h-12 rounded border border-[#1E3A6E] bg-transparent px-4 py-2 text-base text-white transition-colors hover:bg-[#162B55]"
           >
             ☁️ העבר ל-Cloud
           </button>

@@ -42,8 +42,8 @@ export const HierarchyFilter: React.FC<HierarchyFilterProps> = ({
   const hasSubs = subs.length > 0;
 
   return (
-    <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-card shadow-sm border border-border/50 p-5" dir="rtl">
-      <div className="text-base font-bold text-gray-700 mb-5 flex items-center gap-2">
+    <div className="no-print mx-4 mt-3 mb-4 rounded-xl bg-[#0F2044] shadow-sm border border-[#1E3A6E] p-5" dir="rtl">
+      <div className="text-base font-bold text-[#B8C5D6] mb-5 flex items-center gap-2">
         🔽 סינון היררכי
       </div>
 
@@ -120,7 +120,7 @@ export const HierarchyFilter: React.FC<HierarchyFilterProps> = ({
         {/* Left: Status + counter */}
         <div className="flex flex-col gap-3 items-end shrink-0">
           <div className="flex items-center gap-2">
-            <span className="text-xs font-bold text-muted-foreground shrink-0">סטטוס:</span>
+            <span className="text-xs font-bold text-[#B8C5D6] shrink-0">סטטוס:</span>
             <TreePill active={!filterStatus} onClick={() => onFilterStatus(null)} variant="status">
               הכל
             </TreePill>
@@ -178,7 +178,7 @@ function TreeLevel({ level, label, children, hasChildren, connector }: {
 
       {/* Label */}
       <div className="flex items-center gap-3 py-2.5 min-w-0">
-        <span className="text-xs font-bold text-muted-foreground w-14 shrink-0 text-start">{label}</span>
+        <span className="text-xs font-bold text-[#B8C5D6] w-14 shrink-0 text-start">{label}</span>
         <ChevronLeft className="h-3.5 w-3.5 text-muted-foreground/50 shrink-0 rotate-180" />
         {children}
       </div>
@@ -206,10 +206,10 @@ function TreePill({ children, active, color, variant, onClick, count }: {
       className="h-8 px-3 rounded-lg text-sm font-semibold transition-all border flex items-center gap-1.5"
       style={
         active
-          ? { background: color || "#666", color: "#fff", borderColor: color || "#666", boxShadow: `0 2px 8px ${(color || "#666")}33` }
+          ? { background: "#C9A84C", color: "#0A1628", borderColor: "#C9A84C", boxShadow: "0 2px 8px rgba(201,168,76,0.3)" }
           : isStatus && color
-            ? { background: "#fff", color: color, borderColor: color + "55" }
-            : { background: "#FAFAF8", color: "#777", borderColor: "#E8E8E2" }
+            ? { background: "#162B55", color: color, borderColor: color + "55" }
+            : { background: "#162B55", color: "#B8C5D6", borderColor: "#1E3A6E" }
       }
     >
       {children}
@@ -218,8 +218,8 @@ function TreePill({ children, active, color, variant, onClick, count }: {
           className="text-[10px] font-bold rounded-full min-w-[18px] h-[18px] flex items-center justify-center"
           style={
             active
-              ? { background: "rgba(255,255,255,0.3)", color: "#fff" }
-              : { background: (color || "#666") + "15", color: color || "#666" }
+              ? { background: "rgba(10,22,40,0.3)", color: "#0A1628" }
+              : { background: "#C9A84C22", color: "#C9A84C" }
           }
         >
           {count}

@@ -47,7 +47,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const isAITools = name === "כלי AI";
 
   return (
-    <div className="overflow-hidden rounded-xl shadow-sm bg-white" dir="rtl">
+    <div className="overflow-hidden rounded-xl shadow-sm bg-[#162B55] border border-[#1E3A6E]" dir="rtl">
       <Link
         to={route}
         className="group flex items-center justify-between px-5 py-4 text-white transition-all hover:brightness-110"
@@ -62,7 +62,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
         </div>
         <div className="flex items-center gap-2">
           {totalCount > 0 && (
-            <span className="rounded-full bg-white/20 px-3 py-1 text-base font-bold backdrop-blur-sm">{totalCount}</span>
+            <span className="rounded-full bg-white/20 px-3 py-1 text-3xl font-bold text-[#C9A84C] backdrop-blur-sm stat-number">{totalCount}</span>
           )}
           <span className="opacity-0 transition-opacity group-hover:opacity-80 text-lg">→</span>
         </div>
@@ -181,9 +181,9 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
     <div className={gridLayout ? "" : "space-y-2"}>
       {!hideTitle && (
         <div className="flex items-center gap-2 mb-1">
-          <h3 className="text-sm font-bold text-gray-500 uppercase tracking-wider">{catName}</h3>
+          <h3 className="text-sm font-bold text-[#B8C5D6] uppercase tracking-wider">{catName}</h3>
           {catCount > 0 && (
-            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}15`, color }}>{catCount}</span>
+            <span className="text-xs font-bold px-1.5 py-0.5 rounded-full bg-[#C9A84C]/20 text-[#C9A84C]">{catCount}</span>
           )}
         </div>
       )}
