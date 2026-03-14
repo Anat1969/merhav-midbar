@@ -45,26 +45,26 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const isAITools = name === "כלי AI";
 
   return (
-    <div className="overflow-hidden rounded-2xl shadow-md bg-white hover:shadow-lg transition-shadow duration-200" dir="rtl">
+    <div className="overflow-hidden rounded-2xl shadow-md bg-card border border-border hover:shadow-lg transition-shadow duration-200" dir="rtl">
       <Link
         to={route}
-        className="group flex items-center justify-between px-6 py-5 text-white transition-all hover:brightness-110 active:brightness-95"
+        className="group flex items-center justify-between px-6 py-6 text-white transition-all hover:brightness-110 active:brightness-95"
         style={{ background: `linear-gradient(135deg, ${def.color}, ${def.color}CC)` }}
       >
         <div className="flex items-center gap-4">
-          <span className="text-4xl drop-shadow">{def.icon}</span>
+          <span className="text-5xl drop-shadow">{def.icon}</span>
           <div>
-            <h2 className="text-2xl font-black leading-tight">{name}</h2>
-            <p className="text-sm font-light opacity-85 mt-0.5">{def.description}</p>
+            <h2 className="text-3xl font-black leading-tight">{name}</h2>
+            <p className="text-base font-light opacity-90 mt-0.5">{def.description}</p>
           </div>
         </div>
         <div className="flex items-center gap-3">
           {totalCount > 0 && (
-            <span className="rounded-full bg-white/25 px-3.5 py-1.5 num-value font-black text-white backdrop-blur-sm" style={{ fontSize: "1.125rem" }}>
+            <span className="rounded-full bg-white/25 px-4 py-2 num-value font-black text-white backdrop-blur-sm" style={{ fontSize: "1.375rem" }}>
               {totalCount}
             </span>
           )}
-          <span className="opacity-0 transition-opacity group-hover:opacity-70 text-xl">→</span>
+          <span className="opacity-0 transition-opacity group-hover:opacity-70 text-2xl">→</span>
         </div>
       </Link>
 
