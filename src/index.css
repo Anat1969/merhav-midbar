@@ -42,12 +42,16 @@
 
   html {
     direction: rtl;
+    /* [UPGRADE: typography] Smooth font rendering */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
   }
 
   body {
     @apply bg-background text-foreground;
     font-family: "Heebo", sans-serif;
-    font-size: 20px;
+
   }
 
   h1 { font-size: 2.5rem; }
@@ -115,32 +119,18 @@ nav button, nav a {
   background: rgba(201,168,76,0.1);
 }
 
-/* Animations */
+/* [UPGRADE: animations] Smooth page transitions and loading states */
 @keyframes slideInPanel {
-  from {
-    transform: translateX(-100%);
-  }
-  to {
-    transform: translateX(0);
-  }
+  from { transform: translateX(-100%); opacity: 0; }
+  to   { transform: translateX(0);     opacity: 1; }
 }
 
-/* Skeleton loading */
-.skeleton {
-  background: linear-gradient(90deg, #0F2044 25%, #162B55 50%, #0F2044 75%);
-  background-size: 200% 100%;
-  animation: skeleton-loading 1.5s infinite;
-}
 
-@keyframes skeleton-loading {
-  0% { background-position: 200% 0; }
-  100% { background-position: -200% 0; }
 }
+.link-entry:last-child { border-bottom: none; }
 
 /* PrintHeader — hidden on screen */
-.print-header {
-  display: none;
-}
+.print-header { display: none; }
 
 /* [UPGRADE: Color System] Stage badges */
 .stage-initiated  { background: #4A5568; color: #fff; }
@@ -168,7 +158,6 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
 
 /* Print */
 @media print {
-  /* PrintHeader visible */
   .print-header {
     display: flex !important;
     justify-content: space-between;
@@ -178,79 +167,41 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
     border-bottom: 2px solid #2C6E6A;
     font-family: 'Heebo', sans-serif;
   }
-
-  /* Hide all non-content elements */
-  .no-print,
-  nav,
-  header,
-  .navbar,
-  .action-bar,
-  .filter-row,
-  .btn-add,
-  .btn-delete,
-  .btn-email,
-  button:not(.print-visible) {
+  .no-print, nav, header, .navbar, .action-bar, .filter-row,
+  .btn-add, .btn-delete, .btn-email, button:not(.print-visible) {
     display: none !important;
   }
-
-  /* Page setup */
   * {
     -webkit-print-color-adjust: exact !important;
     print-color-adjust: exact !important;
   }
-
   body {
     background: white !important;
     direction: rtl;
     font-family: 'Heebo', sans-serif;
+    font-size: 14px;
   }
-
   @page {
     size: A4 portrait;
     margin: 20mm 15mm 20mm 15mm;
   }
-
-  /* Project list — one card per page */
   .project-card {
     page-break-inside: avoid;
     border: 1px solid #CCC !important;
     box-shadow: none !important;
     margin-bottom: 16px;
   }
-
-  /* Detail page — fit to one page */
-  .detail-grid {
-    display: block !important;
-  }
-
-  .detail-column {
-    width: 100% !important;
-    margin-bottom: 16px;
-  }
-
-  /* Show full content — no truncation */
-  textarea,
-  .note-content {
+  .detail-grid  { display: block !important; }
+  .detail-column { width: 100% !important; margin-bottom: 16px; }
+  textarea, .note-content {
     min-height: unset !important;
     height: auto !important;
     overflow: visible !important;
     border: 1px solid #EEE !important;
     background: white !important;
   }
-
-  /* Detail cards — show all fields */
-  .detail-card {
-    page-break-inside: avoid;
-    break-inside: avoid;
-  }
-
-  /* Images — preserve in print */
-  img {
-    max-width: 100% !important;
-    page-break-inside: avoid;
-  }
-
-  /* Status badge — show as text with color */
+  .detail-card { page-break-inside: avoid; break-inside: avoid; }
+  img { max-width: 100% !important; page-break-inside: avoid; }
   .status-badge {
     border: 1px solid currentColor !important;
     background: white !important;
@@ -258,8 +209,6 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
     border-radius: 4px;
     font-size: 11px;
   }
-
-  /* Breadcrumb — show as print header */
   .breadcrumb {
     display: block !important;
     font-size: 11px;
@@ -268,16 +217,19 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
     border-bottom: 1px solid #EEE;
     padding-bottom: 8px;
   }
+  .history-list { max-height: unset !important; overflow: visible !important; }
+  .pills-row { page-break-inside: avoid; flex-wrap: wrap; }
+}
 
-  /* History timeline */
-  .history-list {
-    max-height: unset !important;
-    overflow: visible !important;
-  }
+/* [UPGRADE: responsive] Mobile-first improvements */
+@media (max-width: 640px) {
+  h1 { font-size: 2rem; }
+  h2 { font-size: 1.5rem; }
+  h3 { font-size: 1.25rem; }
+}
 
-  /* Pills row */
-  .pills-row {
-    page-break-inside: avoid;
-    flex-wrap: wrap;
-  }
+/* [UPGRADE: accessibility] Focus visible for keyboard nav */
+*:focus-visible {
+  outline: 2px solid #2C6E6A;
+  outline-offset: 2px;
 }

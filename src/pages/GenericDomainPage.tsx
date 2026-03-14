@@ -6,6 +6,12 @@ import { HierarchyFilter } from "@/components/HierarchyFilter";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
+// [UPGRADE: view-mode] Import new UI components
+import { ViewModeToggle } from "@/components/ViewModeToggle";
+import { SortBar, SortKey, SortDir } from "@/components/SortBar";
+import { RecordLinks, LinkEntry } from "@/components/RecordLinks";
+import { KnowledgeLibrary, KnowledgeItem } from "@/components/KnowledgeLibrary";
+import { AIGalleryManager, AIGallery } from "@/components/AIGalleryManager";
 import { Search, Pencil, Paperclip, X, ChevronLeft, ChevronRight, Download, FileText, Film, FileSpreadsheet, ArrowRightLeft, Trash2 } from "lucide-react";
 import {
   DomainConfig,
@@ -93,6 +99,36 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [viewerData, setViewerData] = useState<{ attachments: Attachment[]; index: number } | null>(null);
   const [emailModal, setEmailModal] = useState<{ open: boolean; subject: string; body: string }>({ open: false, subject: "", body: "" });
   const fileRefs = useRef<Record<string, HTMLInputElement | null>>({});
+
+  // [UPGRADE: view-mode] View/Work mode state
+  const [isWorkMode, setIsWorkMode] = useState(false);
+
+  // [UPGRADE: sort] Sort state
+  const [sortKey, setSortKey] = useState<SortKey>("date");
+  const [sortDir, setSortDir] = useState<SortDir>("desc");
+
+  // [UPGRADE: knowledge-library] Per-domain knowledge library and gallery data
+  const klKey = `${config.storageKey}_knowledge`;
+  const galKey = `${config.storageKey}_galleries`;
+  const [knowledgeItems, setKnowledgeItems] = useState<KnowledgeItem[]>(() => {
+    try { return JSON.parse(localStorage.getItem(klKey) || "null") ?? []; } catch { return []; }
+  });
+  const [galleries, setGalleries] = useState<AIGallery[]>(() => {
+    try { return JSON.parse(localStorage.getItem(galKey) || "null") ?? []; } catch { return []; }
+  });
+
+  const handleSort = (key: SortKey) => {
+    if (key === sortKey) setSortDir((d) => d === "asc" ? "desc" : "asc");
+    else { setSortKey(key); setSortDir("asc"); }
+  };
+  const saveKnowledge = (items: KnowledgeItem[]) => {
+    setKnowledgeItems(items);
+    localStorage.setItem(klKey, JSON.stringify(items));
+  };
+  const saveGalleries = (g: AIGallery[]) => {
+    setGalleries(g);
+    localStorage.setItem(galKey, JSON.stringify(g));
+  };
 
   const saveOne = useCallback(async (project: GenericProject) => {
     try {
@@ -281,8 +317,16 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       const q = search.trim().toLowerCase();
       list = list.filter((p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q));
     }
-    return list;
-  }, [projects, filterCat, filterSub, filterStatus, search]);
+    // [UPGRADE: sort] Apply sort
+    const STATUS_ORDER: Record<string, number> = { planning: 0, inprogress: 1, review: 2, done: 3 };
+    return [...list].sort((a, b) => {
+      let cmp = 0;
+      if (sortKey === "name")     cmp = a.name.localeCompare(b.name, "he");
+      else if (sortKey === "date") cmp = a.created.localeCompare(b.created, "he");
+      else if (sortKey === "status") cmp = (STATUS_ORDER[a.status] ?? 9) - (STATUS_ORDER[b.status] ?? 9);
+      return sortDir === "asc" ? cmp : -cmp;
+    });
+  }, [projects, filterCat, filterSub, filterStatus, search, sortKey, sortDir]);
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
@@ -299,11 +343,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-[#0A1628] flex items-center justify-center" style={{ direction: "rtl" }}>
-        <TopNav />
-        <div className="text-center">
-          <div className="text-4xl mb-3 animate-pulse">{DOMAIN_ICONS[config.domainName] || "📁"}</div>
-          <div className="text-[#B8C5D6]">טוען פרויקטים...</div>
+
         </div>
       </div>
     );
@@ -321,22 +361,21 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       <PrintHeader />
       <BreadcrumbNav items={breadcrumbItems} />
 
-      {/* Domain header banner */}
+      {/* [UPGRADE: navigation] Domain header banner with breadcrumb */}
       <div
-        className="mx-4 mt-4 rounded-2xl px-6 py-5 text-white print:hidden border border-[#1E3A6E]"
+
         style={{ background: `linear-gradient(135deg, ${config.color} 0%, ${config.color}CC 100%)` }}
       >
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="text-3xl">{DOMAIN_ICONS[config.domainName] || "📁"}</span>
+          <div className="flex items-center gap-4">
+            <span className="text-4xl drop-shadow">{DOMAIN_ICONS[config.domainName] || "📁"}</span>
             <div>
-              <h1 className="text-2xl font-black text-white">{config.domainName}</h1>
+
             </div>
           </div>
           <div className="flex items-center gap-3">
             {projects.length > 0 && (
-              <span className="rounded-full bg-white/20 px-4 py-1.5 text-sm font-bold backdrop-blur-sm stat-number text-white">
-                {projects.length}
+
               </span>
             )}
             {/* Stage summary counters */}
@@ -356,25 +395,30 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
       </div>
 
       {/* === Navigation buttons bar === */}
-      <div className="no-print mx-4 mt-3 flex items-center gap-3">
+      <div className="no-print mx-4 mt-3 flex items-center gap-3 flex-wrap">
         <button
           onClick={() => navigate("/")}
-          className="min-h-12 h-12 px-8 rounded-xl bg-[#C9A84C] text-[#0A1628] text-base font-bold hover:bg-[#E8C96A] transition-all shadow-lg flex items-center gap-2"
+
         >
           🏠 חזור לדשבורד
         </button>
         <button
           onClick={() => navigate(-1)}
-          className="min-h-12 h-12 px-6 rounded-xl border-2 border-[#1E3A6E] text-base font-bold text-white hover:bg-[#162B55] transition-colors flex items-center gap-1"
+
         >
           → חזור אחורה
         </button>
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="min-h-12 h-12 px-5 rounded-xl border border-[#1E3A6E] text-base font-medium text-[#B8C5D6] hover:bg-[#162B55] transition-colors"
+
         >
           ↑ ראש העמוד
         </button>
+
+        {/* [UPGRADE: view-mode] Prominent View/Work mode toggle */}
+        <div className="mr-auto">
+          <ViewModeToggle isWorkMode={isWorkMode} onToggle={setIsWorkMode} />
+        </div>
       </div>
 
       {/* === Action panels === */}
@@ -518,13 +562,24 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
         filteredCount={filtered.length}
       />
 
+      {/* [UPGRADE: sort] Sort bar */}
+      <div className="px-4 pt-2 pb-1 no-print">
+        <SortBar
+          sortKey={sortKey}
+          sortDir={sortDir}
+          onSort={handleSort}
+          totalCount={projects.length}
+          filteredCount={filtered.length}
+          label="פרויקטים"
+        />
+      </div>
+
       {/* Project cards */}
-      <div className="px-4 pb-12 space-y-3">
-      {filtered.length === 0 && (
+      <div className="px-4 pb-8 space-y-3">
+        {filtered.length === 0 && (
           <EmptyState domainName={config.domainName} storageKey={config.storageKey} />
         )}
-        {filtered.map((p, idx) => (
-          <div key={p.id} className={`project-card bg-[#162B55] rounded-xl shadow-sm overflow-hidden flex border border-[#1E3A6E] ${p.status === "done" ? "record-completed" : ""}`} style={{ minHeight: 140 }}>
+
             {/* Right — image */}
             <FileDropZone
               onFile={(f) => handleImage(p.id, f)}
@@ -660,7 +715,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
               <div className="flex items-center gap-2 mt-auto flex-wrap">
                 <button
                   title="פתח"
-                  className="h-7 px-4 rounded-md bg-[#C9A84C] text-[#0A1628] text-xs font-bold hover:bg-[#E8C96A] transition-all shadow-sm"
+
                   onClick={() => navigate(`/${config.routeBase}/${p.id}`)}
                 >
                   פתח ←
@@ -668,7 +723,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 {config.hasLink && p.link && (
                   <button
                     title="קישור עבודה"
-                    className="h-7 px-3 rounded-md text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1 border border-[#1E3A6E] text-[#C9A84C] bg-[#0F2044]"
+
                     onClick={() => openExternalLink(p.link)}
                   >
                     🔗 עבודה
@@ -677,22 +732,20 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 {config.hasLink && p.viewLink && (
                   <button
                     title="קישור תצוגה"
-                    className="h-7 px-3 rounded-md text-xs font-bold hover:brightness-110 transition-all shadow-sm flex items-center gap-1 border border-[#1E3A6E] text-[#B8C5D6] bg-[#0F2044]"
+
                     onClick={() => openExternalLink(p.viewLink)}
                   >
                     👁 תצוגה
                   </button>
                 )}
                 <button
-                  title="הוסף הערה"
-                  className="h-7 px-3 rounded-md border border-[#1E3A6E] text-xs font-medium hover:bg-[#1E3A6E] transition-all text-[#B8C5D6] bg-[#0F2044]"
+
                   onClick={() => { setNoteOpen(noteOpen === p.id ? null : p.id); setNoteText(p.note); }}
                 >
                   הערות
                 </button>
                 <button
-                  title="שלח במייל"
-                  className="h-7 px-3 rounded-md border border-[#1E3A6E] text-xs text-[#B8C5D6] bg-[#0F2044] hover:bg-[#1E3A6E] transition-colors"
+
                   onClick={() => {
                     const statusLabel = STATUS_OPTIONS.find((s) => s.value === p.status)?.label ?? p.status;
                     setEmailModal({
@@ -706,49 +759,27 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                 </button>
                 <button
                   title="קבצים"
-                  className="h-7 px-3 rounded-md border border-[#1E3A6E] text-xs text-[#B8C5D6] bg-[#0F2044] hover:bg-[#1E3A6E] transition-colors flex items-center gap-1"
+
                   onClick={() => setAttachOpen(attachOpen === p.id ? null : p.id)}
                 >
-                  <Paperclip size={12} />
+                  <Paperclip size={13} />
                   קבצים
                   {p.attachments.length > 0 && (
-                    <span className="rounded-full text-[10px] text-[#0A1628] bg-[#C9A84C] px-1.5 leading-4">{p.attachments.length}</span>
-                  )}
-                </button>
-                <span className="text-[10px] text-[#4A5568] mr-2">{p.created}</span>
-                <button
-                  title="מחק פרויקט"
-                  className="no-print mr-auto h-7 w-7 rounded-md text-red-400 hover:bg-red-900/30 hover:text-red-400 transition-colors flex items-center justify-center"
+
                   onClick={() => deleteProject(p.id)}
                 >
                   <Trash2 size={15} />
                 </button>
               </div>
 
-              {/* Inline note */}
+              {/* [UPGRADE: interactions] Inline note with auto-save on blur */}
               {noteOpen === p.id && (
-                <div className="mt-2 border-t border-[#1E3A6E] pt-2 flex gap-2">
-                  <textarea
-                    title="הערות"
-                    className="flex-1 rounded-lg border border-[#1E3A6E] bg-[#0F2044] text-white p-2 text-sm resize-none placeholder:text-[#4A5568]"
-                    style={{ direction: "rtl", minHeight: 60 }}
-                    value={noteText}
-                    onChange={(e) => setNoteText(e.target.value)}
-                    placeholder="כתוב הערה..."
-                  />
-                  <div className="flex flex-col gap-1">
-                    <button title="שמור" className="h-7 px-3 rounded bg-[#C9A84C] text-[#0A1628] text-xs font-bold hover:bg-[#E8C96A]" onClick={() => saveNote(p.id)}>שמור</button>
-                    <button title="ביטול" className="h-7 px-3 rounded border border-[#1E3A6E] text-xs text-[#B8C5D6] hover:bg-[#162B55]" onClick={() => setNoteOpen(null)}>ביטול</button>
+
                   </div>
                 </div>
               )}
 
-              {/* Activity Log panel (collapsible) */}
-              <ActivityLog
-                recordId={String(p.id)}
-                entries={p.history.map((h, i) => ({ id: String(i), text: h.note, date: h.date, type: "auto" as const }))}
-                onAddEntry={(text) => addActivityEntry(p.id, text)}
-              />
+
 
               {/* Attachments panel */}
               {attachOpen === p.id && (
@@ -825,6 +856,26 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
             )}
           </div>
         ))}
+        {/* End work mode loop */}
+      </div>
+
+      {/* [UPGRADE: knowledge-library] Knowledge Library and AI Galleries for this domain */}
+      <div className="px-4 pb-6 no-print">
+        <div className="section-divider">
+          <span className="section-divider-label">כלים לניהול ידע</span>
+        </div>
+        <KnowledgeLibrary
+          domainName={config.domainName}
+          items={knowledgeItems}
+          onUpdate={saveKnowledge}
+          color={config.color}
+        />
+        <AIGalleryManager
+          domainName={config.domainName}
+          galleries={galleries}
+          onUpdate={saveGalleries}
+          color={config.color}
+        />
       </div>
 
       {/* Fullscreen attachment viewer */}
@@ -893,6 +944,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 };
 
 /* ─── Inline editable field ─── */
+// [UPGRADE: interactions] InlineField — larger text, auto-save on blur
 function InlineField({
   label, value, editing, editText, onStart, onChange, onSave, onCancel, italic,
 }: {
@@ -901,13 +953,12 @@ function InlineField({
   italic?: boolean;
 }) {
   return (
-    <div className="flex items-start gap-1.5 text-sm">
-      <span className="text-[11px] text-[#B8C5D6] mt-0.5 flex-shrink-0">{label}</span>
+
       {editing ? (
         <div className="flex-1 flex gap-1">
           <input
             title={label}
-            className="flex-1 h-6 rounded border border-[#1E3A6E] bg-[#0F2044] text-white px-2 text-xs focus:border-[#C9A84C] outline-none"
+
             style={{ direction: "rtl" }}
             value={editText}
             onChange={(e) => onChange(e.target.value)}
@@ -917,12 +968,7 @@ function InlineField({
           />
         </div>
       ) : (
-        <div className="flex items-center gap-1 flex-1">
-          <span className={`text-xs inline-editable ${italic ? "italic" : ""}`} style={{ color: value ? "#B8C5D6" : "#4A5568" }}>
-            {value || "—"}
-          </span>
-          <button title="ערוך" className="text-[#4A5568] hover:text-[#C9A84C] transition-colors" onClick={onStart}>
-            <Pencil size={11} />
+
           </button>
         </div>
       )}
