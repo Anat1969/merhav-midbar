@@ -212,15 +212,299 @@ export type Database = {
         }
         Relationships: []
       }
+      archi_activity_log: {
+        Row: {
+          id: string
+          project_id: string
+          actor_type: 'architect' | 'client' | 'contractor'
+          actor_id: string
+          action: string
+          metadata: Json
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          actor_type: 'architect' | 'client' | 'contractor'
+          actor_id: string
+          action: string
+          metadata?: Json
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          actor_type?: 'architect' | 'client' | 'contractor'
+          actor_id?: string
+          action?: string
+          metadata?: Json
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_activity_log_project_id_fkey'; columns: ['project_id']; referencedRelation: 'archi_projects'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_clients: {
+        Row: {
+          id: string
+          project_id: string
+          full_name: string
+          email: string | null
+          phone: string | null
+          access_token: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          full_name: string
+          email?: string | null
+          phone?: string | null
+          access_token?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          full_name?: string
+          email?: string | null
+          phone?: string | null
+          access_token?: string
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_clients_project_id_fkey'; columns: ['project_id']; referencedRelation: 'archi_projects'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_contractors: {
+        Row: {
+          id: string
+          project_id: string
+          full_name: string
+          company_name: string | null
+          role: string | null
+          email: string | null
+          access_token: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          full_name: string
+          company_name?: string | null
+          role?: string | null
+          email?: string | null
+          access_token?: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          full_name?: string
+          company_name?: string | null
+          role?: string | null
+          email?: string | null
+          access_token?: string
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_contractors_project_id_fkey'; columns: ['project_id']; referencedRelation: 'archi_projects'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_documents: {
+        Row: {
+          id: string
+          project_id: string
+          stage_id: string | null
+          name: string
+          file_url: string
+          uploaded_by: string
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          stage_id?: string | null
+          name: string
+          file_url: string
+          uploaded_by: string
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          stage_id?: string | null
+          name?: string
+          file_url?: string
+          uploaded_by?: string
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_documents_project_id_fkey'; columns: ['project_id']; referencedRelation: 'archi_projects'; referencedColumns: ['id'] },
+          { foreignKeyName: 'archi_documents_stage_id_fkey'; columns: ['stage_id']; referencedRelation: 'archi_stages'; referencedColumns: ['id'] },
+          { foreignKeyName: 'archi_documents_uploaded_by_fkey'; columns: ['uploaded_by']; referencedRelation: 'archi_users'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_payments: {
+        Row: {
+          id: string
+          project_id: string
+          stage_id: string
+          amount: number
+          status: 'pending' | 'awaiting_approval' | 'approved' | 'paid' | 'overdue'
+          due_date: string | null
+          approved_at: string | null
+          paid_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          stage_id: string
+          amount?: number
+          status?: 'pending' | 'awaiting_approval' | 'approved' | 'paid' | 'overdue'
+          due_date?: string | null
+          approved_at?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          stage_id?: string
+          amount?: number
+          status?: 'pending' | 'awaiting_approval' | 'approved' | 'paid' | 'overdue'
+          due_date?: string | null
+          approved_at?: string | null
+          paid_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_payments_project_id_fkey'; columns: ['project_id']; referencedRelation: 'archi_projects'; referencedColumns: ['id'] },
+          { foreignKeyName: 'archi_payments_stage_id_fkey'; columns: ['stage_id']; referencedRelation: 'archi_stages'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_projects: {
+        Row: {
+          id: string
+          name: string
+          client_id: string | null
+          owner_id: string
+          status: 'active' | 'completed' | 'archived'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          name: string
+          client_id?: string | null
+          owner_id: string
+          status?: 'active' | 'completed' | 'archived'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          name?: string
+          client_id?: string | null
+          owner_id?: string
+          status?: 'active' | 'completed' | 'archived'
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_projects_client_id_fkey'; columns: ['client_id']; referencedRelation: 'archi_clients'; referencedColumns: ['id'] },
+          { foreignKeyName: 'archi_projects_owner_id_fkey'; columns: ['owner_id']; referencedRelation: 'archi_users'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_stages: {
+        Row: {
+          id: string
+          project_id: string
+          name: string
+          order_index: number
+          status: 'pending' | 'in_progress' | 'completed'
+          fee_amount: number
+          completed_at: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          name: string
+          order_index?: number
+          status?: 'pending' | 'in_progress' | 'completed'
+          fee_amount?: number
+          completed_at?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          name?: string
+          order_index?: number
+          status?: 'pending' | 'in_progress' | 'completed'
+          fee_amount?: number
+          completed_at?: string | null
+          created_at?: string
+        }
+        Relationships: [
+          { foreignKeyName: 'archi_stages_project_id_fkey'; columns: ['project_id']; referencedRelation: 'archi_projects'; referencedColumns: ['id'] }
+        ]
+      }
+      archi_users: {
+        Row: {
+          id: string
+          email: string
+          full_name: string
+          role: 'architect' | 'team_member'
+          plan: 'free' | 'pro' | 'studio'
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          email: string
+          full_name: string
+          role?: 'architect' | 'team_member'
+          plan?: 'free' | 'pro' | 'studio'
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          email?: string
+          full_name?: string
+          role?: 'architect' | 'team_member'
+          plan?: 'free' | 'pro' | 'studio'
+          created_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      archi_client_approve_payment: {
+        Args: { p_token: string; p_payment_id: string }
+        Returns: Json
+      }
+      archi_client_portal: {
+        Args: { p_token: string }
+        Returns: Json
+      }
+      archi_contractor_portal: {
+        Args: { p_token: string }
+        Returns: Json
+      }
+      archi_create_default_stages: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
     }
     Enums: {
-      [_ in never]: never
+      archi_actor_type: 'architect' | 'client' | 'contractor'
+      archi_payment_status: 'pending' | 'awaiting_approval' | 'approved' | 'paid' | 'overdue'
+      archi_project_status: 'active' | 'completed' | 'archived'
+      archi_stage_status: 'pending' | 'in_progress' | 'completed'
+      archi_user_plan: 'free' | 'pro' | 'studio'
+      archi_user_role: 'architect' | 'team_member'
     }
     CompositeTypes: {
       [_ in never]: never
@@ -347,6 +631,13 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      archi_actor_type: ['architect', 'client', 'contractor'] as const,
+      archi_payment_status: ['pending', 'awaiting_approval', 'approved', 'paid', 'overdue'] as const,
+      archi_project_status: ['active', 'completed', 'archived'] as const,
+      archi_stage_status: ['pending', 'in_progress', 'completed'] as const,
+      archi_user_plan: ['free', 'pro', 'studio'] as const,
+      archi_user_role: ['architect', 'team_member'] as const,
+    },
   },
 } as const
