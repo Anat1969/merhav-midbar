@@ -5,6 +5,7 @@ import { TopNav } from "@/components/TopNav";
 import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
+import { TasksManager, TaskItem } from "@/components/TasksManager";
 import { Trash2 } from "lucide-react";
 import { openExternalLink } from "@/lib/fileAccess";
 import {
@@ -37,6 +38,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   const [tempName, setTempName] = useState("");
   const [historyInput, setHistoryInput] = useState("");
   const [emailOpen, setEmailOpen] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
 
   const update = async (patch: Partial<GenericProject>) => {
     if (!project) return;
@@ -189,8 +192,17 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           <textarea title="מטרה" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col lg:col-span-1">
-          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>הנחיות מתכנן</div>
-          <textarea title="הנחיות מתכנן" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-base resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 320, background: "#FAFAF8" }} placeholder="הנחיות מתכנן..." value={project.document} onChange={(e) => update({ document: e.target.value })} />
+          <TasksManager
+            value={project.document}
+            onChange={(json) => update({ document: json })}
+            color={config.color}
+            onSendEmail={(task: TaskItem) => {
+              const dateStr = task.date ? new Date(task.date).toLocaleDateString("he-IL") : "לא צוין";
+              setEmailSubject(`משימה: ${task.text}`);
+              setEmailBody(`משימה: ${task.text}\nתאריך יעד: ${dateStr}\nסטטוס: ${task.done ? "בוצע ✅" : "פתוח"}\n\nפרויקט: ${project.name}`);
+              setEmailOpen(true);
+            }}
+          />
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
@@ -210,7 +222,9 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       </div>
       {project && (() => {
         const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
-        return (<EmailModal isOpen={emailOpen} onClose={() => setEmailOpen(false)} subject={`חוות דעת: ${project.name}`} body={`שם פרויקט: ${project.name}\nקטגוריה: ${project.category}${project.sub !== project.category ? ` › ${project.sub}` : ""}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}`} domainColor={config.color} />);
+        const defaultSubject = `חוות דעת: ${project.name}`;
+        const defaultBody = `שם פרויקט: ${project.name}\nקטגוריה: ${project.category}${project.sub !== project.category ? ` › ${project.sub}` : ""}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}`;
+        return (<EmailModal isOpen={emailOpen} onClose={() => { setEmailOpen(false); setEmailSubject(""); setEmailBody(""); }} subject={emailSubject || defaultSubject} body={emailBody || defaultBody} domainColor={config.color} />);
       })()}
     </div>
   );
