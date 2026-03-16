@@ -7,7 +7,7 @@
 @layer base {
   :root {
     /* [DESIGN: color system] Ashdod municipal palette */
-    --background: 0 0% 100%;              /* white — main content bg */
+    --background: 216 20% 95%;              /* light gray-blue — main content bg */
     --foreground: 210 30% 15%;             /* #1a2a3a dark text */
     --card: 0 0% 100%;                     /* white cards */
     --card-foreground: 210 30% 15%;
