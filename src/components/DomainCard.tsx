@@ -85,7 +85,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
       </Link>
 
       {/* Cards area */}
-      <div className="flex-1 p-2 space-y-2">
+      <div className="p-1.5 space-y-1.5">
         {isAITools ? (
           <AIToolsCards
             domainName={name}
