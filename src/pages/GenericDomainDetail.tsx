@@ -199,8 +199,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       {/* [DESIGN: typography] Phase 2 — Execution Phase */}
       <div className="mx-6 mb-1">
         <div className="flex items-center gap-3 mb-3">
+          <span className="text-2xl font-black tracking-wide" style={{ color: config.color }}>⚡ שלב הביצוע</span>
           <div className="h-[3px] flex-1 rounded-full" style={{ background: `linear-gradient(to left, ${config.color}, transparent)` }} />
-          <span className="text-lg font-black tracking-wide" style={{ color: config.color }}>⚡ שלב הביצוע</span>
         </div>
       </div>
       <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ minHeight: 360 }}>
