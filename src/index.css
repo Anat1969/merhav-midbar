@@ -70,10 +70,12 @@
     overflow: hidden;
   }
 
-  h1 { font-size: 28px; font-weight: 900; font-family: "Frank Ruhl Libre", serif; }
-  h2 { font-size: 22px; font-weight: 700; }
-  h3 { font-size: 16px; font-weight: 700; }
-  h4 { font-size: 14px; font-weight: 600; }
+  h1 { font-size: 32px; font-weight: 900; font-family: "Frank Ruhl Libre", serif; line-height: 1.2; color: hsl(var(--navy-header)); }
+  h2 { font-size: 26px; font-weight: 800; font-family: "Frank Ruhl Libre", serif; line-height: 1.25; color: hsl(var(--navy-header)); }
+  h3 { font-size: 20px; font-weight: 700; line-height: 1.3; }
+  h4 { font-size: 16px; font-weight: 700; line-height: 1.35; }
+  h5 { font-size: 14px; font-weight: 600; line-height: 1.4; }
+  h6 { font-size: 12px; font-weight: 600; line-height: 1.4; text-transform: uppercase; letter-spacing: 0.5px; }
 
   /* [DESIGN: typography] Minimal scrollbar */
   ::-webkit-scrollbar { width: 4px; height: 4px; }
