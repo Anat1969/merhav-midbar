@@ -197,7 +197,7 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
   });
 
   return (
-    <div className="data-card">
+    <div className="data-card flex-1 flex flex-col min-h-0">
       {!hideTitle && (
         <div className="data-card-header" style={{ backgroundColor: cardTint }}>
           <span className="text-[10.5px] font-bold" style={{ color }}>{catName}</span>
@@ -211,7 +211,7 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
           )}
         </div>
       )}
-      <div>
+      <div className="flex-1 flex flex-col">
         {subs.map((sub) => (
           <SubButton
             key={sub}
