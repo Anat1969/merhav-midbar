@@ -6,6 +6,7 @@ import { countDomainProjectsAsync, countCategoryProjectsAsync } from "@/lib/supa
 import { SubButton } from "./SubButton";
 import { SubIconsRow } from "./AppIconsBar";
 
+// [DESIGN: color system] Section header colors mapped to domains
 const DOMAIN_ROUTES: Record<string, string> = {
   "מבנים": "/binui",
   "פיתוח": "/pitua",
@@ -23,15 +24,33 @@ const CATEGORY_ROUTES: Record<string, string> = {
 const DOMAINS_WITH_PAGES = new Set(["מבנים", "פיתוח", "מיידעים", "פעולות", "כלי AI"]);
 const SUBS_WITH_ICONS = new Set(["אפליקציות", "סוכנים"]);
 
+// [DESIGN: color system] Section header background colors
+const SECTION_HEADER_COLORS: Record<string, string> = {
+  "מבנים": "#1a3060",   /* dark slate */
+  "פיתוח": "#1a6f7a",   /* teal */
+  "מיידעים": "#1e5e38", /* deep green */
+  "פעולות": "#1a5490",  /* navy-blue */
+  "כלי AI": "#1a5490",  /* navy-blue */
+};
+
+// [DESIGN: color system] Card header tint backgrounds
+const CARD_TINTS: Record<string, string> = {
+  "מבנים": "#e6f0f8",
+  "פיתוח": "#e6f4f6",
+  "מיידעים": "#edf7f1",
+  "פעולות": "#eef4fa",
+  "כלי AI": "#eef4fa",
+};
+
 interface DomainCardProps {
   name: string;
   def: DomainDef;
   onOpenPanel: (domain: string, category: string, sub: string) => void;
   refreshKey: number;
+  isAltBg?: boolean;
 }
 
-// [UPGRADE: typography] Larger headings, better visual hierarchy throughout domain cards
-export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, refreshKey }) => {
+export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, refreshKey, isAltBg }) => {
   const navigate = useNavigate();
   const { data: totalCount = 0 } = useQuery({
     queryKey: ["domain-count", name, refreshKey],
@@ -43,34 +62,32 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
   const hasSubItems = Object.values(def.categories).some((c) => c.items.length > 0);
   const hideCategoryTitles = !hasSubItems;
   const isAITools = name === "כלי AI";
+  const headerColor = SECTION_HEADER_COLORS[name] || "#1a5490";
+  const cardTint = CARD_TINTS[name] || "#eef4fa";
 
   return (
-    <div className="overflow-hidden rounded-2xl shadow-md bg-card border border-border hover:shadow-lg transition-shadow duration-200" dir="rtl">
+    <div
+      className="flex flex-col h-full"
+      style={{ backgroundColor: isAltBg ? "#edf2f7" : "white" }}
+      dir="rtl"
+    >
+      {/* Section header bar */}
       <Link
         to={route}
-        className="group flex items-center justify-between px-6 py-6 text-white transition-all hover:brightness-110 active:brightness-95"
-        style={{ background: `linear-gradient(135deg, ${def.color}, ${def.color}CC)` }}
+        className="section-header group transition-opacity hover:opacity-90"
+        style={{ backgroundColor: headerColor }}
       >
-        <div className="flex items-center gap-4">
-          <span className="text-5xl drop-shadow">{def.icon}</span>
-          <div>
-            <h2 className="text-3xl font-black leading-tight">{name}</h2>
-            <p className="text-base font-light opacity-90 mt-0.5">{def.description}</p>
-          </div>
+        <div className="flex flex-col">
+          <span className="section-header-title">{def.icon} {name}</span>
+          <span className="section-header-subtitle">{def.description}</span>
         </div>
-        <div className="flex items-center gap-3">
-          {totalCount > 0 && (
-            <span className="rounded-full bg-white/25 px-4 py-2 num-value font-black text-white backdrop-blur-sm" style={{ fontSize: "1.375rem" }}>
-              {totalCount}
-            </span>
-          )}
-          <span className="opacity-0 transition-opacity group-hover:opacity-70 text-2xl">→</span>
-        </div>
+        <span className="section-ghost-number">{totalCount || ""}</span>
       </Link>
 
-      <div className="p-5">
+      {/* Cards area */}
+      <div className="flex-1 p-2 space-y-2">
         {isAITools ? (
-          <AIToolsLayout
+          <AIToolsCards
             domainName={name}
             def={def}
             color={def.color}
@@ -79,68 +96,68 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
             onOpenPanel={onOpenPanel}
             refreshKey={refreshKey}
             navigate={navigate}
+            cardTint={cardTint}
           />
         ) : hasSubItems ? (
-          <div className="grid gap-5" style={{ gridTemplateColumns: `repeat(${Object.keys(def.categories).length}, 1fr)` }}>
-            {Object.entries(def.categories).map(([catName, catDef]) => {
-              const subs = catDef.items.length > 0 ? catDef.items : [catName];
-              return (
-                <DomainCategoryColumn
-                  key={catName}
-                  domainName={name}
-                  catName={catName}
-                  subs={subs}
-                  color={def.color}
-                  route={route}
-                  hasDedicatedPage={hasDedicatedPage}
-                  onOpenPanel={onOpenPanel}
-                  refreshKey={refreshKey}
-                  navigate={navigate}
-                  hideTitle={hideCategoryTitles}
-                />
-              );
-            })}
-          </div>
+          Object.entries(def.categories).map(([catName, catDef]) => {
+            const subs = catDef.items.length > 0 ? catDef.items : [catName];
+            return (
+              <CategoryCard
+                key={catName}
+                domainName={name}
+                catName={catName}
+                subs={subs}
+                color={def.color}
+                route={route}
+                hasDedicatedPage={hasDedicatedPage}
+                onOpenPanel={onOpenPanel}
+                refreshKey={refreshKey}
+                navigate={navigate}
+                cardTint={cardTint}
+              />
+            );
+          })
         ) : (
-          <div className="space-y-5">
-            {Object.entries(def.categories).map(([catName, catDef]) => {
-              const subs = catDef.items.length > 0 ? catDef.items : [catName];
-              return (
-                <DomainCategoryColumn
-                  key={catName}
-                  domainName={name}
-                  catName={catName}
-                  subs={subs}
-                  color={def.color}
-                  route={route}
-                  hasDedicatedPage={hasDedicatedPage}
-                  onOpenPanel={onOpenPanel}
-                  refreshKey={refreshKey}
-                  navigate={navigate}
-                  gridLayout
-                  hideTitle={hideCategoryTitles}
-                />
-              );
-            })}
-          </div>
+          Object.entries(def.categories).map(([catName, catDef]) => {
+            const subs = catDef.items.length > 0 ? catDef.items : [catName];
+            return (
+              <CategoryCard
+                key={catName}
+                domainName={name}
+                catName={catName}
+                subs={subs}
+                color={def.color}
+                route={route}
+                hasDedicatedPage={hasDedicatedPage}
+                onOpenPanel={onOpenPanel}
+                refreshKey={refreshKey}
+                navigate={navigate}
+                cardTint={cardTint}
+                hideTitle={hideCategoryTitles}
+              />
+            );
+          })
         )}
       </div>
     </div>
   );
 };
 
-function AIToolsLayout({ domainName, def, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate }: {
+function AIToolsCards({ domainName, def, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate, cardTint }: {
   domainName: string; def: DomainDef; color: string; route: string; hasDedicatedPage: boolean;
-  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any;
+  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any; cardTint: string;
 }) {
   const categories = def.categories;
   const subs = Object.values(categories).flatMap((c) => c.items.length > 0 ? c.items : []);
   const catName = Object.keys(categories)[0];
 
   return (
-    <div className="space-y-4">
+    <div className="data-card">
+      <div className="data-card-header" style={{ backgroundColor: cardTint }}>
+        <span className="text-[10.5px] font-bold" style={{ color }}>כלים דיגיטליים</span>
+      </div>
       {subs.map((sub) => (
-        <div key={sub}>
+        <React.Fragment key={sub}>
           <SubButton
             label={sub}
             domain={domainName}
@@ -162,15 +179,15 @@ function AIToolsLayout({ domainName, def, color, route, hasDedicatedPage, onOpen
           {SUBS_WITH_ICONS.has(sub) && (
             <SubIconsRow sub={sub} color={color} refreshKey={refreshKey} />
           )}
-        </div>
+        </React.Fragment>
       ))}
     </div>
   );
 }
 
-function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate, gridLayout, hideTitle }: {
+function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPage, onOpenPanel, refreshKey, navigate, cardTint, hideTitle }: {
   domainName: string; catName: string; subs: string[]; color: string; route: string; hasDedicatedPage: boolean;
-  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any; gridLayout?: boolean; hideTitle?: boolean;
+  onOpenPanel: (d: string, c: string, s: string) => void; refreshKey: number; navigate: any; cardTint: string; hideTitle?: boolean;
 }) {
   const { data: catCount = 0 } = useQuery({
     queryKey: ["category-count", domainName, catName, refreshKey],
@@ -178,17 +195,21 @@ function DomainCategoryColumn({ domainName, catName, subs, color, route, hasDedi
   });
 
   return (
-    <div className={gridLayout ? "" : "space-y-2"}>
-      {/* [UPGRADE: typography] Category title at h5 level (~14px bold caps) */}
+    <div className="data-card">
       {!hideTitle && (
-        <div className="flex items-center gap-2 mb-3">
-          <h3 className="text-base font-black text-muted-foreground uppercase tracking-widest">{catName}</h3>
+        <div className="data-card-header" style={{ backgroundColor: cardTint }}>
+          <span className="text-[10.5px] font-bold" style={{ color }}>{catName}</span>
           {catCount > 0 && (
-            <span className="text-sm font-black px-2.5 py-0.5 rounded-full" style={{ backgroundColor: `${color}18`, color }}>{catCount}</span>
+            <span
+              className="record-count rounded-full px-2 py-0.5 min-w-[20px] text-center"
+              style={{ backgroundColor: `${color}15`, color }}
+            >
+              {catCount}
+            </span>
           )}
         </div>
       )}
-      <div className={gridLayout ? "grid grid-cols-2 gap-2" : "flex flex-col gap-2"}>
+      <div>
         {subs.map((sub) => (
           <SubButton
             key={sub}

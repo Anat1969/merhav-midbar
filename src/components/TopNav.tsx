@@ -7,6 +7,7 @@ import { IdeaCardsManager } from "./IdeaCardsManager";
 import { DataMigration } from "./DataMigration";
 import { Menu, X } from "lucide-react";
 
+// [DESIGN: color system] Header — deep navy #1a3a5c, gradient bottom line
 export const TopNav: React.FC = () => {
   const navigate = useNavigate();
   const [emailOpen, setEmailOpen] = useState(false);
@@ -29,41 +30,54 @@ export const TopNav: React.FC = () => {
 
   return (
     <>
+      {/* [DESIGN: color system] Navy header with gradient bottom edge */}
       <nav
-        className="sticky top-0 z-40 flex items-center justify-between bg-background px-4 py-2 shadow-sm border-b border-border print:hidden"
+        className="sticky top-0 z-40 print:hidden"
         dir="rtl"
       >
-        <div className="text-right">
-          <div className="text-xl font-black text-primary">דשבורד — אדריכלית העיר</div>
-          <div className="text-sm text-muted-foreground">עץ ארגוני תכולת עבודה</div>
+        <div className="flex items-center justify-between bg-navy-header px-5 py-3">
+          {/* Right side — titles */}
+          <div className="text-right">
+            <div className="text-[10px] font-normal tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
+              אגף הנדסה — עיריית אשדוד
+            </div>
+            <div className="font-frank text-[22px] font-black text-white leading-tight">
+              דשבורד אדריכלית העיר
+            </div>
+            <div className="text-[10px] font-normal" style={{ color: "rgba(255,255,255,0.38)" }}>
+              עץ ארגוני · תכולת עבודה · 2025
+            </div>
+          </div>
+
+          {/* Left side — data chips (desktop) */}
+          <div className="hidden md:flex items-center gap-2">
+            {navBtns.map((b) => (
+              <button
+                key={b.label}
+                title={b.label}
+                onClick={b.action}
+                className="rounded-md px-3 py-1.5 text-[11px] font-medium text-white/80 transition-colors hover:text-white hover:bg-white/10 border border-white/15 backdrop-blur-sm"
+              >
+                {b.icon} {b.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Mobile hamburger */}
+          <button
+            className="md:hidden rounded-md border border-white/20 p-1.5 text-white/80 transition-colors hover:text-white hover:bg-white/10"
+            onClick={() => setMenuOpen((o) => !o)}
+            title="תפריט"
+          >
+            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+          </button>
         </div>
 
-        {/* Desktop buttons */}
-        <div className="hidden md:flex gap-2 flex-wrap">
-          {navBtns.map((b) => (
-            <button
-              key={b.label}
-              title={b.label}
-              onClick={b.action}
-              className={
-                b.primary
-                  ? "min-h-12 rounded border border-primary bg-primary px-4 py-2 text-base font-bold text-primary-foreground transition-colors hover:bg-accent"
-                  : "min-h-12 rounded border border-border bg-transparent px-4 py-2 text-base text-foreground transition-colors hover:bg-secondary"
-              }
-            >
-              {b.icon} {b.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Mobile hamburger */}
-        <button
-          className="md:hidden rounded-lg border border-border bg-transparent p-2 text-foreground transition-colors hover:bg-secondary"
-          onClick={() => setMenuOpen((o) => !o)}
-          title="תפריט"
-        >
-          {menuOpen ? <X size={22} /> : <Menu size={22} />}
-        </button>
+        {/* [DESIGN: color system] 3px gradient bottom line */}
+        <div
+          className="h-[3px]"
+          style={{ background: "linear-gradient(to left, #2d8fd4, transparent)" }}
+        />
       </nav>
 
       {/* Mobile drawer */}
@@ -73,16 +87,16 @@ export const TopNav: React.FC = () => {
           onClick={() => setMenuOpen(false)}
         >
           <div
-            className="absolute top-14 left-0 right-0 bg-background border-b border-border shadow-xl p-4 flex flex-col gap-2"
+            className="absolute top-[52px] left-0 right-0 bg-navy-header border-b border-white/10 shadow-xl p-3 flex flex-col gap-1.5"
             onClick={(e) => e.stopPropagation()}
           >
             {navBtns.map((b) => (
               <button
                 key={b.label}
                 onClick={() => { b.action(); setMenuOpen(false); }}
-                className="rounded-lg border border-border bg-transparent px-4 py-3 text-base font-semibold text-right text-foreground transition-all hover:bg-secondary flex items-center gap-3"
+                className="rounded-md px-3 py-2 text-[12px] font-medium text-right text-white/80 transition-all hover:bg-white/10 flex items-center gap-2"
               >
-                <span className="text-xl">{b.icon}</span>
+                <span className="text-sm">{b.icon}</span>
                 <span>{b.label}</span>
               </button>
             ))}
