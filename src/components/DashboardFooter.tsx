@@ -32,9 +32,9 @@ export const DashboardFooter: React.FC<{ refreshKey: number }> = ({ refreshKey }
       className="bg-navy-header print:hidden"
       dir="rtl"
     >
-      <div className="flex items-center justify-between px-5 py-2">
+      <div className="flex items-center justify-between px-5 py-3">
         {/* Right: attribution */}
-        <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.38)" }}>
+        <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.38)" }}>
           דשבורד אדריכלית העיר — אגף הנדסה עיריית אשדוד © 2025
         </span>
 
@@ -43,13 +43,14 @@ export const DashboardFooter: React.FC<{ refreshKey: number }> = ({ refreshKey }
           {kpis.map((kpi, i) => (
             <React.Fragment key={kpi.label}>
               {i > 0 && (
-                <div className="h-4 mx-2" style={{ width: "1px", background: "rgba(255,255,255,0.12)" }} />
+                <div className="h-5 mx-3" style={{ width: "1px", background: "rgba(255,255,255,0.12)" }} />
               )}
               <div className="flex flex-col items-center">
-                <span className="font-frank text-[14px] font-black text-blue-accent leading-none">
+                {/* [DESIGN: typography] Enlarged KPI numbers */}
+                <span className="font-frank text-[18px] font-black text-blue-accent leading-none">
                   {kpi.value}
                 </span>
-                <span className="text-[9px]" style={{ color: "rgba(255,255,255,0.45)" }}>
+                <span className="text-[11px]" style={{ color: "rgba(255,255,255,0.45)" }}>
                   {kpi.label}
                 </span>
               </div>

@@ -26,11 +26,11 @@ const SUBS_WITH_ICONS = new Set(["אפליקציות", "סוכנים"]);
 
 // [DESIGN: color system] Section header background colors
 const SECTION_HEADER_COLORS: Record<string, string> = {
-  "מבנים": "#1a3060",   /* dark slate */
-  "פיתוח": "#1a6f7a",   /* teal */
-  "מיידעים": "#1e5e38", /* deep green */
-  "פעולות": "#1a5490",  /* navy-blue */
-  "כלי AI": "#1a5490",  /* navy-blue */
+  "מבנים": "#1a3060",
+  "פיתוח": "#1a6f7a",
+  "מיידעים": "#1e5e38",
+  "פעולות": "#1a5490",
+  "כלי AI": "#1a5490",
 };
 
 // [DESIGN: color system] Card header tint backgrounds
@@ -71,7 +71,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
       style={{ backgroundColor: isAltBg ? "#edf2f7" : "white" }}
       dir="rtl"
     >
-      {/* Section header bar */}
+      {/* [DESIGN: typography] Enlarged section header bar */}
       <Link
         to={route}
         className="section-header group transition-opacity hover:opacity-90"
@@ -154,7 +154,8 @@ function AIToolsCards({ domainName, def, color, route, hasDedicatedPage, onOpenP
   return (
     <div className="data-card">
       <div className="data-card-header" style={{ backgroundColor: cardTint }}>
-        <span className="text-[10.5px] font-bold" style={{ color }}>כלים דיגיטליים</span>
+        {/* [DESIGN: typography] Enlarged category title */}
+        <span className="text-[14px] font-bold" style={{ color }}>כלים דיגיטליים</span>
       </div>
       {subs.map((sub) => (
         <React.Fragment key={sub}>
@@ -198,10 +199,11 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
     <div className="data-card">
       {!hideTitle && (
         <div className="data-card-header" style={{ backgroundColor: cardTint }}>
-          <span className="text-[10.5px] font-bold" style={{ color }}>{catName}</span>
+          {/* [DESIGN: typography] Enlarged category title */}
+          <span className="text-[14px] font-bold" style={{ color }}>{catName}</span>
           {catCount > 0 && (
             <span
-              className="record-count rounded-full px-2 py-0.5 min-w-[20px] text-center"
+              className="record-count rounded-full px-3 py-1 min-w-[28px] text-center"
               style={{ backgroundColor: `${color}15`, color }}
             >
               {catCount}
