@@ -79,7 +79,17 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
   const [newViewLink, setNewViewLink] = useState("");
   const [newCat, setNewCat] = useState(initialCatSub.cat);
   const [newSub, setNewSub] = useState(initialCatSub.sub);
-  const [filterCat, setFilterCat] = useState<string | null>(null);
+  // [DESIGN: filter sync] Auto-set filterCat when urlFilter matches a sub-category
+  const getInitialFilterCat = (): string | null => {
+    if (!urlFilter) return null;
+    for (const cat of catNames) {
+      const subs = getSubsForCategory(config, cat);
+      if (subs.includes(urlFilter)) return cat;
+    }
+    if (catNames.includes(urlFilter)) return urlFilter;
+    return null;
+  };
+  const [filterCat, setFilterCat] = useState<string | null>(getInitialFilterCat());
   const [filterSub, setFilterSub] = useState<string | null>(urlFilter);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
@@ -314,13 +324,15 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    const base = filterCat ? projects.filter((p) => p.category === filterCat) : projects;
+    let base = projects;
+    if (filterCat) base = base.filter((p) => p.category === filterCat);
+    if (filterSub) base = base.filter((p) => p.sub === filterSub || p.category === filterSub);
     for (const s of STATUS_OPTIONS) counts[s.value] = 0;
     for (const p of base) {
       if (counts[p.status] !== undefined) counts[p.status]++;
     }
     return counts;
-  }, [projects, filterCat]);
+  }, [projects, filterCat, filterSub]);
 
   const currentSubs = getSubsForCategory(config, newCat);
   const hasSubs = config.categories[newCat]?.length > 0;
