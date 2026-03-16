@@ -6,6 +6,8 @@ import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import { TasksManager, TaskItem } from "@/components/TasksManager";
+import { ProjectAttachments } from "@/components/ProjectAttachments";
+import { RecordLinks, LinkEntry } from "@/components/RecordLinks";
 import { Trash2 } from "lucide-react";
 import { openExternalLink } from "@/lib/fileAccess";
 import {
