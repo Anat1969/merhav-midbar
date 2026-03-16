@@ -126,7 +126,14 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           }
         }}><Trash2 size={18} /></button>
       </div>
-      <div className="mx-6 mb-4 grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 500 }}>
+      {/* [DESIGN: typography] Phase 1 — Idea Phase */}
+      <div className="mx-6 mb-1 mt-2">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-[3px] flex-1 rounded-full" style={{ background: `linear-gradient(to left, ${config.color}, transparent)` }} />
+          <span className="text-lg font-black tracking-wide" style={{ color: config.color }}>💡 שלב הרעיון</span>
+        </div>
+      </div>
+      <div className="mx-6 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-4" style={{ minHeight: 500 }}>
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col gap-4">
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם הפרויקט</div>
@@ -184,6 +191,14 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-sm font-bold mb-2" style={{ color: config.color }}>תמונה</div>
           <FileDropZone onFile={(f) => handleImage(f)} onDelete={() => update({ image: null })} currentSrc={project.image} label="תמונה" className="flex-1 min-h-[400px] border-2 border-dashed border-gray-200 rounded-xl hover:bg-gray-50 overflow-hidden" />
+        </div>
+      </div>
+
+      {/* [DESIGN: typography] Phase 2 — Execution Phase */}
+      <div className="mx-6 mb-1">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="h-[3px] flex-1 rounded-full" style={{ background: `linear-gradient(to left, ${config.color}, transparent)` }} />
+          <span className="text-lg font-black tracking-wide" style={{ color: config.color }}>⚡ שלב הביצוע</span>
         </div>
       </div>
       <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ minHeight: 360 }}>
