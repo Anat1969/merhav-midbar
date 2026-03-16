@@ -1421,7 +1421,7 @@ const BinuiProjectDetail: React.FC = () => {
                   onDelete={() => update({ images: { ...project.images, [slot]: null } })}
                   currentSrc={project.images[slot]}
                   label={IMAGE_LABELS[slot]}
-                  className="aspect-[4/3] border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-50 overflow-hidden"
+                  className="aspect-video border-2 border-dashed border-gray-200 rounded-lg hover:bg-gray-50 overflow-hidden"
                 />
               ))}
             </div>
