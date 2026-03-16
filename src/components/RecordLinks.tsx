@@ -90,9 +90,18 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
                   value={link.label}
                   onChange={(e) => changeField(link.id, "label", e.target.value)}
                 />
+                {link.url.trim() && (
+                  <button
+                    onClick={() => window.open(link.url, "_blank", "noopener,noreferrer")}
+                    className="h-7 w-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 transition-colors flex-shrink-0"
+                    title="פתח קישור"
+                  >
+                    <ExternalLink size={13} />
+                  </button>
+                )}
                 <button
                   onClick={() => removeLink(link.id)}
-                  className="h-7 w-7 rounded flex items-center justify-center text-red-400 hover:bg-red-50 transition-colors flex-shrink-0"
+                  className="h-7 w-7 rounded flex items-center justify-center text-destructive hover:bg-destructive/10 transition-colors flex-shrink-0"
                   title="הסר קישור"
                 >
                   <Trash2 size={13} />
