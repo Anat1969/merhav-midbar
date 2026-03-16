@@ -6,6 +6,8 @@ import PrintHeader from "@/components/PrintHeader";
 import { EmailModal } from "@/components/EmailModal";
 import { FileDropZone } from "@/components/FileDropZone";
 import { TasksManager, TaskItem } from "@/components/TasksManager";
+import { ProjectAttachments } from "@/components/ProjectAttachments";
+import { RecordLinks, LinkEntry } from "@/components/RecordLinks";
 import { Trash2 } from "lucide-react";
 import { openExternalLink } from "@/lib/fileAccess";
 import {
@@ -205,6 +207,14 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מטרה</div>
           <textarea title="מטרה" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
+          {/* Links section */}
+          <div className="mt-4 pt-4 border-t border-border/30">
+            <RecordLinks
+              links={((project.tracking as any)?.links as LinkEntry[]) || []}
+              isWorkMode={true}
+              onUpdate={(links) => update({ tracking: { ...project.tracking, links } as any })}
+            />
+          </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col lg:col-span-1">
           <TasksManager
@@ -219,19 +229,32 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             }}
           />
         </div>
-        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
-          <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
-          <div className="flex gap-2 mb-3">
-            <input title="הוסף רשומה" className="flex-1 h-9 rounded-lg border border-gray-200 px-3 text-base" style={{ direction: "rtl" }} placeholder="הוסף רשומה..." value={historyInput} onChange={(e) => setHistoryInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()} />
-            <button title="הוסף" className="h-9 w-9 rounded-lg text-white text-base flex items-center justify-center" style={{ background: config.color }} onClick={addHistoryEntry}>+</button>
+        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-4">
+          <div>
+            <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
+            <div className="flex gap-2 mb-3">
+              <input title="הוסף רשומה" className="flex-1 h-9 rounded-lg border border-gray-200 px-3 text-base" style={{ direction: "rtl" }} placeholder="הוסף רשומה..." value={historyInput} onChange={(e) => setHistoryInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()} />
+              <button title="הוסף" className="h-9 w-9 rounded-lg text-white text-base flex items-center justify-center" style={{ background: config.color }} onClick={addHistoryEntry}>+</button>
+            </div>
+            <div className="space-y-2 max-h-[200px] overflow-y-auto">
+              {project.history.map((h, i) => (
+                <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1.5" style={{ borderColor: config.color + "33" }}>
+                  <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
+                  <span className="text-base">{h.note}</span>
+                </div>
+              ))}
+            </div>
           </div>
-          <div className="flex-1 space-y-2 max-h-[280px] overflow-y-auto">
-            {project.history.map((h, i) => (
-              <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1.5" style={{ borderColor: config.color + "33" }}>
-                <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
-                <span className="text-base">{h.note}</span>
-              </div>
-            ))}
+          {/* Attachments section */}
+          <div className="pt-3 border-t border-border/30">
+            <ProjectAttachments
+              projectId={project.id}
+              projectType="generic"
+              attachments={project.attachments}
+              color={config.color}
+              invalidateKey={["generic-projects", config.storageKey]}
+              onRefresh={() => qc.invalidateQueries({ queryKey: ["generic-projects", config.storageKey] })}
+            />
           </div>
         </div>
       </div>
