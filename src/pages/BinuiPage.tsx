@@ -65,7 +65,17 @@ const BinuiPage: React.FC = () => {
   const [newName, setNewName] = useState("");
   const [newCat, setNewCat] = useState(Object.keys(BINUI_CATEGORIES)[0]);
   const [newSub, setNewSub] = useState(BINUI_CATEGORIES[Object.keys(BINUI_CATEGORIES)[0]].subs[0]);
-  const [filterCat, setFilterCat] = useState<string | null>(null);
+  // [DESIGN: filter sync] Auto-set filterCat when urlFilter matches a sub-category
+  const getInitialFilterCat = (): string | null => {
+    if (!urlFilter) return null;
+    for (const [cat, def] of Object.entries(BINUI_CATEGORIES)) {
+      if (def.subs.includes(urlFilter)) return cat;
+    }
+    // If urlFilter matches a category name directly
+    if (Object.keys(BINUI_CATEGORIES).includes(urlFilter)) return urlFilter;
+    return null;
+  };
+  const [filterCat, setFilterCat] = useState<string | null>(getInitialFilterCat());
   const [filterSub, setFilterSub] = useState<string | null>(urlFilter);
   const [filterStatus, setFilterStatus] = useState<string | null>(null);
   const [noteOpen, setNoteOpen] = useState<number | null>(null);
