@@ -198,9 +198,9 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
   return (
     <div className="data-card">
       {!hideTitle && (
-        <div className="data-card-header" style={{ backgroundColor: cardTint }}>
-          {/* [DESIGN: typography] Category title with record count inline */}
-          <span className="text-[17px] font-bold" style={{ color }}>
+        <div className="data-card-header flex items-center justify-center" style={{ backgroundColor: cardTint }}>
+          {/* [DESIGN: typography] Category title with record count inline, centered */}
+          <span className="text-[17px] font-bold text-center" style={{ color }}>
             {catName}
             {catCount > 0 && (
               <span
