@@ -254,11 +254,13 @@ const BinuiPage: React.FC = () => {
 
   const statusCounts = useMemo(() => {
     const counts: Record<string, number> = {};
-    const base = filterCat ? projects.filter((p) => p.category === filterCat) : projects;
+    let base = projects;
+    if (filterCat) base = base.filter((p) => p.category === filterCat);
+    if (filterSub) base = base.filter((p) => p.sub === filterSub);
     for (const s of STATUS_OPTIONS) counts[s.value] = 0;
     for (const p of base) { if (counts[p.status] !== undefined) counts[p.status]++; }
     return counts;
-  }, [projects, filterCat]);
+  }, [projects, filterCat, filterSub]);
 
   const activeSubs = filterCat ? BINUI_CATEGORIES[filterCat]?.subs ?? [] : [];
 
