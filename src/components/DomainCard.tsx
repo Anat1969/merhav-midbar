@@ -200,11 +200,11 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
       {!hideTitle && (
         <div className="data-card-header" style={{ backgroundColor: cardTint }}>
           {/* [DESIGN: typography] Enlarged category title */}
-          <span className="text-[14px] font-bold" style={{ color }}>{catName}</span>
+          <span className="text-[17px] font-bold" style={{ color }}>{catName}</span>
           {catCount > 0 && (
             <span
-              className="record-count rounded-full px-3 py-1 min-w-[28px] text-center"
-              style={{ backgroundColor: `${color}15`, color }}
+              className="record-count rounded-full px-4 py-1 min-w-[32px] text-center"
+              style={{ backgroundColor: `${color}15`, color, fontSize: "22px" }}
             >
               {catCount}
             </span>
