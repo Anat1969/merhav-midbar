@@ -204,18 +204,29 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         </div>
       </div>
       <div className="mx-6 mb-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" style={{ minHeight: 360 }}>
-        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
-          <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מטרה</div>
-          <textarea title="מטרה" className="flex-1 w-full rounded-xl border border-gray-200 p-4 text-lg font-semibold resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 160, background: "#FAFAF8" }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
-          {/* Links section */}
-          <div className="mt-4 pt-4 border-t border-border/30">
-            <RecordLinks
-              links={((project.tracking as any)?.links as LinkEntry[]) || []}
-              isWorkMode={true}
-              onUpdate={(links) => update({ tracking: { ...project.tracking, links } as any })}
-            />
+        {/* Col 1: Purpose + History */}
+        <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-4">
+          <div>
+            <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מטרה</div>
+            <textarea title="מטרה" className="w-full rounded-xl border border-border p-4 text-lg font-semibold resize-none leading-relaxed bg-muted/30" style={{ direction: "rtl", minHeight: 140 }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
+          </div>
+          <div className="pt-3 border-t border-border/30">
+            <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
+            <div className="flex gap-2 mb-3">
+              <input title="הוסף רשומה" className="flex-1 h-9 rounded-lg border border-border px-3 text-base" style={{ direction: "rtl" }} placeholder="הוסף רשומה..." value={historyInput} onChange={(e) => setHistoryInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()} />
+              <button title="הוסף" className="h-9 w-9 rounded-lg text-white text-base flex items-center justify-center" style={{ background: config.color }} onClick={addHistoryEntry}>+</button>
+            </div>
+            <div className="space-y-2 max-h-[200px] overflow-y-auto">
+              {project.history.map((h, i) => (
+                <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1.5" style={{ borderColor: config.color + "33" }}>
+                  <span className="text-xs text-muted-foreground font-mono whitespace-nowrap">{h.date}</span>
+                  <span className="text-base">{h.note}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
+        {/* Col 2: Tasks */}
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col lg:col-span-1">
           <TasksManager
             value={project.document}
@@ -229,23 +240,13 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             }}
           />
         </div>
+        {/* Col 3: Links + Documents */}
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-4">
-          <div>
-            <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
-            <div className="flex gap-2 mb-3">
-              <input title="הוסף רשומה" className="flex-1 h-9 rounded-lg border border-gray-200 px-3 text-base" style={{ direction: "rtl" }} placeholder="הוסף רשומה..." value={historyInput} onChange={(e) => setHistoryInput(e.target.value)} onKeyDown={(e) => e.key === "Enter" && addHistoryEntry()} />
-              <button title="הוסף" className="h-9 w-9 rounded-lg text-white text-base flex items-center justify-center" style={{ background: config.color }} onClick={addHistoryEntry}>+</button>
-            </div>
-            <div className="space-y-2 max-h-[200px] overflow-y-auto">
-              {project.history.map((h, i) => (
-                <div key={i} className="flex gap-2 text-sm border-r-2 pr-3 py-1.5" style={{ borderColor: config.color + "33" }}>
-                  <span className="text-xs text-gray-400 font-mono whitespace-nowrap">{h.date}</span>
-                  <span className="text-base">{h.note}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          {/* Attachments section */}
+          <RecordLinks
+            links={((project.tracking as any)?.links as LinkEntry[]) || []}
+            isWorkMode={true}
+            onUpdate={(links) => update({ tracking: { ...project.tracking, links } as any })}
+          />
           <div className="pt-3 border-t border-border/30">
             <ProjectAttachments
               projectId={project.id}
