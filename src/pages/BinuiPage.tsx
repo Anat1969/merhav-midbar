@@ -475,7 +475,7 @@ const BinuiPage: React.FC = () => {
                 >
                   {/* Image — if exists, full width top */}
                   {mainImage && (
-                    <div className="w-full h-40 overflow-hidden bg-gray-100">
+                    <div className="w-full aspect-video overflow-hidden bg-gray-100">
                       <img src={mainImage} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   )}

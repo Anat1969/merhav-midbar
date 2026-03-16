@@ -587,7 +587,7 @@ const GenericDomainPage: React.FC<Props> = ({ config }) => {
                   style={{ minHeight: 160 }}
                 >
                   {p.image && (
-                    <div className="w-full h-40 overflow-hidden bg-gray-100">
+                    <div className="w-full aspect-video overflow-hidden bg-gray-100">
                       <img src={p.image} alt={p.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                     </div>
                   )}
