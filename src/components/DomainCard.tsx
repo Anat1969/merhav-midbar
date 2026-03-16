@@ -155,7 +155,7 @@ function AIToolsCards({ domainName, def, color, route, hasDedicatedPage, onOpenP
     <div className="data-card">
       <div className="data-card-header" style={{ backgroundColor: cardTint }}>
         {/* [DESIGN: typography] Enlarged category title */}
-        <span className="text-[14px] font-bold" style={{ color }}>כלים דיגיטליים</span>
+        <span className="text-[17px] font-bold" style={{ color }}>כלים דיגיטליים</span>
       </div>
       {subs.map((sub) => (
         <React.Fragment key={sub}>
