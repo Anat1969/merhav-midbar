@@ -35,28 +35,29 @@ export const TopNav: React.FC = () => {
         className="sticky top-0 z-40 print:hidden"
         dir="rtl"
       >
-        <div className="flex items-center justify-between bg-navy-header px-5 py-3">
+        <div className="flex items-center justify-between bg-navy-header px-5 py-2">
           {/* Right side — titles */}
           <div className="text-right">
-            <div className="text-[10px] font-normal tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
+            <div className="text-[11px] font-normal tracking-wider" style={{ color: "rgba(255,255,255,0.45)" }}>
               אגף הנדסה — עיריית אשדוד
             </div>
-            <div className="font-frank text-[22px] font-black text-white leading-tight">
+            {/* [DESIGN: typography] Enlarged main title */}
+            <div className="font-frank text-[26px] font-black text-white leading-tight">
               דשבורד אדריכלית העיר
             </div>
-            <div className="text-[10px] font-normal" style={{ color: "rgba(255,255,255,0.38)" }}>
+            <div className="text-[11px] font-normal" style={{ color: "rgba(255,255,255,0.38)" }}>
               עץ ארגוני · תכולת עבודה · 2025
             </div>
           </div>
 
-          {/* Left side — data chips (desktop) */}
+          {/* Left side — nav buttons (desktop) */}
           <div className="hidden md:flex items-center gap-2">
             {navBtns.map((b) => (
               <button
                 key={b.label}
                 title={b.label}
                 onClick={b.action}
-                className="rounded-md px-3 py-1.5 text-[11px] font-medium text-white/80 transition-colors hover:text-white hover:bg-white/10 border border-white/15 backdrop-blur-sm"
+                className="rounded-md px-4 py-2 text-[13px] font-medium text-white/80 transition-colors hover:text-white hover:bg-white/10 border border-white/15 backdrop-blur-sm"
               >
                 {b.icon} {b.label}
               </button>
@@ -94,7 +95,7 @@ export const TopNav: React.FC = () => {
               <button
                 key={b.label}
                 onClick={() => { b.action(); setMenuOpen(false); }}
-                className="rounded-md px-3 py-2 text-[12px] font-medium text-right text-white/80 transition-all hover:bg-white/10 flex items-center gap-2"
+                className="rounded-md px-3 py-2 text-[13px] font-medium text-right text-white/80 transition-all hover:bg-white/10 flex items-center gap-2"
               >
                 <span className="text-sm">{b.icon}</span>
                 <span>{b.label}</span>

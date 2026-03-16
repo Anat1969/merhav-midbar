@@ -28,18 +28,19 @@ export const StatsBar: React.FC<StatsBarProps> = ({ refreshKey }) => {
   return (
     <div
       className="bg-white border-b"
-      style={{ height: "40px", borderColor: "#d0dce8", borderBottomWidth: "1.5px" }}
+      style={{ height: "48px", borderColor: "#d0dce8", borderBottomWidth: "1.5px" }}
       dir="rtl"
     >
       <div className="h-full flex items-center justify-between px-5">
         {/* Right: total label + number */}
-        <div className="flex items-center gap-2">
-          <span className="text-[11px] font-medium text-muted-foreground">סה״כ פרויקטים</span>
-          <span className="font-frank text-[20px] font-black text-blue-data leading-none">{total}</span>
+        <div className="flex items-center gap-3">
+          <span className="text-[14px] font-semibold text-muted-foreground">סה״כ פרויקטים</span>
+          {/* [DESIGN: typography] Large Frank Ruhl Libre number */}
+          <span className="font-frank text-[28px] font-black text-blue-data leading-none">{total}</span>
         </div>
 
         {/* Left: status pills */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-3">
           {(Object.entries(STATUS_CONFIG) as [string, { label: string; color: string; bg: string }][]).map(
             ([key, cfg]) => {
               const pill = PILL_STYLES[key];
@@ -50,16 +51,18 @@ export const StatsBar: React.FC<StatsBarProps> = ({ refreshKey }) => {
                   style={{
                     backgroundColor: pill.bg,
                     borderColor: pill.border,
+                    padding: "4px 14px",
                   }}
                 >
                   <span
-                    className="h-[7px] w-[7px] rounded-full flex-shrink-0"
+                    className="h-[9px] w-[9px] rounded-full flex-shrink-0"
                     style={{ backgroundColor: pill.dot }}
                   />
-                  <span className="text-[10.5px] font-semibold" style={{ color: pill.dot }}>
+                  {/* [DESIGN: typography] Enlarged pill labels */}
+                  <span className="text-[13px] font-semibold" style={{ color: pill.dot }}>
                     {cfg.label}
                   </span>
-                  <span className="font-frank text-[11px] font-bold" style={{ color: pill.dot }}>
+                  <span className="font-frank text-[14px] font-bold" style={{ color: pill.dot }}>
                     {counts[key]}
                   </span>
                 </div>

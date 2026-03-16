@@ -2,7 +2,7 @@ import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { countSubProjectsAsync } from "@/lib/supabaseStorage";
 
-// [DESIGN: typography] Data rows with Frank Ruhl Libre count badges
+// [DESIGN: typography] Enlarged data rows with Frank Ruhl Libre count badges
 interface SubButtonProps {
   label: string;
   domain: string;
@@ -34,16 +34,16 @@ export const SubButton: React.FC<SubButtonProps> = ({
       className="data-row w-full text-right transition-colors hover:bg-secondary/60 cursor-pointer"
       dir="rtl"
     >
-      <span className="text-[11.5px] font-medium text-foreground">{label}</span>
+      <span className="text-[15px] font-medium text-foreground">{label}</span>
       {count > 0 ? (
         <span
-          className="record-count rounded-full px-2 py-0.5 min-w-[24px] text-center"
+          className="record-count rounded-full px-3 py-1 min-w-[30px] text-center"
           style={{ backgroundColor: `${color}15`, color }}
         >
           {count}
         </span>
       ) : (
-        <span className="text-[11px] font-medium text-muted-foreground/40 px-2">—</span>
+        <span className="text-[13px] font-medium text-muted-foreground/40 px-2">—</span>
       )}
     </button>
   );
