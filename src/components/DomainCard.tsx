@@ -152,35 +152,37 @@ function AIToolsCards({ domainName, def, color, route, hasDedicatedPage, onOpenP
   const catName = Object.keys(categories)[0];
 
   return (
-    <div className="data-card">
+    <div className="data-card flex-1 flex flex-col min-h-0">
       <div className="data-card-header" style={{ backgroundColor: cardTint }}>
         <span className="text-[10.5px] font-bold" style={{ color }}>כלים דיגיטליים</span>
       </div>
-      {subs.map((sub) => (
-        <React.Fragment key={sub}>
-          <SubButton
-            label={sub}
-            domain={domainName}
-            category={catName}
-            sub={sub}
-            color={color}
-            onClick={() => {
-              const catRoute = CATEGORY_ROUTES[sub];
-              if (catRoute) {
-                navigate(catRoute);
-              } else if (hasDedicatedPage) {
-                navigate(`${route}?filter=${encodeURIComponent(sub)}`);
-              } else {
-                onOpenPanel(domainName, catName, sub);
-              }
-            }}
-            refreshKey={refreshKey}
-          />
-          {SUBS_WITH_ICONS.has(sub) && (
-            <SubIconsRow sub={sub} color={color} refreshKey={refreshKey} />
-          )}
-        </React.Fragment>
-      ))}
+      <div className="flex-1 flex flex-col">
+        {subs.map((sub) => (
+          <React.Fragment key={sub}>
+            <SubButton
+              label={sub}
+              domain={domainName}
+              category={catName}
+              sub={sub}
+              color={color}
+              onClick={() => {
+                const catRoute = CATEGORY_ROUTES[sub];
+                if (catRoute) {
+                  navigate(catRoute);
+                } else if (hasDedicatedPage) {
+                  navigate(`${route}?filter=${encodeURIComponent(sub)}`);
+                } else {
+                  onOpenPanel(domainName, catName, sub);
+                }
+              }}
+              refreshKey={refreshKey}
+            />
+            {SUBS_WITH_ICONS.has(sub) && (
+              <SubIconsRow sub={sub} color={color} refreshKey={refreshKey} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 }
