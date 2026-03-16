@@ -28,14 +28,14 @@ const Index: React.FC = () => {
       <PrintHeader />
       <StatsBar refreshKey={refreshKey} />
 
-      {/* Main grid area — fills remaining space */}
-      <div className="flex-1 flex flex-col min-h-0">
-        {/* Top row — 2 equal columns, divided by border */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 min-h-0" style={{ borderBottom: "2px solid #d0dce8" }}>
+      {/* [DESIGN: color system] Main grid area — fills remaining space, no scroll */}
+      <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
+        {/* Top row — 2 equal columns */}
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-2 min-h-0 overflow-hidden" style={{ borderBottom: "2px solid #d0dce8" }}>
           {topRow.map((name, i) => (
             <div
               key={name}
-              className="min-h-0 overflow-auto"
+              className="min-h-0 overflow-hidden"
               style={i < topRow.length - 1 ? { borderLeft: "2px solid #d0dce8" } : undefined}
             >
               <DomainCard
@@ -50,11 +50,11 @@ const Index: React.FC = () => {
         </div>
 
         {/* Bottom row — 3 columns */}
-        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 min-h-0">
+        <div className="flex-1 grid grid-cols-1 md:grid-cols-3 min-h-0 overflow-hidden">
           {bottomRow.map((name, i) => (
             <div
               key={name}
-              className="min-h-0 overflow-auto"
+              className="min-h-0 overflow-hidden"
               style={i < bottomRow.length - 1 ? { borderLeft: "2px solid #d0dce8" } : undefined}
             >
               <DomainCard

@@ -84,8 +84,8 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
         <span className="section-ghost-number">{totalCount || ""}</span>
       </Link>
 
-      {/* Cards area */}
-      <div className="flex-1 p-2 space-y-2">
+      {/* [DESIGN: color system] Cards area — stretch to fill available space */}
+      <div className="flex-1 p-2 flex flex-col gap-1 min-h-0 overflow-hidden">
         {isAITools ? (
           <AIToolsCards
             domainName={name}
