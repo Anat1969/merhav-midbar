@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Check, Plus, Mail, Calendar, Trash2 } from "lucide-react";
+import { Check, Plus, Mail, Calendar, Trash2, MessageSquare, Send } from "lucide-react";
 
 // [DESIGN: color system] Task item stored as JSON in the document field
 export interface TaskItem {
@@ -8,6 +8,7 @@ export interface TaskItem {
   date: string;
   done: boolean;
   createdAt: string;
+  comment?: string;
 }
 
 interface TasksManagerProps {
@@ -29,6 +30,8 @@ function parseTasks(value: string): TaskItem[] {
 export const TasksManager: React.FC<TasksManagerProps> = ({ value, onChange, color, onSendEmail }) => {
   const [newText, setNewText] = useState("");
   const [newDate, setNewDate] = useState("");
+  const [commentingId, setCommentingId] = useState<number | null>(null);
+  const [commentText, setCommentText] = useState("");
 
   const tasks = parseTasks(value);
 
@@ -56,6 +59,12 @@ export const TasksManager: React.FC<TasksManagerProps> = ({ value, onChange, col
 
   const removeTask = (id: number) => {
     save(tasks.filter((t) => t.id !== id));
+  };
+
+  const saveComment = (id: number) => {
+    save(tasks.map((t) => (t.id === id ? { ...t, comment: commentText.trim() || undefined } : t)));
+    setCommentingId(null);
+    setCommentText("");
   };
 
   const doneCount = tasks.filter((t) => t.done).length;
@@ -115,60 +124,111 @@ export const TasksManager: React.FC<TasksManagerProps> = ({ value, onChange, col
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`group flex items-start gap-2 rounded-lg border p-3 transition-all ${
+            className={`group rounded-lg border transition-all ${
               task.done ? "bg-muted/30 border-border/50" : "bg-white border-border hover:shadow-sm"
             }`}
           >
-            {/* Checkbox */}
-            <button
-              title={task.done ? "סמן כלא בוצע" : "סמן כבוצע"}
-              onClick={() => toggleDone(task.id)}
-              className="mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
-              style={{
-                borderColor: task.done ? color : "#d0dce8",
-                background: task.done ? color : "transparent",
-              }}
-            >
-              {task.done && <Check className="h-3 w-3 text-white" />}
-            </button>
-
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div
-                className={`text-sm font-medium leading-snug ${task.done ? "line-through text-muted-foreground" : "text-foreground"}`}
+            <div className="flex items-start gap-2 p-3">
+              {/* Checkbox */}
+              <button
+                title={task.done ? "סמן כלא בוצע" : "סמן כבוצע"}
+                onClick={() => toggleDone(task.id)}
+                className="mt-0.5 h-5 w-5 rounded border-2 flex items-center justify-center shrink-0 transition-colors"
+                style={{
+                  borderColor: task.done ? color : "#d0dce8",
+                  background: task.done ? color : "transparent",
+                }}
               >
-                {task.text}
-              </div>
-              <div className="flex items-center gap-3 mt-1">
-                {task.date && (
-                  <span className="text-xs text-muted-foreground flex items-center gap-1">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(task.date).toLocaleDateString("he-IL")}
-                  </span>
-                )}
-                <span className="text-xs text-muted-foreground/60">{task.createdAt}</span>
-              </div>
-            </div>
+                {task.done && <Check className="h-3 w-3 text-white" />}
+              </button>
 
-            {/* Actions */}
-            <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              {onSendEmail && (
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div
+                  className={`text-sm font-medium leading-snug ${task.done ? "line-through text-muted-foreground" : "text-foreground"}`}
+                >
+                  {task.text}
+                </div>
+                <div className="flex items-center gap-3 mt-1">
+                  {task.date && (
+                    <span className="text-xs text-muted-foreground flex items-center gap-1">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(task.date).toLocaleDateString("he-IL")}
+                    </span>
+                  )}
+                  <span className="text-xs text-muted-foreground/60">{task.createdAt}</span>
+                </div>
+                {/* Existing comment display */}
+                {task.comment && commentingId !== task.id && (
+                  <div
+                    className="mt-2 text-xs text-muted-foreground bg-muted/40 rounded-md px-2.5 py-1.5 border border-border/30 cursor-pointer hover:bg-muted/60 transition-colors"
+                    onClick={() => { setCommentingId(task.id); setCommentText(task.comment || ""); }}
+                    title="לחץ לעריכה"
+                  >
+                    💬 {task.comment}
+                  </div>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                 <button
-                  title="שלח במייל"
-                  onClick={() => onSendEmail(task)}
+                  title="הוסף הערה"
+                  onClick={() => {
+                    if (commentingId === task.id) {
+                      setCommentingId(null);
+                      setCommentText("");
+                    } else {
+                      setCommentingId(task.id);
+                      setCommentText(task.comment || "");
+                    }
+                  }}
                   className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors"
                 >
-                  <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                  <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
                 </button>
-              )}
-              <button
-                title="מחק משימה"
-                onClick={() => removeTask(task.id)}
-                className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="h-3.5 w-3.5 text-red-400" />
-              </button>
+                {onSendEmail && (
+                  <button
+                    title="שלח במייל"
+                    onClick={() => onSendEmail(task)}
+                    className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-muted transition-colors"
+                  >
+                    <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                )}
+                <button
+                  title="מחק משימה"
+                  onClick={() => removeTask(task.id)}
+                  className="h-7 w-7 rounded-md flex items-center justify-center hover:bg-red-50 transition-colors"
+                >
+                  <Trash2 className="h-3.5 w-3.5 text-red-400" />
+                </button>
+              </div>
             </div>
+
+            {/* Comment input */}
+            {commentingId === task.id && (
+              <div className="px-3 pb-3 flex items-center gap-2">
+                <input
+                  title="הערה"
+                  className="flex-1 h-8 rounded-md border border-border px-2 text-xs bg-white"
+                  style={{ direction: "rtl" }}
+                  placeholder="כתוב הערה..."
+                  value={commentText}
+                  onChange={(e) => setCommentText(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && saveComment(task.id)}
+                  autoFocus
+                />
+                <button
+                  title="שמור הערה"
+                  onClick={() => saveComment(task.id)}
+                  className="h-8 w-8 rounded-md flex items-center justify-center transition-colors"
+                  style={{ background: color, color: "white" }}
+                >
+                  <Send className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
