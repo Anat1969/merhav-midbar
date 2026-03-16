@@ -38,6 +38,8 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   const [tempName, setTempName] = useState("");
   const [historyInput, setHistoryInput] = useState("");
   const [emailOpen, setEmailOpen] = useState(false);
+  const [emailSubject, setEmailSubject] = useState("");
+  const [emailBody, setEmailBody] = useState("");
 
   const update = async (patch: Partial<GenericProject>) => {
     if (!project) return;
