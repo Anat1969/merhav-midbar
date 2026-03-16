@@ -4,34 +4,35 @@
 
 @layer base {
   :root {
-    --background: 220 20% 96%;          /* #F2F1EE warm light */
-    --foreground: 0 0% 8%;              /* #141414 */
-    --card: 0 0% 100%;                  /* white */
-    --card-foreground: 0 0% 8%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 8%;
-    --primary: 43 50% 55%;              /* #C9A84C gold */
-    --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 92%;           /* #EAECF0 */
-    --secondary-foreground: 0 0% 8%;
-    --muted: 220 14% 92%;
-    --muted-foreground: 220 9% 36%;     /* #525A65 darker gray */
-    --accent: 43 68% 67%;               /* #E8C96A */
-    --accent-foreground: 0 0% 8%;
+    /* [DESIGN: color system] Deep navy palette */
+    --background: 218 60% 10%;           /* #0A1628 deep navy */
+    --foreground: 0 0% 100%;             /* #FFFFFF */
+    --card: 220 56% 21%;                 /* #162B55 */
+    --card-foreground: 0 0% 100%;
+    --popover: 220 56% 21%;
+    --popover-foreground: 0 0% 100%;
+    --primary: 43 50% 54%;               /* #C9A84C gold */
+    --primary-foreground: 218 60% 10%;
+    --secondary: 220 60% 16%;            /* #0F2044 mid navy */
+    --secondary-foreground: 0 0% 100%;
+    --muted: 220 60% 16%;
+    --muted-foreground: 217 25% 78%;     /* #B8C5D6 */
+    --accent: 43 68% 66%;               /* #E8C96A */
+    --accent-foreground: 218 60% 10%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 13% 82%;              /* #CBCFD6 stronger border */
-    --input: 220 13% 82%;
-    --ring: 43 50% 55%;
+    --border: 218 56% 27%;               /* #1E3A6E */
+    --input: 218 56% 27%;
+    --ring: 43 50% 54%;
     --radius: 0.5rem;
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 8%;
-    --sidebar-primary: 43 50% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 92%;
-    --sidebar-accent-foreground: 0 0% 8%;
-    --sidebar-border: 220 13% 82%;
-    --sidebar-ring: 43 50% 55%;
+    --sidebar-background: 220 60% 16%;
+    --sidebar-foreground: 0 0% 100%;
+    --sidebar-primary: 43 50% 54%;
+    --sidebar-primary-foreground: 218 60% 10%;
+    --sidebar-accent: 218 56% 27%;
+    --sidebar-accent-foreground: 0 0% 100%;
+    --sidebar-border: 218 56% 27%;
+    --sidebar-ring: 43 50% 54%;
   }
 }
 
@@ -42,84 +43,78 @@
 
   html {
     direction: rtl;
-    /* [UPGRADE: typography] Smooth font rendering */
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
   }
 
+  /* [DESIGN: typography] Global type scale */
   body {
     @apply bg-background text-foreground;
     font-family: "Heebo", sans-serif;
-    font-size: 1.0625rem; /* 17px base */
+    font-size: 20px;
+    font-weight: 400;
   }
 
-  h1 { font-size: 3rem; }
-  h2 { font-size: 2.25rem; }
-  h3 { font-size: 1.875rem; }
-  h4 { font-size: 1.625rem; }
+  h1 { font-size: 36px; font-weight: 700; }
+  h2 { font-size: 28px; font-weight: 600; }
+  h3 { font-size: 24px; font-weight: 600; }
+  h4 { font-size: 22px; font-weight: 600; }
 
   /* Custom scrollbar */
-  ::-webkit-scrollbar {
-    width: 6px;
-  }
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  ::-webkit-scrollbar-thumb {
-    background: hsl(220 13% 85%);
-    border-radius: 3px;
-  }
-  ::-webkit-scrollbar-thumb:hover {
-    background: hsl(43 50% 55%);
-  }
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: hsl(218 56% 27%); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(43 50% 54%); }
 
   /* Focus visible */
   *:focus-visible {
-    outline: 2px solid hsl(43 50% 55%);
+    outline: 2px solid hsl(43 50% 54%);
     outline-offset: 2px;
   }
 
   /* Inputs */
   input:focus, textarea:focus {
-    box-shadow: 0 0 0 2px hsl(43 50% 55% / 0.3);
-    border-color: hsl(43 50% 55%);
+    box-shadow: 0 0 0 2px hsl(43 50% 54% / 0.3);
+    border-color: hsl(43 50% 54%);
   }
 }
 
-/* Typography utility classes */
+/* [DESIGN: typography] Numeric utility classes */
 .stat-number {
-  font-size: 2.5rem;
+  font-size: 36px;
   font-weight: 800;
+  color: hsl(43 68% 66%);
 }
 
 .record-count {
-  font-size: 2rem;
-  font-weight: 700;
+  font-size: 36px;
+  font-weight: 800;
+  color: hsl(43 68% 66%);
 }
 
-/* Nav/button text minimum */
+/* [DESIGN: typography] Nav/button text */
 nav button, nav a {
-  font-size: 1.0625rem;
+  font-size: 18px;
+  font-weight: 500;
 }
 
 /* Sort buttons */
 .sort-btn.active {
-  background: hsl(43 50% 55%);
-  color: hsl(0 0% 100%);
-  border-color: hsl(43 50% 55%);
+  background: hsl(43 50% 54%);
+  color: hsl(218 60% 10%);
+  border-color: hsl(43 50% 54%);
 }
 .sort-btn:hover {
-  border-color: hsl(43 50% 55%);
-  color: hsl(43 50% 55%);
+  border-color: hsl(43 50% 54%);
+  color: hsl(43 50% 54%);
 }
 
 /* Inline editable */
 .inline-editable:hover {
-  background: hsl(43 50% 55% / 0.08);
+  background: hsl(43 50% 54% / 0.08);
 }
 
-/* [UPGRADE: animations] Smooth page transitions and loading states */
 @keyframes slideInPanel {
   from { transform: translateX(-100%); opacity: 0; }
   to   { transform: translateX(0);     opacity: 1; }
@@ -127,31 +122,27 @@ nav button, nav a {
 
 .link-entry:last-child { border-bottom: none; }
 
-/* PrintHeader — hidden on screen */
 .print-header { display: none; }
 
-/* [UPGRADE: Color System] Stage badges */
+/* [DESIGN: color system] Stage badges */
 .stage-initiated  { background: hsl(220 9% 46%); color: hsl(0 0% 100%); }
 .stage-planning   { background: hsl(217 91% 60%); color: hsl(0 0% 100%); }
-.stage-inprogress { background: hsl(43 50% 55%); color: hsl(0 0% 100%); }
+.stage-inprogress { background: hsl(43 50% 54%); color: hsl(218 60% 10%); }
 .stage-review     { background: hsl(21 90% 48%); color: hsl(0 0% 100%); }
 .stage-completed  { background: hsl(153 42% 30%); color: hsl(0 0% 100%); }
 .stage-archived   { background: hsl(218 11% 27%); color: hsl(220 9% 70%); }
 
-/* [UPGRADE: Process Stages] Completed row styling */
 .record-completed {
   border-left: 4px solid #2D6A4F;
   opacity: 0.75;
 }
 
-/* [UPGRADE: Activity Log] */
-.activity-log { border-top: 1px solid hsl(220 13% 91%); margin-top: 8px; }
-.activity-entry { font-size: 0.875rem; color: hsl(220 9% 36%); padding: 4px 0; border-bottom: 1px solid hsl(220 13% 82% / 0.5); }
+/* Activity Log */
+.activity-log { border-top: 1px solid hsl(218 56% 27%); margin-top: 8px; }
+.activity-entry { font-size: 18px; color: hsl(217 25% 78%); padding: 4px 0; border-bottom: 1px solid hsl(218 56% 27% / 0.5); }
 
-/* [UPGRADE: Image drop] Gold dashed drop target */
-.image-drop-target { border: 2px dashed hsl(43 50% 55%) !important; background: hsl(43 50% 55% / 0.05) !important; }
+.image-drop-target { border: 2px dashed hsl(43 50% 54%) !important; background: hsl(43 50% 54% / 0.05) !important; }
 
-/* [UPGRADE: Section 3] Full viewport layout */
 html, body, #root { min-height: 100vh; overflow-x: hidden; }
 
 /* Print */
@@ -169,65 +160,23 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
   .btn-add, .btn-delete, .btn-email, button:not(.print-visible) {
     display: none !important;
   }
-  * {
-    -webkit-print-color-adjust: exact !important;
-    print-color-adjust: exact !important;
-  }
-  body {
-    background: white !important;
-    direction: rtl;
-    font-family: 'Heebo', sans-serif;
-    font-size: 14px;
-  }
-  @page {
-    size: A4 portrait;
-    margin: 20mm 15mm 20mm 15mm;
-  }
-  .project-card {
-    page-break-inside: avoid;
-    border: 1px solid #CCC !important;
-    box-shadow: none !important;
-    margin-bottom: 16px;
-  }
-  .detail-grid  { display: block !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: white !important; direction: rtl; font-family: 'Heebo', sans-serif; font-size: 14px; }
+  @page { size: A4 portrait; margin: 20mm 15mm 20mm 15mm; }
+  .project-card { page-break-inside: avoid; border: 1px solid #CCC !important; box-shadow: none !important; margin-bottom: 16px; }
+  .detail-grid { display: block !important; }
   .detail-column { width: 100% !important; margin-bottom: 16px; }
-  textarea, .note-content {
-    min-height: unset !important;
-    height: auto !important;
-    overflow: visible !important;
-    border: 1px solid #EEE !important;
-    background: white !important;
-  }
+  textarea, .note-content { min-height: unset !important; height: auto !important; overflow: visible !important; border: 1px solid #EEE !important; background: white !important; }
   .detail-card { page-break-inside: avoid; break-inside: avoid; }
   img { max-width: 100% !important; page-break-inside: avoid; }
-  .status-badge {
-    border: 1px solid currentColor !important;
-    background: white !important;
-    padding: 3px 8px;
-    border-radius: 4px;
-    font-size: 11px;
-  }
-  .breadcrumb {
-    display: block !important;
-    font-size: 11px;
-    color: #888;
-    margin-bottom: 8px;
-    border-bottom: 1px solid #EEE;
-    padding-bottom: 8px;
-  }
+  .status-badge { border: 1px solid currentColor !important; background: white !important; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
+  .breadcrumb { display: block !important; font-size: 11px; color: #888; margin-bottom: 8px; border-bottom: 1px solid #EEE; padding-bottom: 8px; }
   .history-list { max-height: unset !important; overflow: visible !important; }
   .pills-row { page-break-inside: avoid; flex-wrap: wrap; }
 }
 
-/* [UPGRADE: responsive] Mobile-first improvements */
 @media (max-width: 640px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.5rem; }
-  h3 { font-size: 1.25rem; }
-}
-
-/* [UPGRADE: accessibility] Focus visible for keyboard nav */
-*:focus-visible {
-  outline: 2px solid hsl(43 50% 55%);
-  outline-offset: 2px;
+  h1 { font-size: 28px; }
+  h2 { font-size: 22px; }
+  h3 { font-size: 20px; }
 }
