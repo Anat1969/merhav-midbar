@@ -31,7 +31,7 @@ export const SubButton: React.FC<SubButtonProps> = ({
     <button
       title={`פתח ${label}`}
       onClick={onClick}
-      className="data-row w-full text-right transition-colors hover:bg-secondary/60 cursor-pointer"
+      className="data-row flex-1 w-full text-right transition-colors hover:bg-secondary/60 cursor-pointer flex items-center justify-between"
       dir="rtl"
     >
       <span className="text-[11.5px] font-medium text-foreground">{label}</span>

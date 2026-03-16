@@ -84,8 +84,8 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
         <span className="section-ghost-number">{totalCount || ""}</span>
       </Link>
 
-      {/* Cards area */}
-      <div className="flex-1 p-2 space-y-2">
+      {/* [DESIGN: color system] Cards area — stretch to fill available space */}
+      <div className="flex-1 p-2 flex flex-col gap-1 min-h-0 overflow-hidden">
         {isAITools ? (
           <AIToolsCards
             domainName={name}
@@ -152,35 +152,37 @@ function AIToolsCards({ domainName, def, color, route, hasDedicatedPage, onOpenP
   const catName = Object.keys(categories)[0];
 
   return (
-    <div className="data-card">
+    <div className="data-card flex-1 flex flex-col min-h-0">
       <div className="data-card-header" style={{ backgroundColor: cardTint }}>
         <span className="text-[10.5px] font-bold" style={{ color }}>כלים דיגיטליים</span>
       </div>
-      {subs.map((sub) => (
-        <React.Fragment key={sub}>
-          <SubButton
-            label={sub}
-            domain={domainName}
-            category={catName}
-            sub={sub}
-            color={color}
-            onClick={() => {
-              const catRoute = CATEGORY_ROUTES[sub];
-              if (catRoute) {
-                navigate(catRoute);
-              } else if (hasDedicatedPage) {
-                navigate(`${route}?filter=${encodeURIComponent(sub)}`);
-              } else {
-                onOpenPanel(domainName, catName, sub);
-              }
-            }}
-            refreshKey={refreshKey}
-          />
-          {SUBS_WITH_ICONS.has(sub) && (
-            <SubIconsRow sub={sub} color={color} refreshKey={refreshKey} />
-          )}
-        </React.Fragment>
-      ))}
+      <div className="flex-1 flex flex-col">
+        {subs.map((sub) => (
+          <React.Fragment key={sub}>
+            <SubButton
+              label={sub}
+              domain={domainName}
+              category={catName}
+              sub={sub}
+              color={color}
+              onClick={() => {
+                const catRoute = CATEGORY_ROUTES[sub];
+                if (catRoute) {
+                  navigate(catRoute);
+                } else if (hasDedicatedPage) {
+                  navigate(`${route}?filter=${encodeURIComponent(sub)}`);
+                } else {
+                  onOpenPanel(domainName, catName, sub);
+                }
+              }}
+              refreshKey={refreshKey}
+            />
+            {SUBS_WITH_ICONS.has(sub) && (
+              <SubIconsRow sub={sub} color={color} refreshKey={refreshKey} />
+            )}
+          </React.Fragment>
+        ))}
+      </div>
     </div>
   );
 }
@@ -195,7 +197,7 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
   });
 
   return (
-    <div className="data-card">
+    <div className="data-card flex-1 flex flex-col min-h-0">
       {!hideTitle && (
         <div className="data-card-header" style={{ backgroundColor: cardTint }}>
           <span className="text-[10.5px] font-bold" style={{ color }}>{catName}</span>
@@ -209,7 +211,7 @@ function CategoryCard({ domainName, catName, subs, color, route, hasDedicatedPag
           )}
         </div>
       )}
-      <div>
+      <div className="flex-1 flex flex-col">
         {subs.map((sub) => (
           <SubButton
             key={sub}
