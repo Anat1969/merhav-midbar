@@ -67,8 +67,8 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
 
   return (
     <div
-      className="flex flex-col h-full"
-      style={{ backgroundColor: isAltBg ? "#edf2f7" : "white" }}
+      className="flex flex-col"
+      style={{ backgroundColor: isAltBg ? "hsl(var(--secondary))" : "hsl(var(--card))" }}
       dir="rtl"
     >
       {/* [DESIGN: typography] Enlarged section header bar */}
@@ -85,7 +85,7 @@ export const DomainCard: React.FC<DomainCardProps> = ({ name, def, onOpenPanel, 
       </Link>
 
       {/* Cards area */}
-      <div className="flex-1 p-2 space-y-2">
+      <div className="p-1.5 space-y-1.5">
         {isAITools ? (
           <AIToolsCards
             domainName={name}
