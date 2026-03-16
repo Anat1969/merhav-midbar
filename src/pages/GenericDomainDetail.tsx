@@ -222,7 +222,9 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
       </div>
       {project && (() => {
         const statusLabel = STATUS_OPTIONS.find((s) => s.value === project.status)?.label ?? project.status;
-        return (<EmailModal isOpen={emailOpen} onClose={() => setEmailOpen(false)} subject={`חוות דעת: ${project.name}`} body={`שם פרויקט: ${project.name}\nקטגוריה: ${project.category}${project.sub !== project.category ? ` › ${project.sub}` : ""}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}`} domainColor={config.color} />);
+        const defaultSubject = `חוות דעת: ${project.name}`;
+        const defaultBody = `שם פרויקט: ${project.name}\nקטגוריה: ${project.category}${project.sub !== project.category ? ` › ${project.sub}` : ""}\nסטטוס: ${statusLabel}\nתאריך: ${project.created}\n\nהערות:\n${project.note || ""}`;
+        return (<EmailModal isOpen={emailOpen} onClose={() => { setEmailOpen(false); setEmailSubject(""); setEmailBody(""); }} subject={emailSubject || defaultSubject} body={emailBody || defaultBody} domainColor={config.color} />);
       })()}
     </div>
   );
