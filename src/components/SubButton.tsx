@@ -34,16 +34,16 @@ export const SubButton: React.FC<SubButtonProps> = ({
       className="data-row w-full text-right transition-colors hover:bg-secondary/60 cursor-pointer"
       dir="rtl"
     >
-      <span className="text-[15px] font-medium text-foreground">{label}</span>
+      <span className="text-[18px] font-semibold text-foreground">{label}</span>
       {count > 0 ? (
         <span
-          className="record-count rounded-full px-3 py-1 min-w-[30px] text-center"
-          style={{ backgroundColor: `${color}15`, color }}
+          className="record-count rounded-full px-4 py-1 min-w-[36px] text-center"
+          style={{ backgroundColor: `${color}15`, color, fontSize: "22px" }}
         >
           {count}
         </span>
       ) : (
-        <span className="text-[13px] font-medium text-muted-foreground/40 px-2">—</span>
+        <span className="text-[16px] font-medium text-muted-foreground/40 px-2">—</span>
       )}
     </button>
   );
