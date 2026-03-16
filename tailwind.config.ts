@@ -13,21 +13,32 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        frank: ['"Frank Ruhl Libre"', 'serif'],
+        heebo: ['"Heebo"', 'sans-serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
-        /* [DESIGN: color system] Navy palette utilities */
-        navyDeep: "#0A1628",
-        navyMid: "#0F2044",
-        navyCard: "#162B55",
-        gold: "#C9A84C",
-        goldLight: "#E8C96A",
-        navyBorder: "#1E3A6E",
-        grayDisabled: "#4A5568",
-        greenDone: "#2D6A4F",
+        /* [DESIGN: color system] Municipal palette utilities */
+        "navy-header": "#1a3a5c",
+        "navy-mid": "#0F2044",
+        "navy-card": "#162B55",
+        "blue-data": "#1a6fad",
+        "blue-accent": "#7ec8f0",
+        "green-goal": "#1e5e38",
+        "teal-action": "#1a6f7a",
+        "slate-struct": "#1a3060",
+        "amber-warn": "#f59e0b",
+        "border-card": "#d0dce8",
+        "border-green": "#b3dcc5",
+        "border-blue": "#cce3f5",
+        "bg-alt": "#edf2f7",
+        "gold": "#C9A84C",
+        "gold-light": "#E8C96A",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
@@ -74,20 +85,12 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
       },
       animation: {

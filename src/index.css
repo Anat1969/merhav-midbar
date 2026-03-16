@@ -1,38 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@400;700;900&family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* [DESIGN: color system] Deep navy palette */
-    --background: 218 60% 10%;           /* #0A1628 deep navy */
-    --foreground: 0 0% 100%;             /* #FFFFFF */
-    --card: 220 56% 21%;                 /* #162B55 */
-    --card-foreground: 0 0% 100%;
-    --popover: 220 56% 21%;
-    --popover-foreground: 0 0% 100%;
-    --primary: 43 50% 54%;               /* #C9A84C gold */
-    --primary-foreground: 218 60% 10%;
-    --secondary: 220 60% 16%;            /* #0F2044 mid navy */
-    --secondary-foreground: 0 0% 100%;
-    --muted: 220 60% 16%;
-    --muted-foreground: 217 25% 78%;     /* #B8C5D6 */
-    --accent: 43 68% 66%;               /* #E8C96A */
-    --accent-foreground: 218 60% 10%;
+    /* [DESIGN: color system] Ashdod municipal palette */
+    --background: 0 0% 100%;              /* white — main content bg */
+    --foreground: 210 30% 15%;             /* #1a2a3a dark text */
+    --card: 0 0% 100%;                     /* white cards */
+    --card-foreground: 210 30% 15%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 30% 15%;
+    --primary: 207 73% 39%;                /* #1a6fad — primary blue */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 213 33% 96%;              /* #edf2f7 — alt bg */
+    --secondary-foreground: 210 30% 15%;
+    --muted: 213 33% 96%;
+    --muted-foreground: 210 10% 45%;       /* #63717f labels */
+    --accent: 43 50% 54%;                  /* #C9A84C gold accent */
+    --accent-foreground: 0 0% 100%;
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
-    --border: 218 56% 27%;               /* #1E3A6E */
-    --input: 218 56% 27%;
-    --ring: 43 50% 54%;
-    --radius: 0.5rem;
-    --sidebar-background: 220 60% 16%;
+    --border: 210 25% 85%;                 /* #d0dce8 */
+    --input: 210 25% 85%;
+    --ring: 207 73% 39%;
+    --radius: 0.4375rem;                   /* 7px */
+
+    /* [DESIGN: color system] Named palette tokens */
+    --navy-header: 210 55% 23%;            /* #1a3a5c */
+    --blue-data: 207 73% 39%;              /* #1a6fad */
+    --blue-accent: 198 80% 72%;            /* #7ec8f0 */
+    --green-goal: 150 52% 24%;             /* #1e5e38 */
+    --teal-action: 186 65% 29%;            /* #1a6f7a */
+    --slate-struct: 215 50% 25%;           /* #1a3060 */
+    --amber-warn: 38 92% 50%;              /* #f59e0b */
+
+    --sidebar-background: 210 55% 23%;
     --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 43 50% 54%;
-    --sidebar-primary-foreground: 218 60% 10%;
-    --sidebar-accent: 218 56% 27%;
+    --sidebar-primary: 207 73% 39%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 210 55% 30%;
     --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 218 56% 27%;
-    --sidebar-ring: 43 50% 54%;
+    --sidebar-border: 210 40% 35%;
+    --sidebar-ring: 207 73% 39%;
   }
 }
 
@@ -48,71 +60,76 @@
     text-rendering: optimizeLegibility;
   }
 
-  /* [DESIGN: typography] Global type scale */
+  /* [DESIGN: typography] Global type scale — Heebo for UI, Frank Ruhl Libre for numbers */
   body {
     @apply bg-background text-foreground;
     font-family: "Heebo", sans-serif;
-    font-size: 20px;
+    font-size: 14px;
     font-weight: 400;
+    line-height: 1.5;
+    overflow: hidden;
   }
 
-  h1 { font-size: 36px; font-weight: 700; }
-  h2 { font-size: 28px; font-weight: 600; }
-  h3 { font-size: 24px; font-weight: 600; }
-  h4 { font-size: 22px; font-weight: 600; }
+  h1 { font-size: 28px; font-weight: 900; font-family: "Frank Ruhl Libre", serif; }
+  h2 { font-size: 22px; font-weight: 700; }
+  h3 { font-size: 16px; font-weight: 700; }
+  h4 { font-size: 14px; font-weight: 600; }
 
-  /* Custom scrollbar */
-  ::-webkit-scrollbar { width: 6px; }
+  /* [DESIGN: typography] Minimal scrollbar */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
   ::-webkit-scrollbar-track { background: transparent; }
-  ::-webkit-scrollbar-thumb { background: hsl(218 56% 27%); border-radius: 3px; }
-  ::-webkit-scrollbar-thumb:hover { background: hsl(43 50% 54%); }
+  ::-webkit-scrollbar-thumb { background: hsl(var(--border)); border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--primary)); }
 
-  /* Focus visible */
   *:focus-visible {
-    outline: 2px solid hsl(43 50% 54%);
-    outline-offset: 2px;
+    outline: 2px solid hsl(var(--primary));
+    outline-offset: 1px;
   }
 
-  /* Inputs */
   input:focus, textarea:focus {
-    box-shadow: 0 0 0 2px hsl(43 50% 54% / 0.3);
-    border-color: hsl(43 50% 54%);
+    box-shadow: 0 0 0 2px hsl(var(--primary) / 0.2);
+    border-color: hsl(var(--primary));
   }
 }
 
-/* [DESIGN: typography] Numeric utility classes */
+/* [DESIGN: typography] Frank Ruhl Libre for all numeric displays */
+.num-frank {
+  font-family: "Frank Ruhl Libre", serif;
+  font-weight: 900;
+}
+
 .stat-number {
-  font-size: 36px;
-  font-weight: 800;
-  color: hsl(43 68% 66%);
+  font-family: "Frank Ruhl Libre", serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: hsl(var(--blue-data));
 }
 
 .record-count {
-  font-size: 36px;
-  font-weight: 800;
-  color: hsl(43 68% 66%);
+  font-family: "Frank Ruhl Libre", serif;
+  font-size: 13px;
+  font-weight: 900;
 }
 
 /* [DESIGN: typography] Nav/button text */
 nav button, nav a {
-  font-size: 18px;
+  font-size: 12px;
   font-weight: 500;
 }
 
 /* Sort buttons */
 .sort-btn.active {
-  background: hsl(43 50% 54%);
-  color: hsl(218 60% 10%);
-  border-color: hsl(43 50% 54%);
+  background: hsl(var(--primary));
+  color: white;
+  border-color: hsl(var(--primary));
 }
 .sort-btn:hover {
-  border-color: hsl(43 50% 54%);
-  color: hsl(43 50% 54%);
+  border-color: hsl(var(--primary));
+  color: hsl(var(--primary));
 }
 
-/* Inline editable */
 .inline-editable:hover {
-  background: hsl(43 50% 54% / 0.08);
+  background: hsl(var(--primary) / 0.06);
 }
 
 @keyframes slideInPanel {
@@ -121,29 +138,95 @@ nav button, nav a {
 }
 
 .link-entry:last-child { border-bottom: none; }
-
 .print-header { display: none; }
 
 /* [DESIGN: color system] Stage badges */
-.stage-initiated  { background: hsl(220 9% 46%); color: hsl(0 0% 100%); }
-.stage-planning   { background: hsl(217 91% 60%); color: hsl(0 0% 100%); }
-.stage-inprogress { background: hsl(43 50% 54%); color: hsl(218 60% 10%); }
-.stage-review     { background: hsl(21 90% 48%); color: hsl(0 0% 100%); }
-.stage-completed  { background: hsl(153 42% 30%); color: hsl(0 0% 100%); }
-.stage-archived   { background: hsl(218 11% 27%); color: hsl(220 9% 70%); }
+.stage-initiated  { background: hsl(220 9% 46%); color: white; }
+.stage-planning   { background: hsl(210 80% 94%); color: hsl(var(--blue-data)); }
+.stage-inprogress { background: hsl(38 90% 94%); color: hsl(var(--amber-warn)); }
+.stage-review     { background: hsl(270 60% 94%); color: hsl(270 50% 45%); }
+.stage-completed  { background: hsl(150 40% 94%); color: hsl(var(--green-goal)); }
+.stage-archived   { background: hsl(210 10% 92%); color: hsl(210 10% 50%); }
 
 .record-completed {
-  border-left: 4px solid #2D6A4F;
-  opacity: 0.75;
+  border-right: 3px solid hsl(var(--green-goal));
+  opacity: 0.8;
 }
 
 /* Activity Log */
-.activity-log { border-top: 1px solid hsl(218 56% 27%); margin-top: 8px; }
-.activity-entry { font-size: 18px; color: hsl(217 25% 78%); padding: 4px 0; border-bottom: 1px solid hsl(218 56% 27% / 0.5); }
+.activity-log { border-top: 1px solid hsl(var(--border)); margin-top: 6px; }
+.activity-entry { font-size: 12px; color: hsl(var(--muted-foreground)); padding: 3px 0; border-bottom: 1px solid hsl(var(--border) / 0.5); }
 
-.image-drop-target { border: 2px dashed hsl(43 50% 54%) !important; background: hsl(43 50% 54% / 0.05) !important; }
+.image-drop-target { border: 2px dashed hsl(var(--primary)) !important; background: hsl(var(--primary) / 0.03) !important; }
 
 html, body, #root { min-height: 100vh; overflow-x: hidden; }
+
+/* [DESIGN: color system] Status pill badges */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  border: 1px solid;
+}
+
+/* Section header bars */
+.section-header {
+  padding: 8px 12px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.section-header-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: white;
+}
+
+.section-header-subtitle {
+  font-size: 9.5px;
+  color: rgba(255,255,255,0.55);
+}
+
+.section-ghost-number {
+  font-family: "Frank Ruhl Libre", serif;
+  font-size: 26px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.22);
+}
+
+/* Data card styling */
+.data-card {
+  background: white;
+  border: 1px solid hsl(var(--border));
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.data-card-header {
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.data-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 5px 10px;
+  font-size: 11.5px;
+  border-bottom: 1px solid hsl(210 25% 96%);
+}
+
+.data-row:last-child {
+  border-bottom: none;
+}
 
 /* Print */
 @media print {
@@ -153,7 +236,7 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
     align-items: center;
     padding-bottom: 8px;
     margin-bottom: 16px;
-    border-bottom: 2px solid #2C6E6A;
+    border-bottom: 2px solid hsl(var(--primary));
     font-family: 'Heebo', sans-serif;
   }
   .no-print, nav, header, .navbar, .action-bar, .filter-row,
@@ -161,22 +244,22 @@ html, body, #root { min-height: 100vh; overflow-x: hidden; }
     display: none !important;
   }
   * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  body { background: white !important; direction: rtl; font-family: 'Heebo', sans-serif; font-size: 14px; }
-  @page { size: A4 portrait; margin: 20mm 15mm 20mm 15mm; }
-  .project-card { page-break-inside: avoid; border: 1px solid #CCC !important; box-shadow: none !important; margin-bottom: 16px; }
+  body { background: white !important; direction: rtl; font-family: 'Heebo', sans-serif; font-size: 11px; }
+  @page { size: A4 portrait; margin: 15mm; }
+  .project-card { page-break-inside: avoid; border: 1px solid #CCC !important; box-shadow: none !important; margin-bottom: 12px; }
   .detail-grid { display: block !important; }
-  .detail-column { width: 100% !important; margin-bottom: 16px; }
+  .detail-column { width: 100% !important; margin-bottom: 12px; }
   textarea, .note-content { min-height: unset !important; height: auto !important; overflow: visible !important; border: 1px solid #EEE !important; background: white !important; }
   .detail-card { page-break-inside: avoid; break-inside: avoid; }
   img { max-width: 100% !important; page-break-inside: avoid; }
-  .status-badge { border: 1px solid currentColor !important; background: white !important; padding: 3px 8px; border-radius: 4px; font-size: 11px; }
-  .breadcrumb { display: block !important; font-size: 11px; color: #888; margin-bottom: 8px; border-bottom: 1px solid #EEE; padding-bottom: 8px; }
+  .status-badge { border: 1px solid currentColor !important; background: white !important; padding: 2px 6px; border-radius: 4px; font-size: 10px; }
+  .breadcrumb { display: block !important; font-size: 10px; color: #888; margin-bottom: 6px; border-bottom: 1px solid #EEE; padding-bottom: 6px; }
   .history-list { max-height: unset !important; overflow: visible !important; }
   .pills-row { page-break-inside: avoid; flex-wrap: wrap; }
 }
 
 @media (max-width: 640px) {
-  h1 { font-size: 28px; }
-  h2 { font-size: 22px; }
-  h3 { font-size: 20px; }
+  h1 { font-size: 22px; }
+  h2 { font-size: 18px; }
+  h3 { font-size: 14px; }
 }
