@@ -124,8 +124,8 @@ export const TasksManager: React.FC<TasksManagerProps> = ({ value, onChange, col
         {tasks.map((task) => (
           <div
             key={task.id}
-            className={`group rounded-lg border transition-all ${
-              task.done ? "bg-muted/30 border-border/50" : "bg-white border-border hover:shadow-sm"
+            className={`group rounded-lg border-2 transition-all ${
+              task.done ? "bg-green-50 border-green-400" : "bg-white border-red-400 hover:shadow-sm"
             }`}
           >
             <div className="flex items-start gap-2 p-3">
