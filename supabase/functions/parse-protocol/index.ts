@@ -1,7 +1,6 @@
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { encode as base64Encode } from "https://deno.land/std@0.168.0/encoding/base64.ts";
-import JSZip from "https://esm.sh/jszip@3.10.1";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
 
 const corsHeaders = {
@@ -9,7 +8,7 @@ const corsHeaders = {
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
 
-const MAX_PARSE_FILE_BYTES = 20 * 1024 * 1024; // 20MB
+const MAX_PARSE_FILE_BYTES = 10 * 1024 * 1024; // 10MB (reduced from 20MB to stay within memory limits)
 
 function jsonResponse(body: Record<string, unknown>, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -33,10 +32,11 @@ async function extractDocxImages(bytes: Uint8Array, projectId: number): Promise<
   try {
     if (!isZip(bytes)) return [];
     
+    // Lazy-load JSZip only when needed
+    const { default: JSZip } = await import("https://esm.sh/jszip@3.10.1");
     const zip = await JSZip.loadAsync(bytes);
     const mediaFiles: { name: string; data: Uint8Array; mime: string }[] = [];
     
-    // Find all images in word/media/
     for (const [path, file] of Object.entries(zip.files)) {
       if (path.startsWith("word/media/") && !file.dir) {
         const lower = path.toLowerCase();
@@ -45,10 +45,10 @@ async function extractDocxImages(bytes: Uint8Array, projectId: number): Promise<
         else if (lower.endsWith(".png")) mime = "image/png";
         else if (lower.endsWith(".gif")) mime = "image/gif";
         else if (lower.endsWith(".webp")) mime = "image/webp";
-        else if (lower.endsWith(".emf") || lower.endsWith(".wmf") || lower.endsWith(".tiff")) continue; // skip non-web formats
+        else if (lower.endsWith(".emf") || lower.endsWith(".wmf") || lower.endsWith(".tiff")) continue;
         
         const data = await (file as any).async("uint8array");
-        if (data.length > 5000) { // Skip tiny icons/bullets
+        if (data.length > 5000) {
           mediaFiles.push({ name: path.split("/").pop()!, data, mime });
         }
       }
@@ -56,7 +56,6 @@ async function extractDocxImages(bytes: Uint8Array, projectId: number): Promise<
     
     if (mediaFiles.length === 0) return [];
     
-    // Sort by size descending - largest images are most likely project renders
     mediaFiles.sort((a, b) => b.data.length - a.data.length);
     
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -108,11 +107,13 @@ serve(async (req) => {
       return jsonResponse({ success: false, error: `Failed to download file: ${fileResponse.status}` });
     }
 
-    const bytes = new Uint8Array(await fileResponse.arrayBuffer());
-    if (bytes.length === 0) return jsonResponse({ success: false, error: "הקובץ ריק" });
-    if (bytes.length > MAX_PARSE_FILE_BYTES) {
-      return jsonResponse({ success: false, error: "הקובץ גדול מדי לניתוח אוטומטי (מקסימום 20MB)." });
+    const arrayBuffer = await fileResponse.arrayBuffer();
+    if (arrayBuffer.byteLength === 0) return jsonResponse({ success: false, error: "הקובץ ריק" });
+    if (arrayBuffer.byteLength > MAX_PARSE_FILE_BYTES) {
+      return jsonResponse({ success: false, error: "הקובץ גדול מדי לניתוח אוטומטי (מקסימום 10MB)." });
     }
+
+    let bytes = new Uint8Array(arrayBuffer);
 
     const ext = (fileName || fileUrl).split("?")[0].toLowerCase();
     const isDocx = ext.endsWith(".docx");
@@ -125,18 +126,19 @@ serve(async (req) => {
     else if (ext.endsWith(".doc")) mimeType = "application/msword";
 
     if (isPdfExt && !isPdf(bytes)) {
-      return jsonResponse({
-        success: false,
-        error: "הקובץ שהועלה אינו PDF תקין.",
-      }, 400);
+      return jsonResponse({ success: false, error: "הקובץ שהועלה אינו PDF תקין." }, 400);
     }
 
-    // Extract images from DOCX in parallel with AI parsing
-    const imageExtractionPromise = (isDocx && projectId) 
-      ? extractDocxImages(bytes, projectId) 
-      : Promise.resolve([]);
+    // Step 1: Extract DOCX images FIRST (before base64), then release zip memory
+    let extractedImages: { slot: string; url: string }[] = [];
+    if (isDocx && projectId) {
+      extractedImages = await extractDocxImages(bytes, projectId);
+    }
 
+    // Step 2: Base64 encode for AI, then release raw bytes
     const base64 = base64Encode(bytes);
+    // @ts-ignore - allow GC to reclaim bytes
+    bytes = null as any;
     const dataUrl = `data:${mimeType};base64,${base64}`;
 
     const systemPrompt = `You are an expert at extracting structured information from Israeli urban planning committee protocols (פרוטוקול ועדה).
@@ -219,7 +221,7 @@ Return empty strings for fields you cannot find. Do NOT make up data.`;
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           {
@@ -243,6 +245,16 @@ Return empty strings for fields you cannot find. Do NOT make up data.`;
     }
 
     const aiData = JSON.parse(aiText);
+
+    if (aiData.usage) {
+      console.log("Token usage:", JSON.stringify({
+        prompt_tokens: aiData.usage.prompt_tokens,
+        completion_tokens: aiData.usage.completion_tokens,
+        total_tokens: aiData.usage.total_tokens,
+        model: aiData.model
+      }));
+    }
+
     const content = aiData?.choices?.[0]?.message?.content ?? "";
     let jsonStr = content;
     const jsonMatch = content.match(/```(?:json)?\s*([\s\S]*?)```/);
@@ -250,14 +262,11 @@ Return empty strings for fields you cannot find. Do NOT make up data.`;
 
     const parsed = JSON.parse(jsonStr.trim());
     
-    // Wait for image extraction to complete
-    const extractedImages = await imageExtractionPromise;
-    
     return jsonResponse({ 
       success: true, 
       data: { 
         ...parsed, 
-        extractedImages // Array of { slot, url }
+        extractedImages
       } 
     });
   } catch (error) {
