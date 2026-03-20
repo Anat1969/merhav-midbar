@@ -465,7 +465,7 @@ const BinuiPage: React.FC = () => {
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
             {filtered.map((p, idx) => {
               const statusCfg = STATUS_OPTIONS.find((s) => s.value === p.status);
-              const mainImage = p.images.tashrit || p.images.tza || p.images.hadmaya;
+              const mainImage = p.images.hadmaya || p.images.tashrit || p.images.tza;
               return (
                 <div
                   key={p.id}
