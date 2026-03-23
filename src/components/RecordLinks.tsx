@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Link2, Plus, Trash2, ExternalLink } from "lucide-react";
+import { openExternalLink } from "@/lib/fileAccess";
 
 export interface LinkEntry {
   id: string;
