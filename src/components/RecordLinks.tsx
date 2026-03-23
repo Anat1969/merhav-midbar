@@ -1,5 +1,6 @@
 import React, { useState, useCallback } from "react";
 import { Link2, Plus, Trash2, ExternalLink } from "lucide-react";
+import { openExternalLink } from "@/lib/fileAccess";
 
 export interface LinkEntry {
   id: string;
@@ -92,11 +93,12 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
                 />
                 {link.url.trim() && (
                   <button
-                    onClick={() => window.open(link.url, "_blank", "noopener,noreferrer")}
-                    className="h-7 w-7 rounded flex items-center justify-center text-primary hover:bg-primary/10 transition-colors flex-shrink-0"
+                    onClick={() => openExternalLink(link.url)}
+                    className="h-8 px-3 rounded-lg bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1 hover:opacity-90 transition-opacity flex-shrink-0"
                     title="פתח קישור"
                   >
                     <ExternalLink size={13} />
+                    פתח
                   </button>
                 )}
                 <button
