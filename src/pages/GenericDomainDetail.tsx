@@ -200,7 +200,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
               <div className="text-sm font-bold mb-1" style={{ color: "#10B981" }}>👁 קישור תצוגה</div>
               <div className="flex gap-2 items-center">
                 <input title="קישור תצוגה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: "#10B9810A" }} placeholder="https://..." value={localViewLink} onChange={(e) => handleLocalChange("viewLink", e.target.value, setLocalViewLink)} onBlur={() => handleBlurSave("viewLink", localViewLink)} />
-                {project.viewLink && (
+                {localViewLink && (
                   <button onClick={() => openExternalLink(project.viewLink)} title="פתח קישור תצוגה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: "#10B981" }}>
                     תצוגה ↗
                   </button>
