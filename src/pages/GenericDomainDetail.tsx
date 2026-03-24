@@ -210,7 +210,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           )}
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם</div>
-            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
+            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם..." value={localPoeticName} onChange={(e) => handleLocalChange("poeticName", e.target.value, setLocalPoeticName)} onBlur={() => handleBlurSave("poeticName", localPoeticName)} />
           </div>
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>הייקו</div>
