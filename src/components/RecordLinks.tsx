@@ -42,7 +42,7 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
   }, [localLinks, onUpdate]);
 
   const addLink = () => {
-    const updated = [...localLinks, { id: generateId(), url: "", label: "" }];
+    const updated = [...localLinks, { id: generateId(), url: "", viewUrl: "", label: "" }];
     setLocalLinks(updated);
     onUpdate(updated);
   };
