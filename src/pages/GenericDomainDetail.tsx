@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQueryClient } from "@tanstack/react-query";
 import { TopNav } from "@/components/TopNav";
@@ -42,6 +42,37 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   const [emailOpen, setEmailOpen] = useState(false);
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
+
+  // Local state buffers for text fields to prevent reset on DB save
+  const [localLink, setLocalLink] = useState(project?.link || "");
+  const [localViewLink, setLocalViewLink] = useState(project?.viewLink || "");
+  const [localPoeticName, setLocalPoeticName] = useState(project?.poeticName || "");
+  const [localPoem, setLocalPoem] = useState(project?.poem || "");
+  const [localDescription, setLocalDescription] = useState(project?.description || "");
+  const [localNote, setLocalNote] = useState(project?.note || "");
+  const dirtyFields = useRef<Set<string>>(new Set());
+
+  // Sync from DB only when not actively editing a field
+  React.useEffect(() => {
+    if (project) {
+      if (!dirtyFields.current.has("link")) setLocalLink(project.link || "");
+      if (!dirtyFields.current.has("viewLink")) setLocalViewLink(project.viewLink || "");
+      if (!dirtyFields.current.has("poeticName")) setLocalPoeticName(project.poeticName || "");
+      if (!dirtyFields.current.has("poem")) setLocalPoem(project.poem || "");
+      if (!dirtyFields.current.has("description")) setLocalDescription(project.description || "");
+      if (!dirtyFields.current.has("note")) setLocalNote(project.note || "");
+    }
+  }, [project]);
+
+  const handleLocalChange = useCallback((field: string, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    dirtyFields.current.add(field);
+    setter(value);
+  }, []);
+
+  const handleBlurSave = useCallback((field: string, value: string) => {
+    dirtyFields.current.delete(field);
+    update({ [field]: value });
+  }, []);
 
   const update = async (patch: Partial<GenericProject>) => {
     if (!project) return;
@@ -155,9 +186,9 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             <div>
               <div className="text-sm font-bold mb-1" style={{ color: config.color }}>🔗 קישור עבודה</div>
               <div className="flex gap-2 items-center">
-                <input title="קישור עבודה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: config.color + "0A" }} placeholder="https://..." value={project.link || ""} onChange={(e) => update({ link: e.target.value })} />
-                {project.link && (
-                  <button onClick={() => openExternalLink(project.link)} title="פתח קישור עבודה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
+                <input title="קישור עבודה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: config.color + "0A" }} placeholder="https://..." value={localLink} onChange={(e) => handleLocalChange("link", e.target.value, setLocalLink)} onBlur={() => handleBlurSave("link", localLink)} />
+                {localLink && (
+                  <button onClick={() => openExternalLink(localLink)} title="פתח קישור עבודה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: config.color }}>
                     עבודה ↗
                   </button>
                 )}
@@ -168,9 +199,9 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
             <div>
               <div className="text-sm font-bold mb-1" style={{ color: "#10B981" }}>👁 קישור תצוגה</div>
               <div className="flex gap-2 items-center">
-                <input title="קישור תצוגה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: "#10B9810A" }} placeholder="https://..." value={project.viewLink || ""} onChange={(e) => update({ viewLink: e.target.value })} />
-                {project.viewLink && (
-                  <button onClick={() => openExternalLink(project.viewLink)} title="פתח קישור תצוגה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: "#10B981" }}>
+                <input title="קישור תצוגה" className="h-11 flex-1 rounded-lg border-2 border-gray-200 px-4 text-base" style={{ direction: "ltr", background: "#10B9810A" }} placeholder="https://..." value={localViewLink} onChange={(e) => handleLocalChange("viewLink", e.target.value, setLocalViewLink)} onBlur={() => handleBlurSave("viewLink", localViewLink)} />
+                {localViewLink && (
+                  <button onClick={() => openExternalLink(localViewLink)} title="פתח קישור תצוגה" className="h-11 px-4 rounded-lg text-white text-sm font-bold flex items-center hover:opacity-90 transition-opacity" style={{ background: "#10B981" }}>
                     תצוגה ↗
                   </button>
                 )}
@@ -179,16 +210,16 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           )}
           <div>
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>שם</div>
-            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם..." value={project.poeticName} onChange={(e) => update({ poeticName: e.target.value })} />
+            <input title="שם" className="h-11 w-full rounded-lg border-2 border-gray-200 px-4 text-lg font-bold italic text-center" style={{ direction: "rtl", background: config.color + "0A" }} placeholder="שם..." value={localPoeticName} onChange={(e) => handleLocalChange("poeticName", e.target.value, setLocalPoeticName)} onBlur={() => handleBlurSave("poeticName", localPoeticName)} />
           </div>
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>הייקו</div>
-            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
+            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו..." value={localPoem} onChange={(e) => handleLocalChange("poem", e.target.value, setLocalPoem)} onBlur={() => handleBlurSave("poem", localPoem)} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
           <div className="text-lg font-extrabold mb-2" style={{ color: config.color }}>פוסט</div>
-          <textarea title="פוסט" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-5 text-base font-medium resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 420, background: "#FAFAF8" }} placeholder="כתוב פוסט, תיאור, הערות..." value={project.description} onChange={(e) => update({ description: e.target.value })} />
+          <textarea title="פוסט" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-5 text-base font-medium resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 420, background: "#FAFAF8" }} placeholder="כתוב פוסט, תיאור, הערות..." value={localDescription} onChange={(e) => handleLocalChange("description", e.target.value, setLocalDescription)} onBlur={() => handleBlurSave("description", localDescription)} />
         </div>
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col">
           <div className="text-sm font-bold mb-2" style={{ color: config.color }}>תמונה</div>
@@ -208,7 +239,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
         <div className="bg-white rounded-xl shadow-sm p-5 flex flex-col gap-4">
           <div>
             <div className="text-lg font-bold mb-2" style={{ color: config.color }}>מטרה</div>
-            <textarea title="מטרה" className="w-full rounded-xl border border-border p-4 text-lg font-semibold resize-none leading-relaxed bg-muted/30" style={{ direction: "rtl", minHeight: 140 }} placeholder="מטרה..." value={project.note} onChange={(e) => update({ note: e.target.value })} />
+            <textarea title="מטרה" className="w-full rounded-xl border border-border p-4 text-lg font-semibold resize-none leading-relaxed bg-muted/30" style={{ direction: "rtl", minHeight: 140 }} placeholder="מטרה..." value={localNote} onChange={(e) => handleLocalChange("note", e.target.value, setLocalNote)} onBlur={() => handleBlurSave("note", localNote)} />
           </div>
           <div className="pt-3 border-t border-border/30">
             <div className="text-base font-bold mb-2" style={{ color: config.color }}>היסטוריה</div>
