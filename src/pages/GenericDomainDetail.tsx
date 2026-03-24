@@ -214,7 +214,7 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
           </div>
           <div className="flex-1 flex flex-col">
             <div className="text-sm font-bold mb-1" style={{ color: config.color }}>הייקו</div>
-            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו..." value={project.poem} onChange={(e) => update({ poem: e.target.value })} />
+            <textarea title="הייקו" className="flex-1 w-full rounded-xl border-2 border-gray-200 p-4 text-3xl font-black italic text-center resize-none leading-relaxed" style={{ direction: "rtl", minHeight: 180, background: config.color + "08" }} placeholder="הייקו..." value={localPoem} onChange={(e) => handleLocalChange("poem", e.target.value, setLocalPoem)} onBlur={() => handleBlurSave("poem", localPoem)} />
           </div>
         </div>
         <div className="bg-white rounded-xl shadow-sm p-6 flex flex-col">
