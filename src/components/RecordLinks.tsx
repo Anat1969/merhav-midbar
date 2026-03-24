@@ -24,28 +24,38 @@ function generateId() {
 // - Multiple links per record
 export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = false, onUpdate }) => {
   const [localLinks, setLocalLinks] = useState<LinkEntry[]>(links);
+  const isDirtyRef = React.useRef(false);
 
-  // Sync parent → local when links prop changes
+  // Sync parent → local only when not actively editing
   React.useEffect(() => {
-    setLocalLinks(links);
+    if (!isDirtyRef.current) {
+      setLocalLinks(links);
+    }
   }, [links]);
 
-  const update = useCallback((updated: LinkEntry[]) => {
-    setLocalLinks(updated);
-    onUpdate(updated); // auto-save
-  }, [onUpdate]);
+  const flush = useCallback(() => {
+    if (isDirtyRef.current) {
+      isDirtyRef.current = false;
+      onUpdate(localLinks);
+    }
+  }, [localLinks, onUpdate]);
 
   const addLink = () => {
-    update([...localLinks, { id: generateId(), url: "", label: "" }]);
+    const updated = [...localLinks, { id: generateId(), url: "", label: "" }];
+    setLocalLinks(updated);
+    onUpdate(updated);
   };
 
   const removeLink = (id: string) => {
-    update(localLinks.filter((l) => l.id !== id));
+    const updated = localLinks.filter((l) => l.id !== id);
+    setLocalLinks(updated);
+    isDirtyRef.current = false;
+    onUpdate(updated);
   };
 
   const changeField = (id: string, field: "url" | "label", value: string) => {
-    const updated = localLinks.map((l) => l.id === id ? { ...l, [field]: value } : l);
-    update(updated);
+    isDirtyRef.current = true;
+    setLocalLinks((prev) => prev.map((l) => l.id === id ? { ...l, [field]: value } : l));
   };
 
   const hasLinks = localLinks.length > 0 && localLinks.some((l) => l.url.trim());
@@ -82,6 +92,7 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
                   placeholder="https://..."
                   value={link.url}
                   onChange={(e) => changeField(link.id, "url", e.target.value)}
+                  onBlur={flush}
                 />
                 <input
                   type="text"
@@ -90,6 +101,7 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
                   placeholder="תיאור..."
                   value={link.label}
                   onChange={(e) => changeField(link.id, "label", e.target.value)}
+                  onBlur={flush}
                 />
                 {link.url.trim() && (
                   <button
