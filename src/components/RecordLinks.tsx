@@ -5,6 +5,7 @@ import { openExternalLink } from "@/lib/fileAccess";
 export interface LinkEntry {
   id: string;
   url: string;
+  viewUrl?: string;
   label: string;
 }
 
