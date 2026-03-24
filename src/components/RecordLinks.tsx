@@ -92,6 +92,7 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
                   placeholder="https://..."
                   value={link.url}
                   onChange={(e) => changeField(link.id, "url", e.target.value)}
+                  onBlur={flush}
                 />
                 <input
                   type="text"
@@ -100,6 +101,7 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
                   placeholder="תיאור..."
                   value={link.label}
                   onChange={(e) => changeField(link.id, "label", e.target.value)}
+                  onBlur={flush}
                 />
                 {link.url.trim() && (
                   <button
