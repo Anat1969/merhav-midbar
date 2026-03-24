@@ -54,7 +54,7 @@ export const RecordLinks: React.FC<RecordLinksProps> = ({ links, isWorkMode = fa
     onUpdate(updated);
   };
 
-  const changeField = (id: string, field: "url" | "label", value: string) => {
+  const changeField = (id: string, field: "url" | "viewUrl" | "label", value: string) => {
     isDirtyRef.current = true;
     setLocalLinks((prev) => prev.map((l) => l.id === id ? { ...l, [field]: value } : l));
   };
