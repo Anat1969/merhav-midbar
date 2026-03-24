@@ -43,6 +43,37 @@ const GenericDomainDetail: React.FC<Props> = ({ config }) => {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
 
+  // Local state buffers for text fields to prevent reset on DB save
+  const [localLink, setLocalLink] = useState(project?.link || "");
+  const [localViewLink, setLocalViewLink] = useState(project?.viewLink || "");
+  const [localPoeticName, setLocalPoeticName] = useState(project?.poeticName || "");
+  const [localPoem, setLocalPoem] = useState(project?.poem || "");
+  const [localDescription, setLocalDescription] = useState(project?.description || "");
+  const [localNote, setLocalNote] = useState(project?.note || "");
+  const dirtyFields = useRef<Set<string>>(new Set());
+
+  // Sync from DB only when not actively editing a field
+  React.useEffect(() => {
+    if (project) {
+      if (!dirtyFields.current.has("link")) setLocalLink(project.link || "");
+      if (!dirtyFields.current.has("viewLink")) setLocalViewLink(project.viewLink || "");
+      if (!dirtyFields.current.has("poeticName")) setLocalPoeticName(project.poeticName || "");
+      if (!dirtyFields.current.has("poem")) setLocalPoem(project.poem || "");
+      if (!dirtyFields.current.has("description")) setLocalDescription(project.description || "");
+      if (!dirtyFields.current.has("note")) setLocalNote(project.note || "");
+    }
+  }, [project]);
+
+  const handleLocalChange = useCallback((field: string, value: string, setter: React.Dispatch<React.SetStateAction<string>>) => {
+    dirtyFields.current.add(field);
+    setter(value);
+  }, []);
+
+  const handleBlurSave = useCallback((field: string, value: string) => {
+    dirtyFields.current.delete(field);
+    update({ [field]: value });
+  }, []);
+
   const update = async (patch: Partial<GenericProject>) => {
     if (!project) return;
     try {
