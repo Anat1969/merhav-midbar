@@ -6,6 +6,7 @@ import { TabaotManager } from "./TabaotManager";
 import { IdeaCardsManager } from "./IdeaCardsManager";
 import { DataMigration } from "./DataMigration";
 import { Menu, X } from "lucide-react";
+import { AIMenu } from "./AIMenu";
 
 // [DESIGN: color system] Header — deep navy #1a3a5c, gradient bottom line
 export const TopNav: React.FC = () => {
@@ -25,7 +26,6 @@ export const TopNav: React.FC = () => {
     { icon: "💡", label: "רעיונות",       action: () => setIdeasOpen(true),              primary: false },
     { icon: "🖨",  label: "הדפס",          action: () => window.print(),                  primary: false },
     { icon: "✉️", label: "שלח מייל",      action: () => setEmailOpen(true),              primary: false },
-    { icon: "☁️", label: "העבר ל-Cloud",  action: () => setMigrateOpen(true),           primary: false },
   ];
 
   return (
@@ -50,6 +50,7 @@ export const TopNav: React.FC = () => {
             </div>
           </div>
 
+          <div className="flex items-center gap-2">
           {/* Left side — nav buttons (desktop) */}
           <div className="hidden md:flex items-center gap-2">
             {navBtns.map((b) => (
@@ -72,6 +73,9 @@ export const TopNav: React.FC = () => {
           >
             {menuOpen ? <X size={18} /> : <Menu size={18} />}
           </button>
+
+          <AIMenu items={[{ label: "העברת נתונים ל-Cloud", onSelect: () => setMigrateOpen(true) }]} />
+          </div>
         </div>
 
         {/* [DESIGN: color system] 3px gradient bottom line */}
